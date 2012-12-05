@@ -92,6 +92,39 @@ public class Line extends CircuitElement  {
 		updateConnstate();
 		
 	}
+	@Override
+	public void simulate() {
+		setSimulated(true);
+		setSignal(inSignal.getHigherSignal(signal));
+		spreadSignal(signal, null);
+	}
+	
+	
+	public void spreadSignal(Signal signal, CircuitElement.SIDES from) {
+		if (signal.equals(Signal.OFF))
+			return;
+		if (from != null && this.signal.equals(signal))
+			return;
+		
+		setSignal(this.signal.getHigherSignal(signal));
+		
+		//LogHelper.info("spread: "+this.signal);
+		
+		if ((from == null || from.equals(CircuitElement.SIDES.BOTTOM)) && isConnTop()) {
+			CircuitElement ntop = circuit.getMap().getElementAt(mapX, mapY-1);
+			if (ntop instanceof Line)
+				if (((Line) ntop).isConnBot())
+					((Line) ntop).spreadSignal(this.signal, SIDES.BOTTOM);
+		}
+		if ((from == null || from.equals(CircuitElement.SIDES.TOP)) && isConnBot()) {
+			CircuitElement nbot = circuit.getMap().getElementAt(mapX, mapY+1);
+			if (nbot instanceof Line)
+				if (((Line) nbot).isConnTop())
+					((Line) nbot).spreadSignal(this.signal, SIDES.TOP);
+		}
+		
+	}
+	
 	
 	private void updateConnstate() {
 		LogHelper.info(mapX+" "+mapY+" updateConnstate called()");
@@ -152,13 +185,10 @@ public class Line extends CircuitElement  {
 	}
 
 	public void setCustomFlags(short flags) {
-		//System.out.println("got flags :"+flags);
-		//LogHelper.info("got flags "+flags);
 		setConnTop((flags & FLAG_TOP) == FLAG_TOP);
 		setConnBot((flags & FLAG_BOT) == FLAG_BOT);
 		setConnLeft((flags & FLAG_LEF) == FLAG_LEF);
 		setConnRight((flags & FLAG_RIG) == FLAG_RIG);
-		//LogHelper.info("flags would be now: "+getCustomFlags());
 		setChanged(false);
 	}
 	public short getCustomFlags() {
@@ -167,8 +197,6 @@ public class Line extends CircuitElement  {
 		if (connBot) ret |= FLAG_BOT;
 		if (connLeft) ret |= FLAG_LEF;
 		if (connRight) ret |= FLAG_RIG;
-		
-		//LogHelper.info("Sending flags: "+ret);
 		return ret;
 	}
 	public boolean isConnLeft() {
@@ -216,71 +244,7 @@ public class Line extends CircuitElement  {
 		this.connBot = connBot;
 	}
 	
-	public List<CircuitElement> getConnectedInputs() {
-		return getConnectedInputs(null ,SIDES.RIGHT);
-	}
-	private List<CircuitElement> getConnectedInputs(List<CircuitElement> ins, SIDES side) {
-		if (ins == null)
-			ins = new ArrayList<CircuitElement>();
-		if (side == null)
-			side = SIDES.RIGHT;
-		
-		CircuitElement eTemp= null;
-		Line lTop = null;
-		Line lBot = null;
-		Line lLeft = null;
-		CircuitElement eLeft = null;
-		
-		if (isConnTop()) {
-			eTemp = circuit.getMap().getElementAt(mapX, mapY-1);
-			if (eTemp instanceof Line)
-				lTop  = (Line)eTemp;
-		}
-		if (isConnBot()) {
-			eTemp = circuit.getMap().getElementAt(mapX, mapY+1);
-			if (eTemp instanceof Line)
-				lBot = (Line)eTemp;
-		}
-		eTemp = circuit.getMap().getElementAt(mapX-1, mapY);
-		if (isConnLeft()) {
-			if (eTemp instanceof Line)
-				lLeft = (Line) eTemp;
-		}
-		eLeft = eTemp;
-		
-		if (eLeft != null && !(eLeft instanceof Line) && !(eLeft instanceof Deleted)) {
-			ins.add(eLeft);
-		}
-		
-		if (lTop != null && side != SIDES.TOP) {
-			lTop.getConnectedInputs(ins, SIDES.BOTTOM);
-		}
-		if (lBot != null && side != SIDES.BOTTOM) {
-			lBot.getConnectedInputs(ins, SIDES.TOP);
-		}
-		if (lLeft != null) {
-			lLeft.getConnectedInputs(ins, SIDES.BOTTOM);
-		}
-		return ins;
-	} 
 	
-	@Override
-	public void evaluate() {
-		List<CircuitElement> deps = getConnectedInputs();
-		Signal signal = Signal.OFF;
-		//LogHelper.info("has "+deps.size()+" deps...");
-		for (CircuitElement dep : deps) {
-			if (!dep.isEvaluated())
-				dep.evaluate();
-			signal = signal.getHigherSignal(dep.getSignal());
-			if (signal == Signal.ON) {
-				break;
-			}
-		}
-		this.signal = signal;
-		if (this.signal.equals(Signal.ON))
-			powered = true;
-		else powered = false;
-		//LogHelper.info(powered+"");
-	}	
+	
+	
 }

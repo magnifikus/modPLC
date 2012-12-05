@@ -14,7 +14,7 @@ public class Input extends CircuitElement {
 	
 	public Input(Circuit circuit, int mapX, int mapY) {
 		super(circuit, mapX, mapY, TYPES.INPUT,  ElementFunction.INPUT);
-		setTexture(LogicTextureTile.INPUT);
+		setTexture(LogicTextureTile.OUTPIN);
 		functions.add(ElementFunction.INPUT);
 		functions.add(ElementFunction.OUTPUTREAD);
 		functions.add(ElementFunction.MEMORY);
@@ -22,5 +22,4 @@ public class Input extends CircuitElement {
 		setAllowInvert(true);
 		name = "Logic Input";
 	}
-
 }

@@ -20,6 +20,7 @@ import de.squig.plc.logic.elements.Not;
 import de.squig.plc.logic.elements.Output;
 import de.squig.plc.logic.elements.Pulse;
 import de.squig.plc.logic.elements.Timer;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketControllerData;
 import de.squig.plc.tile.TileController;
 
@@ -91,13 +92,13 @@ public class GuiController extends GuiScreen {
 				CircuitElement element = map.getElementAt(x, y+yOffset);
 				if (element != null) {
 					drawLogicTile(element.getTexture(), x, y,
-							element.getPowered(), null);
+							element.isPowered(), null,(element.getInputPin() != null), element.isInpowered());
 					for (LogicTextureTile tile : element.getTags())
-						drawLogicTile(tile, x, y, element.getPowered(), null);
+						drawLogicTile(tile, x, y, element.isPowered(), null, false,false);
 				}
 			}
 		// print the cursor
-		drawLogicTile(LogicTextureTile.CURSOR, cursorX, cursorY-yOffset, false, null);
+		drawLogicTile(LogicTextureTile.CURSOR, cursorX, cursorY-yOffset, false, null,false,false);
 		
 		// paint the rest background
 		
@@ -111,7 +112,7 @@ public class GuiController extends GuiScreen {
 				CircuitElement element = map.getElementAt(x, y+yOffset);
 				if (element != null && element.getLinkNumber() != null && element.isDisplayLink()) {
 					drawLogicTile(element.getTexture(), x, y,
-							element.isPowered(), element.getLinkNumber());
+							element.isPowered(), element.getLinkNumber(), (element.getInputPin() != null), element.isInpowered());
 				}
 			}
 		this.fontRenderer.drawString("R"+(cursorY+1)+" C"+(cursorX+1), screenX+8, screenY + 8, 0x000000);
@@ -121,7 +122,7 @@ public class GuiController extends GuiScreen {
 	}
 
 	private void drawLogicTile(LogicTextureTile tile, int x, int y, boolean on,
-			String text) {
+			String text, boolean hasInput, boolean inputPowered) {
 		int sx = screenX + 16 * (x + 1);
 		int sy = screenY + 16 * (y + 1);
 
@@ -144,6 +145,15 @@ public class GuiController extends GuiScreen {
 		} else {
 			this.drawTexturedModalRect(sx, sy, tile.xon, tile.yon, 16, 16);
 		}
+		
+		/*if (hasInput) {
+			if (inputPowered) {
+				this.drawTexturedModalRect(sx, sy, LogicTextureTile.INPIN.x, LogicTextureTile.INPIN.y, 16, 16);
+			} else
+				this.drawTexturedModalRect(sx, sy, LogicTextureTile.INPIN.xon, LogicTextureTile.INPIN.yon, 16, 16);
+		}
+		*/
+		
 	}
 	
 	

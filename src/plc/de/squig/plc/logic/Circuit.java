@@ -13,6 +13,7 @@ import de.squig.plc.handlers.ITickNotified;
 import de.squig.plc.handlers.TickHandler;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.CircuitElementNetworkData;
+import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
@@ -30,6 +31,12 @@ public abstract class Circuit implements Serializable, ITickNotified {
 	protected CircuitSimulator simulator;
 	
 	protected boolean gotUpdatedForSimulator = true;
+	
+	protected List<CircuitElement> simulationList = null;
+	protected List<Object> commitList = null;
+	protected boolean evaluated = false;
+	
+	
 
 	public Circuit(TileController controller, int width, int height) {
 		map = new CircuitMap(width, height);
@@ -119,21 +126,6 @@ public abstract class Circuit implements Serializable, ITickNotified {
 	public void saveStateTo(DataOutputStream data) throws IOException {
 
 	}
-
-	public void savePoweredTo(DataOutputStream data) throws IOException {
-		data.writeInt(map.width*map.height);
-		for (int y = 0; y < map.height; y++) {
-			for (int x = 0; x < map.width; x++) {
-				CircuitElement ele = map.getElementAt(x, y); 
-				if (ele != null) {
-					data.writeBoolean(ele.isPowered());
-					
-				}
-				else data.writeBoolean(false);
-			}
-		}
-	}
-
 	public void injectState(CircuitStateNetworkData netState) {
 
 	}
@@ -174,6 +166,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 				}
 			}
 		gotUpdatedForSimulator = true;
+		evaluated = false;
 
 	}
 
@@ -182,18 +175,41 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	}
 
+
+	public void savePoweredTo(DataOutputStream data) throws IOException {
+		String injmap = "";
+		data.writeInt(map.width*map.height);
+		for (int y = 0; y < map.height; y++) {
+			for (int x = 0; x < map.width; x++) {
+				CircuitElement ele = map.getElementAt(x, y); 
+				if (ele != null && !(ele instanceof Deleted)) {
+					data.writeBoolean(ele.isPowered());
+					//data.writeBoolean(ele.isInpowered());
+					injmap += ""+ele.isPowered();
+				}
+				else {
+					data.writeBoolean(false);
+					//data.writeBoolean(false);
+				}
+			}
+		}
+		//LogHelper.info(injmap);
+	}
+
 	public void injectPowered(PoweredMapNetworkData netPowered) {
 		int i = 0;
+		String injmap = "";
 		for (int y = 0; y < map.height; y++)
-			for (int x = 0; x < map.height; x++) {
+			for (int x = 0; x < map.width; x++) {
 				CircuitElement ele = map.getElementAt(x, y); 
-				if (ele != null) {
+				if (ele != null && !(ele instanceof Deleted)) {
 					ele.setPowered(netPowered.getMap().get(i));
-					//LogHelper.info(""+netPowered.getMap().get(i));
+					//ele.setInpowered(netPowered.getMap().get(i+1));
+					injmap += ""+ele.isPowered();
 				}
-				i++;
+				i += 1;
 			}
-		
+		//LogHelper.info(injmap);
 	}
 
 	public static List<CircuitElementNetworkData> loadElementsFrom(
@@ -235,6 +251,30 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		if (controller != null)
 			// if (controller.getState() == TileController.STATE_RUN)
 			simulator.onTick(tick);
+	}
+
+	public List<CircuitElement> getSimulationList() {
+		return simulationList;
+	}
+
+	public void setSimulationList(List<CircuitElement> simulationList) {
+		this.simulationList = simulationList;
+	}
+
+	public boolean isEvaluated() {
+		return evaluated;
+	}
+
+	public void setEvaluated(boolean evaluated) {
+		this.evaluated = evaluated;
+	}
+
+	public List<Object> getCommitList() {
+		return commitList;
+	}
+
+	public void setCommitList(List<Object> commitList) {
+		this.commitList = commitList;
 	}
 
 	

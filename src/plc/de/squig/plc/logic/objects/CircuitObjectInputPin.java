@@ -20,12 +20,14 @@ public class CircuitObjectInputPin {
 		this.listener = listener;
 	}
 	
+	public void commit() {
+		if (listener != null)
+			listener.onSignal(this, this.signal);
+	}
+	
 	
 	public void onSignal(Signal signal) {
 		this.signal = signal;
-		if (listener != null)
-			listener.onSignal(this, this.signal);
-		
 	}
 	
 	public Signal getSignal() {

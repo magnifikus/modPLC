@@ -4,13 +4,18 @@ public class LogicTextureTile {
 	private final static int ONOffset = 4;
 	
 	public final static LogicTextureTile OUTPUT = new LogicTextureTile(0,4,ONOffset);
-	public final static LogicTextureTile INPUT = new LogicTextureTile(1,4,ONOffset);
+	//public final static LogicTextureTile INPUT = new LogicTextureTile(1,4,ONOffset);
 	
 	public final static LogicTextureTile LINELEFT = new LogicTextureTile(3,3,ONOffset);
 	public final static LogicTextureTile LINERIGHT = new LogicTextureTile(4,3,ONOffset);
 	public final static LogicTextureTile LINETOP = new LogicTextureTile(2,3,ONOffset);
 	public final static LogicTextureTile LINEBOTTOM = new LogicTextureTile(1,3,ONOffset);
 	public final static LogicTextureTile LINE = new LogicTextureTile(0,3,ONOffset);
+	
+	public final static LogicTextureTile INPIN = new LogicTextureTile(1,4,ONOffset);
+	public final static LogicTextureTile OUTPIN = new LogicTextureTile(2,4,ONOffset);
+	
+	
 	
 	
 	public final static LogicTextureTile TAG_INPUT = new LogicTextureTile(0,11);

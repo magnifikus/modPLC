@@ -32,7 +32,7 @@ public class CircuitElement implements Serializable {
 	}
 
 	protected boolean evaluated = false;
-	
+	protected boolean simulated = false;
 
 	protected TYPES type = null;
 
@@ -49,7 +49,11 @@ public class CircuitElement implements Serializable {
 	protected boolean displayLink = false;
 
 	protected boolean powered = false;
+	protected boolean inpowered = false;
+	
+	
 	protected Signal signal = Signal.OFF;
+	protected Signal inSignal = Signal.OFF;
 	
 	protected boolean isChanged = true;
 	
@@ -63,6 +67,9 @@ public class CircuitElement implements Serializable {
 	protected CircuitObjectInputPin inputPin = null;
 	protected CircuitObjectOutputPin outputPin = null;
 
+	
+	protected CircuitElement elementLeft = null;
+	
 	protected boolean inverted = false;
 	protected boolean allowInvert = false;
 
@@ -268,7 +275,7 @@ public class CircuitElement implements Serializable {
 		this.linkNumber = displayNumber;
 	}
 
-	public boolean isPowered() {
+	public boolean isPowered() {	
 		return powered;
 	}
 
@@ -281,6 +288,7 @@ public class CircuitElement implements Serializable {
 	}
 
 	public void setPowered(boolean powered) {
+		
 		this.powered = powered;
 	}
 
@@ -452,19 +460,27 @@ public class CircuitElement implements Serializable {
 	}
 	
 	public Signal getSignal() {
-		if (!isEvaluated())
-			evaluate();
+		//if (!isEvaluated())
+		//	evaluate();
 		return signal;	
 	}
 	
 	public void setSignal (Signal signal) {
 		this.signal = signal;
+		if (signal.equals(Signal.ON)) {
+			powered = true;
+			
+		}
+
 	}
 	
 	
 
 	
 	public void evaluate() {
+		LogHelper.info("dep called");
+		if (true)
+			return;
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (side.equals(Side.CLIENT))
 			LogHelper.info("eval on client!?!?");
@@ -515,6 +531,55 @@ public class CircuitElement implements Serializable {
 	}
 	protected Signal manipulateSignal(Signal signal, Signal oldsignal) {
 		return signal;
+	}
+
+	public CircuitElement getElementLeft() {
+		return elementLeft;
+	}
+
+	public void setElementLeft(CircuitElement elementLeft) {
+		this.elementLeft = elementLeft;
+	}
+
+	public boolean isSimulated() {
+		return simulated;
+	}
+
+	public void setSimulated(boolean simulated) {
+		this.simulated = simulated;
+		if (simulated == false) {
+			powered = false;
+			inpowered = false;
+			inSignal = Signal.OFF;
+			signal = Signal.OFF;
+		}
+	}
+
+	public boolean isInpowered() {
+		return inpowered;
+	}
+
+	public void setInpowered(boolean inpowered) {
+		this.inpowered = inpowered;
+	}
+
+	public Signal getInSignal() {
+		return inSignal;
+	}
+
+	public void setInSignal(Signal inSignal) {
+		this.inSignal = inSignal;
+		if (inSignal.equals(Signal.ON))
+			inpowered = true;
+	}
+
+	public void simulate() {
+		if (getOutputPin() != null) {
+			setSignal(inSignal.getLowerSignal(getOutputPin().getSignal()));
+		} else setSignal(inSignal);
+		if (getInputPin() != null) {
+			getInputPin().onSignal(getSignal());
+		}
 	}
 	
 }

@@ -9,8 +9,10 @@ import javax.script.ScriptEngineManager;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.CircuitElement;
+import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.helper.LogHelper;
+import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.network.PacketControllerData;
 
 public class CircuitSimulator {
@@ -25,48 +27,72 @@ public class CircuitSimulator {
 	public synchronized void onTick(long tick) {
 		if (nextTick > tick)
 			return;
-		nextTick = tick + 5;
+		nextTick = tick + 10;
 	
-		for (CircuitElement element : circuit.getMap().getAllElement())
-			element.resetEvaluated();
-
-		for (int y = 0; y < circuit.getMap().getHeight(); y++) {
-			for (int x = 0; x < circuit.getMap().getWidth(); x++) {
+		if (!circuit.isEvaluated())
+			evaluateCircuit();
+		simulateCircuit();
+		PacketControllerData.updateArroundWithPowermap(circuit.getController(), 8);
+		
+	}
+	
+	
+	private void evaluateCircuit () {
+		List<CircuitElement> simObjects = new ArrayList<CircuitElement>();
+		List<Object> comObjects = new ArrayList<Object>();
+		for (int x=0; x < circuit.getMap().getWidth(); x++)
+			for (int y=0; y < circuit.getMap().getHeight(); y++) {
 				CircuitElement ele = circuit.getMap().getElementAt(x, y);
-				if (ele != null) {
-					if (ele.getInputPin() != null) {
-						
-						List<CircuitElement> deps = null;
-						CircuitElement eleIn = circuit.getMap().getElementAt(
-								x - 1, y);
-						if (eleIn instanceof Line) {
-							deps = ((Line) eleIn)
-									.getConnectedInputs();
-						} else {
-							if (eleIn != null) {
-								deps = new ArrayList<CircuitElement>();
-								deps.add(eleIn);
-							} else
-								deps = null;
-						}
-						Signal signal = null;
-						if (deps != null) {
-							for (CircuitElement dep : deps) {
-								signal = dep.getSignal();
-								if (signal == Signal.ON)
-									break;
-							}
-						}
-						if (signal != null)
-							ele.getInputPin().onSignal(signal);
-						ele.evaluate();
-						//LogHelper.info("result on "+signal.toString()+" on "+ele.toString());
-						
-					}
+				if (ele != null && !(ele instanceof Deleted)) {
+					simObjects.add(ele);
+					if (ele.getInputPin() != null)
+						comObjects.add(ele.getInputPin());
 				}
 			}
-
-		}
-		PacketControllerData.updateArroundWithPowermap(circuit.getController(), 8);
+		circuit.setSimulationList(simObjects);
+		circuit.setCommitList(comObjects);
+		circuit.setEvaluated(true);
 	}
+	private void simulateCircuit () {
+		for (CircuitElement ele : circuit.getSimulationList()) {
+			ele.setSimulated(false);
+		}
+		
+		for (CircuitElement ele : circuit.getSimulationList()) {
+			// lets check for left Signal
+			CircuitElement eleLeft = circuit.getMap().getElementAt(ele.getMapX()-1, ele.getMapY());
+			if (eleLeft != null) {
+				if (eleLeft instanceof Line) {
+					if (((Line) eleLeft).isConnRight()) {
+						if (ele instanceof Line) {
+							if (((Line) ele).isConnLeft()) {
+								 ele.setInSignal(eleLeft.getSignal());
+							}
+						} else {
+							ele.setInSignal(eleLeft.getSignal());
+							
+						}
+						
+					} 
+				} else {
+					
+					ele.setInSignal(eleLeft.getSignal());
+				}
+			} else {
+				if (!(ele instanceof Line)) {
+					if (ele.getInputPin() == null)
+						ele.setInSignal(Signal.ON);
+				}
+			} 
+			if (!ele.isSimulated())
+				ele.simulate();
+			
+		}
+		for (Object com : circuit.getCommitList()) {
+			if (com instanceof CircuitObjectInputPin)
+				((CircuitObjectInputPin) com).commit();
+		}
+		
+	}
+	
 }
