@@ -486,23 +486,26 @@ public class CircuitElement implements Serializable {
 			if (mySignal.equals(Signal.ON))
 				powered = true;
 			else powered = false;
+			
 			poweredSet = true;
 			
 		}
 
 		Signal outSignal = mySignal.getLowerSignal(signalFromLeft);
 		
-		outSignal = manipulateSignal(outSignal);
-		outSignal = manipulateSignal(outSignal, this.signal);
-		
-		this.signal = outSignal;
-		
-		
+
 		if (!poweredSet) {
 			if (outSignal.equals(Signal.ON))
 				powered = true;
 			else powered = false;
 		}
+		
+		outSignal = manipulateSignal(outSignal);
+		outSignal = manipulateSignal(outSignal, this.signal);
+		
+		this.signal = outSignal;
+		
+
 		
 		setEvaluated(true);
 		

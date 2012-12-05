@@ -74,19 +74,31 @@ public class ExtenderBasic extends BlockContainer {
 		if (tile != null) {
 			tile.checkRedstonePower();
 		}
+		
 	}
 
 	/**
 	 * Is this block powering the block on the specified side
 	 */
-	public boolean isPoweringTo(IBlockAccess par1IBlockAccess, int par2,
-			int par3, int par4, int par5) {
-		return isIndirectlyPoweringTo(par1IBlockAccess, par2, par3, par4, par5);
+	@Override
+	public boolean isProvidingStrongPower(IBlockAccess par1IBlockAccess, int par2,int par3,int par4,int par5) {
+		return isIndirectlyPoweringTo(par1IBlockAccess,par2,par3,par4,par5);
+	}
+	@Override
+	public boolean isProvidingWeakPower(IBlockAccess par1IBlockAccess, int par2,int par3,int par4,int par5) {
+		return isIndirectlyPoweringTo(par1IBlockAccess,par2,par3,par4,par5);
+		
+	}
+	
+	@Override
+	public boolean canBeReplacedByLeaves(World world, int x, int y, int z) {
+		return true;
 	}
 
 	/**
 	 * Is this block indirectly powering the block on the specified side
 	 */
+	
 	public boolean isIndirectlyPoweringTo(IBlockAccess iblock, int x, int y, int z, int dir)
 	    {
 	    	TileEntity tile = iblock.getBlockTileEntity(x, y, z);
