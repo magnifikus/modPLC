@@ -462,7 +462,9 @@ public class CircuitElement implements Serializable {
 	public Signal getSignal() {
 		//if (!isEvaluated())
 		//	evaluate();
-		return signal;	
+		if (inverted)
+			return signal.invert();
+		else return signal;	
 	}
 	
 	public void setSignal (Signal signal) {
@@ -476,56 +478,6 @@ public class CircuitElement implements Serializable {
 	
 	
 
-	
-	public void evaluate() {
-		LogHelper.info("dep called");
-		if (true)
-			return;
-		Side side = FMLCommonHandler.instance().getEffectiveSide();
-		if (side.equals(Side.CLIENT))
-			LogHelper.info("eval on client!?!?");
-		CircuitElement ele = circuit.getMap().getElementAt(mapX-1, mapY);
-		Signal signalFromLeft = Signal.ON;
-		Signal mySignal = Signal.ON;
-		
-		boolean poweredSet = false;
-		
-		if (ele != null)
-			signalFromLeft = ele.getSignal();
-		
-		if (getOutputPin() != null) { 
-			
-			mySignal = getOutputPin().getSignal();
-			//LogHelper.info(this+"my out signal is:"+mySignal);
-			if (isInverted())
-				mySignal = mySignal.invert();
-			if (mySignal.equals(Signal.ON))
-				powered = true;
-			else powered = false;
-			
-			poweredSet = true;
-			
-		}
-
-		Signal outSignal = mySignal.getLowerSignal(signalFromLeft);
-		
-
-		if (!poweredSet) {
-			if (outSignal.equals(Signal.ON))
-				powered = true;
-			else powered = false;
-		}
-		
-		outSignal = manipulateSignal(outSignal);
-		outSignal = manipulateSignal(outSignal, this.signal);
-		
-		this.signal = outSignal;
-		
-
-		
-		setEvaluated(true);
-		
-	}
 	protected Signal manipulateSignal(Signal signal) {
 		return signal;
 	}

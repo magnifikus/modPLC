@@ -45,7 +45,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (side == Side.SERVER) {
-			TickHandler.getInstance().addListener(this);
+			//TickHandler.getInstance().addListener(this);
 			simulator = new CircuitSimulator(this);
 		}
 	}
@@ -210,6 +210,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 				i += 1;
 			}
 		//LogHelper.info(injmap);
+		
 	}
 
 	public static List<CircuitElementNetworkData> loadElementsFrom(
@@ -275,6 +276,10 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public void setCommitList(List<Object> commitList) {
 		this.commitList = commitList;
+	}
+
+	public CircuitSimulator getSimulator() {
+		return simulator;
 	}
 
 	

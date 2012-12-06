@@ -24,8 +24,8 @@ public class RedstoneFunction extends ExtenderFunction {
 			add(new ExtenderTrigger("inverted input", false, 1, ExtenderChannel.TYPES.INPUT));
 			add(new ExtenderTrigger("pulse on raising", false, 2, ExtenderChannel.TYPES.INPUT));
 			add(new ExtenderTrigger("pulse on falling", false, 3, ExtenderChannel.TYPES.INPUT));
-			add(new ExtenderTrigger("pulse on change", false, 4, ExtenderChannel.TYPES.INPUT));
-			add(new ExtenderTrigger("stable input", false, 5, ExtenderChannel.TYPES.INPUT));
+			//add(new ExtenderTrigger("pulse on change", false, 4, ExtenderChannel.TYPES.INPUT));
+			//add(new ExtenderTrigger("stable input", false, 5, ExtenderChannel.TYPES.INPUT));
 			
 		
 			
@@ -51,6 +51,7 @@ public class RedstoneFunction extends ExtenderFunction {
 	@Override
 	public void onCreate(ExtenderChannel channel) {
 		channel.setTrigger(defaultTrigger);
+		channel.setFunctionLocalData(Signal.OFF);
 		if (channel.getType().equals(ExtenderChannel.TYPES.INPUT))
 			channel.getExtender().addRedstoneListener(channel);
 	}
@@ -62,28 +63,38 @@ public class RedstoneFunction extends ExtenderFunction {
 		//LogHelper.info("on change");
 		if (channel.getType() == ExtenderChannel.TYPES.INPUT) {
 			Signal tosend = null;
-				switch (channel.getTrigger().getTriggerId()) {
+			boolean lastpowered = false;
+			if (channel.getFunctionLocalData() instanceof Signal)
+				lastpowered = ((Signal)channel.getFunctionLocalData()).equals(Signal.ON);
+			
+			
+			switch (channel.getTrigger().getTriggerId()) {
 				case 0: // direct
 					if (isRedstonePowered)
 						tosend = Signal.ON;
 					else tosend = Signal.OFF;
 					break;
-				case 1: // direct
+				case 1: // invert
 					if (isRedstonePowered)
 						tosend = Signal.OFF;
 					else tosend = Signal.ON;
 					break;
 						
 				case 2: // flank positive
-					if (isRedstonePowered)
+					if (!lastpowered && isRedstonePowered)
 						tosend = Signal.PULSE;
+					else tosend = Signal.OFF;
 					break;
 				case 3: // flank negative
-					if (!isRedstonePowered)
+					if (lastpowered && !isRedstonePowered)
 						tosend = Signal.PULSE;
+					else tosend = Signal.OFF;
 					break;
 				case 4:	// change
-					tosend = Signal.PULSE;
+					LogHelper.info(lastpowered+" "+isRedstonePowered);
+					if (lastpowered != isRedstonePowered)
+						tosend = Signal.PULSE;
+					
 					break;
 				case 5:
 					// todo
@@ -95,7 +106,12 @@ public class RedstoneFunction extends ExtenderFunction {
 									+ channel.getTrigger().getTriggerId());
 					break;
 				}
+			if (isRedstonePowered)
+				channel.setFunctionLocalData(Signal.ON);
+			else channel.setFunctionLocalData(Signal.OFF);
+			
 			if (tosend != null) {	
+				LogHelper.info("sending "+tosend);
 				SignalEvent event = new SignalEvent(channel.getExtender()
 						,channel.getExtender().getConnectedController(), 
 						tosend, channel.getNumber());
@@ -106,8 +122,18 @@ public class RedstoneFunction extends ExtenderFunction {
 
 	public void onSignal(ExtenderChannel channel, Signal signal) {
 		if (channel.getType() == ExtenderChannel.TYPES.OUTPUT) {
-			TileExtender ext = channel.getExtender();
-			channel.setSidePowered(signal);
+			
+			Signal lastSignal = Signal.OFF;
+			if (channel.getFunctionLocalData() instanceof Signal)
+				lastSignal = (Signal)channel.getFunctionLocalData();
+			
+			if (!lastSignal.equals(signal)) {
+				channel.setSidePowered(signal);
+				lastSignal = signal;
+			}
+			channel.setFunctionLocalData(lastSignal);
+			
+			
 		}
 	}
 

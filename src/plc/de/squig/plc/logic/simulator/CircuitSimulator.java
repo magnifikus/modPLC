@@ -27,7 +27,7 @@ public class CircuitSimulator {
 	public synchronized void onTick(long tick) {
 		if (nextTick > tick)
 			return;
-		nextTick = tick + 10;
+		nextTick = tick + 1;
 	
 		if (!circuit.isEvaluated())
 			evaluateCircuit();

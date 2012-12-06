@@ -22,6 +22,7 @@ import de.squig.plc.logic.CircuitStateNetworkData;
 import de.squig.plc.logic.PoweredMapNetworkData;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.CircuitElementNetworkData;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.CircuitObjectNetworkData;
 import de.squig.plc.tile.TileController;
@@ -100,6 +101,7 @@ public class PacketControllerData extends PLCPacket {
 		data.writeBoolean(dataPowered);
 		if (dataPowered) {
 			circuit.savePoweredTo(data);
+				
 		}
 		data.writeBoolean(false);
 	}
@@ -153,9 +155,9 @@ public class PacketControllerData extends PLCPacket {
 					circ.injectElements(inElements, dataElementsAll);
 				if (dataObjects)
 					circ.injectObjects(inObjects, dataElementsAll);
-				if (dataPowered)
+				if (dataPowered) {
 					circ.injectPowered(inPowered);
-				
+				}
 				if (side == Side.SERVER) {
 					PacketControllerData.updateArround(tileController,8);
 				}
@@ -263,6 +265,7 @@ public class PacketControllerData extends PLCPacket {
 		pkg.setDataPowered(true);
 		pkg.setCoords(tile.xCoord, tile.yCoord, tile.zCoord);
 		Packet packet = PacketTypeHandler.populatePacket(pkg);
+		
 		PacketDispatcher.sendPacketToAllAround(tile.xCoord, tile.yCoord, tile.zCoord, i,tile.getWorldObj().getWorldInfo().getDimension() , packet);	
 	}
 	

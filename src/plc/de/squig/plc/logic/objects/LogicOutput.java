@@ -10,6 +10,7 @@ import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.ISignalListener;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
+import de.squig.plc.logic.helper.LogHelper;
 
 public class LogicOutput extends CircuitObject implements ICircuitObjectInputPinListener {
 	protected CircuitObjectOutputPin out = new CircuitObjectOutputPin(this, "Output");
@@ -50,9 +51,9 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 			return out;
 		return null;
 	}
-		
 	
 	public void updateRemotes(Signal signal) {
+		//LogHelper.info("got signal: "+signal);
 		SignalEvent event = new SignalEvent(getCircuit().getController(),PLCEvent.TARGETTYPE.EXTENDER,
 				signal,this.getLinkNumberInt(), circuit.getController().getRange());
 		PLC.instance.fireEvent(event);

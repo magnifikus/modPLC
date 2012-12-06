@@ -29,6 +29,8 @@ public class ExtenderChannel {
 	
 	private String functionData = "";
 	private String triggerData = "";
+	private Object functionLocalData = "";
+	private Object triggerLocalData = "";
 	
 	
 	
@@ -202,5 +204,46 @@ public class ExtenderChannel {
 	public void setTrigger(ExtenderTrigger trigger) {
 		this.trigger = trigger;
 	}
+
+
+	public String getFunctionData() {
+		return functionData;
+	}
+
+
+	public void setFunctionData(String functionData) {
+		this.functionData = functionData;
+	}
+
+
+	public String getTriggerData() {
+		return triggerData;
+	}
+
+
+	public void setTriggerData(String triggerData) {
+		this.triggerData = triggerData;
+	}
+
+
+	public Object getFunctionLocalData() {
+		return functionLocalData;
+	}
+
+
+	public void setFunctionLocalData(Object functionLocalData) {
+		this.functionLocalData = functionLocalData;
+	}
+
+
+	public Object getTriggerLocalData() {
+		return triggerLocalData;
+	}
+
+
+	public void setTriggerLocalData(Object triggerLocalData) {
+		this.triggerLocalData = triggerLocalData;
+	}
+	
 
 }

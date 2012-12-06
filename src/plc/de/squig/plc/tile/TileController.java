@@ -1,5 +1,11 @@
 package de.squig.plc.tile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +23,8 @@ import de.squig.plc.event.SearchResponseEvent;
 import de.squig.plc.event.SignalEvent;
 import de.squig.plc.logic.BasicCircuit;
 import de.squig.plc.logic.Circuit;
+import de.squig.plc.logic.elements.CircuitElementNetworkData;
+import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.LogicInput;
@@ -45,6 +53,13 @@ public class TileController extends TilePLC implements IInventory {
 		machineState = TileController.STATE_EDIT;
 		circuit = new BasicCircuit(this);
 		
+	}
+	
+	@Override
+	public void updateEntity() {
+		super.updateEntity();
+		if (circuit != null && circuit.getSimulator() != null)
+			circuit.getSimulator().onTick(worldObj.getWorldTime());
 	}
 	
 	@Override
@@ -111,26 +126,34 @@ public class TileController extends TilePLC implements IInventory {
 		super.readFromNBT(nbtTagCompound);
 		LogHelper.info("readFromNBT called");
 
-		
-		
-		
-		/*
-		// Read in the ItemStacks in the inventory from NBT
-		NBTTagList tagList = nbtTagCompound.getTagList("Items");
-        this.calcinatorItemStacks = new ItemStack[this.getSizeInventory()];
-        for (int i = 0; i < tagList.tagCount(); ++i) {
-            NBTTagCompound tagCompound = (NBTTagCompound)tagList.tagAt(i);
-            byte slot = tagCompound.getByte("Slot");
-            if (slot >= 0 && slot < this.calcinatorItemStacks.length) {
-                this.calcinatorItemStacks[slot] = ItemStack.loadItemStackFromNBT(tagCompound);
-            }
-        }
-*/
+		try {
+			InputStream is = new ByteArrayInputStream(
+					nbtTagCompound.getByteArray("elements"));
+			DataInputStream dis = new DataInputStream(is);
+			List<CircuitElementNetworkData> nd = circuit.loadElementsFrom(dis, true);
+			circuit.injectElements(nd, true);
+		} catch (IOException ex) {
+			LogHelper.error("exception durring reading elements data!");
+		}
 	}
 
 	public void writeToNBT(NBTTagCompound nbtTagCompound) {
 		super.writeToNBT(nbtTagCompound);
 		LogHelper.info("writeToNBT called");
+		
+		try {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream w = new DataOutputStream(baos);
+			circuit.saveElementsTo(w, true);
+			w.flush();
+			byte[] result = baos.toByteArray();
+			nbtTagCompound.setByteArray("elements", result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
 		// Write the ItemStacks in the inventory to NBT
 		/*NBTTagList tagList = new NBTTagList();
         for (int currentIndex = 0; currentIndex < this.calcinatorItemStacks.length; ++currentIndex) {

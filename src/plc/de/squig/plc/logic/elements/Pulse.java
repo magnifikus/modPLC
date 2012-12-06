@@ -4,6 +4,7 @@ import de.squig.plc.client.gui.tiles.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
+import de.squig.plc.logic.helper.LogHelper;
 
 public class Pulse extends CircuitElement {
 	
@@ -14,41 +15,29 @@ public class Pulse extends CircuitElement {
 		setTexture(LogicTextureTile.LOGIC_PULSE);
 		name = "Pulse Generator";
 	}
-	protected Signal manipulateSignal(Signal signal) {
-		// my old was on/pulse/nega  ==> off
-		//Signal newRemb = oldSignal;
+
+	@Override
+	public void simulate() {
+		
+		simulated = true;
 		if (oldSignal.equals(Signal.OFF)) {
-			if (signal.equals(Signal.ON)) {
-				oldSignal = signal;
-				return Signal.PULSE;
+		
+			if (inSignal.equals(Signal.ON)) {
+				oldSignal = inSignal;
+				setSignal(Signal.PULSE);
 			}
-			if (signal.equals(Signal.PULSE)) {
+			if (inSignal.equals(Signal.PULSE)) {
 				oldSignal = Signal.OFF;
-				return Signal.PULSE;
+				setSignal(Signal.PULSE);
 			}
-			return Signal.OFF;
-		}
-		if (oldSignal.equals(Signal.ON)) {
-			oldSignal = signal;
-			return Signal.OFF;
-		}
+			//setSignal(Signal.OFF);
+		} else if (oldSignal.equals(Signal.ON)) {
+			setSignal(Signal.OFF);
+		} 
+		if (oldSignal.equals(Signal.ON) && inSignal.equals(Signal.OFF))
+			oldSignal = Signal.OFF;
 		
-		/*
-		Signal newOld = oldSignal;
-		
-		if (signal.equals(Signal.OFF))
-			newOld = signal;
-		
-		if (!oldSignal.equals(Signal.OFF)) {
-			signal = Signal.OFF;
-		} else {
-			if (!signal.equals(Signal.OFF))
-				signal = Signal.PULSE;
-		}
-		
-		oldSignal = newOld;
-		*/
-		return signal;
 	}
+	
 	
 }

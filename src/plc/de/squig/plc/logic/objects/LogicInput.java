@@ -43,6 +43,7 @@ public class LogicInput extends CircuitObject {
 
 	
 	public void onSignal(Signal signal) {
+		
 		out.onSignal(signal);
 	}
 	

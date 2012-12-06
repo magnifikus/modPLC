@@ -14,9 +14,8 @@ public class Output extends CircuitElement {
 		functions.add(ElementFunction.OUTPUT);
 		functions.add(ElementFunction.OUTPUTSET);
 		functions.add(ElementFunction.OUTPUTRESET);
-		functions.add(ElementFunction.OUTPUTREAD);
-		functions.add(ElementFunction.MEMORYSET);
-		functions.add(ElementFunction.MEMORYRESET);
+		//functions.add(ElementFunction.MEMORYSET);
+		//functions.add(ElementFunction.MEMORYRESET);
 		name = "Logic Output";
 		setDisplayLink(true);
 	

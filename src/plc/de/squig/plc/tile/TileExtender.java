@@ -110,7 +110,7 @@ public class TileExtender extends TilePLC implements IInventory {
 		Side sside = FMLCommonHandler.instance().getEffectiveSide();
 		if (sside.equals(Side.SERVER) && dNotify) {
 			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, 501);
-			PacketExtenderLiteData.sendUpdateToClients(this);
+			//PacketExtenderLiteData.sendUpdateToClients(this);
 		}
 
 	}
@@ -159,7 +159,7 @@ public class TileExtender extends TilePLC implements IInventory {
 			if (sside.equals(Side.SERVER)) {
 				worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord,
 						501);
-				PacketExtenderLiteData.sendUpdateToClients(this);
+				//PacketExtenderLiteData.sendUpdateToClients(this);
 			}
 			if (signal.equals(Signal.PULSE)
 					|| signal.equals(Signal.NEGATIVEPULSE))
