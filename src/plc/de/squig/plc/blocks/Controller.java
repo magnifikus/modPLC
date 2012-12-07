@@ -5,10 +5,12 @@ import net.minecraft.src.BlockContainer;
 import net.minecraft.src.CreativeTabs;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.Material;
+import net.minecraft.src.ModLoader;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
+import de.squig.plc.CommonProxy;
 import de.squig.plc.PLC;
 import de.squig.plc.lib.GuiIds;
 import de.squig.plc.logic.helper.LogHelper;
@@ -16,20 +18,48 @@ import de.squig.plc.network.PacketControllerData;
 import de.squig.plc.tile.TileController;
 
 public class Controller extends BlockContainer {
+	
+	
 	public Controller(int id) {
 		super(id, Material.rock);
 		setHardness(4.0F); // 33% harder than diamond
 		setStepSound(Block.soundStoneFootstep);
 		setBlockName("Controller");
 		setCreativeTab(CreativeTabs.tabBlock);
+		
 
 	}
 
 	@Override
 	public String getTextureFile() {
-		return super.getTextureFile();// return CommonProxy.BLOCK_PNG;
+		return CommonProxy.BLOCKS_PNG;
+	}
+	
+
+	@Override
+	public boolean renderAsNormalBlock() {
+		return true;
 	}
 
+
+	@Override
+	public boolean isOpaqueCube() {
+		return false;
+	}
+	@Override
+	public int getBlockTextureFromSide(int i) {
+		switch (i) {
+			case 3:
+				return 16;
+			case 1:
+				return 18;
+			default:
+				return 17;
+		}
+		
+	}
+	
+	
 	@Override
 	public TileEntity createNewTileEntity(World var1) {
 		return new TileController();

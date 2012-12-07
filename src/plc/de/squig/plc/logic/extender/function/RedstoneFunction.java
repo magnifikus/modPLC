@@ -26,9 +26,7 @@ public class RedstoneFunction extends ExtenderFunction {
 			add(new ExtenderTrigger("pulse on falling", false, 3, ExtenderChannel.TYPES.INPUT));
 			//add(new ExtenderTrigger("pulse on change", false, 4, ExtenderChannel.TYPES.INPUT));
 			//add(new ExtenderTrigger("stable input", false, 5, ExtenderChannel.TYPES.INPUT));
-			
-		
-			
+
 		}
 	};
 	public static List<ExtenderChannel.TYPES> myIoTypes = new ArrayList<ExtenderChannel.TYPES>() {
@@ -110,7 +108,8 @@ public class RedstoneFunction extends ExtenderFunction {
 				channel.setFunctionLocalData(Signal.ON);
 			else channel.setFunctionLocalData(Signal.OFF);
 			
-			if (tosend != null) {	
+			if (tosend != null) {
+				channel.setSignal(tosend);
 				LogHelper.info("sending "+tosend);
 				SignalEvent event = new SignalEvent(channel.getExtender()
 						,channel.getExtender().getConnectedController(), 
@@ -122,6 +121,7 @@ public class RedstoneFunction extends ExtenderFunction {
 
 	public void onSignal(ExtenderChannel channel, Signal signal) {
 		if (channel.getType() == ExtenderChannel.TYPES.OUTPUT) {
+			//LogHelper.info("receiving  "+signal);
 			
 			Signal lastSignal = Signal.OFF;
 			if (channel.getFunctionLocalData() instanceof Signal)
@@ -132,7 +132,7 @@ public class RedstoneFunction extends ExtenderFunction {
 				lastSignal = signal;
 			}
 			channel.setFunctionLocalData(lastSignal);
-			
+			channel.setSignal(signal);
 			
 		}
 	}

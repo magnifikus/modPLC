@@ -14,6 +14,7 @@ import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
+import de.squig.plc.CommonProxy;
 import de.squig.plc.PLC;
 import de.squig.plc.lib.GuiIds;
 import de.squig.plc.logic.Signal;
@@ -35,7 +36,27 @@ public class ExtenderBasic extends BlockContainer {
 
 	@Override
 	public String getTextureFile() {
-		return super.getTextureFile();// return CommonProxy.BLOCK_PNG;
+		return CommonProxy.BLOCKS_PNG;
+	}
+	
+
+	@Override
+	public boolean renderAsNormalBlock() {
+		return false;
+	}
+
+	
+	@Override
+	public int getBlockTextureFromSide(int i) {
+		switch (i) {
+			case 3:
+				return 1;
+			case 1:
+				return 2;
+			default:
+				return 2;
+		}
+		
 	}
 
 	@Override
@@ -101,11 +122,15 @@ public class ExtenderBasic extends BlockContainer {
 	
 	public boolean isIndirectlyPoweringTo(IBlockAccess iblock, int x, int y, int z, int dir)
 	    {
+			boolean res;
 	    	TileEntity tile = iblock.getBlockTileEntity(x, y, z);
 	    	if (tile instanceof TileExtender) {
 		    	TileExtender tilee = (TileExtender)tile;
-		    	return tilee.isSidePowered(ForgeDirection.getOrientation(dir).getOpposite());
-	    	} else return false;
+		    	res = tilee.isSidePowered(ForgeDirection.getOrientation(dir).getOpposite());
+	    	} else res = false;
+	    	LogHelper.info("powering called "+res);
+	    	return res;
+	    	
 	    }
 
 	public void notifyRedpowerChange() {
@@ -119,13 +144,5 @@ public class ExtenderBasic extends BlockContainer {
 		return false;
 	}
 
-	@Override
-	public boolean renderAsNormalBlock() {
-		return false;
-	}
-
-	public boolean isACube() {
-		return false;
-	}
 
 }

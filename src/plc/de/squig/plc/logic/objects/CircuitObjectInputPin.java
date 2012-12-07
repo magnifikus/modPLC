@@ -1,6 +1,7 @@
 package de.squig.plc.logic.objects;
 
 import de.squig.plc.logic.Signal;
+import de.squig.plc.logic.helper.LogHelper;
 
 public class CircuitObjectInputPin {
 	protected CircuitObject circuitObject;
@@ -21,8 +22,10 @@ public class CircuitObjectInputPin {
 	}
 	
 	public void commit() {
-		if (listener != null)
+		
+		if (listener != null) {
 			listener.onSignal(this, this.signal);
+		}
 	}
 	
 	

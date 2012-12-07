@@ -29,6 +29,8 @@ import de.squig.plc.event.SignalEvent;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.ExtenderChannelNetworkData;
+import de.squig.plc.logic.extender.function.DisabledFunction;
+import de.squig.plc.logic.extender.function.ExtenderFunction;
 import de.squig.plc.logic.extender.function.RedstoneFunction;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
@@ -46,6 +48,9 @@ public class TileExtender extends TilePLC implements IInventory {
 	private int extenderID = -1;
 
 	private int range = 16;
+	
+	private int inChannels = 0;
+	private int outChannels = 0;
 
 	// SOFT!
 	private UUID connectedController = null;
@@ -66,13 +71,33 @@ public class TileExtender extends TilePLC implements IInventory {
 	private boolean isRedstonePowered;
 
 	private List<Long> sheduledUpdates = new ArrayList<Long>();
+	
+	
+	private boolean sheduleRemoteUpdate = false;
 
 	// load/save shit
 
 	private boolean needsLoad = false;
 	
 	private List<ExtenderChannelNetworkData> loadChannelData = null;
-
+	
+	private char[] instatus = new char[0];
+	private char[] outstatus = new char[0];
+	
+	public void updateStatus(char[] ins, char[] outs) {
+		instatus = ins;
+		outstatus = outs;
+	}
+	
+	public char[] getInputs() {
+		return instatus;
+	}
+	
+	public char[] getOutputs() {
+		return outstatus;
+	}
+	
+	
 	public TileExtender() {
 		super(PLCEvent.TARGETTYPE.EXTENDER);
 		for (int i = 0; i < sidePowered.length; i++)
@@ -159,7 +184,7 @@ public class TileExtender extends TilePLC implements IInventory {
 			if (sside.equals(Side.SERVER)) {
 				worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord,
 						501);
-				//PacketExtenderLiteData.sendUpdateToClients(this);
+				sheduleRemoteUpdate  = true;
 			}
 			if (signal.equals(Signal.PULSE)
 					|| signal.equals(Signal.NEGATIVEPULSE))
@@ -206,6 +231,8 @@ public class TileExtender extends TilePLC implements IInventory {
 	@Override
 	public void updateEntity() {
 		super.updateEntity();
+		if (needsLoad)
+			loadData();
 		if (sheduledUpdates.size() > 0) {
 			List<Long> remove = new ArrayList<Long>();
 			for (Long updt : sheduledUpdates)
@@ -217,14 +244,18 @@ public class TileExtender extends TilePLC implements IInventory {
 				for (Long rem : remove)
 					sheduledUpdates.remove(rem);
 		}
-
-		if (needsLoad)
-			loadData();
+		
+		
+		if (sheduleRemoteUpdate) {
+			PacketExtenderLiteData.sendUpdateToClients(this);
+			sheduleRemoteUpdate = false;
+		}
 	};
 
 	private void loadData() {
 		needsLoad = false;
-
+		inChannels = 0;
+		outChannels = 0;
 		for (int i = 0; i < 6; i++)
 			getSideChannels(i).clear();
 		for (int i = 0; i < 6; i++)
@@ -232,6 +263,12 @@ public class TileExtender extends TilePLC implements IInventory {
 		for (ExtenderChannelNetworkData dt : loadChannelData) {
 			injectChannel(dt);
 		}
+		for (ExtenderChannel chn : channels) {
+			if (chn.getType().equals(ExtenderChannel.TYPES.INPUT))
+				inChannels++;
+			else outChannels++;
+		}
+		
 		loadChannelData = null;
 	}
 
@@ -355,6 +392,8 @@ public class TileExtender extends TilePLC implements IInventory {
 		redstoneListener.clear();
 		changeListener.clear();
 		tickListener.clear();
+		inChannels = 0;
+		outChannels = 0;
 
 		for (int i = 0; i < 6; i++) {
 			sideChannels[i].clear();
@@ -366,6 +405,7 @@ public class TileExtender extends TilePLC implements IInventory {
 							ExtenderChannel.TYPES.INPUT, nmbr++);
 					channel.setLinkedChannel(i);
 					channels.add(channel);
+					inChannels++;
 				
 		}
 		for (int i = 0; i < linkto.getOutChannels(); i++) {
@@ -373,7 +413,7 @@ public class TileExtender extends TilePLC implements IInventory {
 						ExtenderChannel.TYPES.OUTPUT, nmbr++);
 				channel.setLinkedChannel(i);
 				channels.add(channel);
-			
+				outChannels++;
 		}
 		
 	}
@@ -395,6 +435,7 @@ public class TileExtender extends TilePLC implements IInventory {
 				channel.onRedstoneChanged(isRedstonePowered, false);
 			}
 		}
+		PacketExtenderLiteData.sendUpdateToClients(this);
 
 	}
 
@@ -473,6 +514,14 @@ public class TileExtender extends TilePLC implements IInventory {
 
 	public String getConnectedControllerName() {
 		return connectedControllerName;
+	}
+
+	public int getInChannels() {
+		return inChannels;
+	}
+
+	public int getOutChannels() {
+		return outChannels;
 	}
 
 

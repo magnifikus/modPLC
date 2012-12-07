@@ -3,6 +3,8 @@ package de.squig.plc.network;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.minecraft.src.EntityClientPlayerMP;
@@ -22,6 +24,8 @@ import de.squig.plc.logic.CircuitStateNetworkData;
 import de.squig.plc.logic.PoweredMapNetworkData;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.CircuitElementNetworkData;
+import de.squig.plc.logic.extender.ExtenderChannel;
+import de.squig.plc.logic.extender.function.DisabledFunction;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
@@ -31,7 +35,11 @@ public class PacketExtenderLiteData extends PLCPacket {
 	public int x, y, z;
 	
 
-	private Signal[] inSignals = new Signal[6];
+	private List<Character> resC = null;
+	private List<Boolean> res = null;
+	private List<Boolean> resT = null;
+	private int ins = 0;
+	private int outs = 0;
 
 	private TileExtender extender  = null;
 	
@@ -53,19 +61,36 @@ public class PacketExtenderLiteData extends PLCPacket {
 
 	// int x,y,z
 	// 
-	// 6x Signal [char]
+	// int in, int out
+	// boolean en, boolean on
 	
 	@Override
 	public void writeData(DataOutputStream data) throws IOException {
+	
 		data.writeInt(x);
 		data.writeInt(y);
 		data.writeInt(z);
-		data.writeChar(extender.getSideSignal(ForgeDirection.UP).ordinal());
-		data.writeChar(extender.getSideSignal(ForgeDirection.DOWN).ordinal());
-		data.writeChar(extender.getSideSignal(ForgeDirection.NORTH).ordinal());
-		data.writeChar(extender.getSideSignal(ForgeDirection.SOUTH).ordinal());
-		data.writeChar(extender.getSideSignal(ForgeDirection.EAST).ordinal());
-		data.writeChar(extender.getSideSignal(ForgeDirection.WEST).ordinal());
+		data.writeChar(extender.getInChannels());
+		data.writeChar(extender.getOutChannels());
+		
+		List<Character> resC = new LinkedList<Character>();
+		List<Boolean> res = new ArrayList<Boolean>();
+		List<Boolean> resT = new ArrayList<Boolean>();
+		for (ExtenderChannel chn : extender.getChannels()) {
+			if (chn.getFunction() != null && !(chn.getFunction() instanceof DisabledFunction)) {
+				resC.add((char)chn.getLinkedChannel());
+				res.add(!chn.getSignal().equals(Signal.OFF));
+				resT.add(chn.getType().equals(ExtenderChannel.TYPES.INPUT));
+			}
+		}
+		
+		data.writeChar((char)resC.size());
+		int i = 0;
+		for (Character c : resC) {
+			data.writeChar(c);
+			data.writeBoolean(res.get(i));
+			data.writeBoolean(resT.get(i++));
+		}	
 		data.writeBoolean(false);
 	}
 
@@ -73,12 +98,22 @@ public class PacketExtenderLiteData extends PLCPacket {
 		this.x = data.readInt();
 		this.y = data.readInt();
 		this.z = data.readInt();
-		inSignals[0] = Signal.fromOrdinal(data.readChar());
-		inSignals[1] = Signal.fromOrdinal(data.readChar());
-		inSignals[2] = Signal.fromOrdinal(data.readChar());
-		inSignals[3] = Signal.fromOrdinal(data.readChar());
-		inSignals[4] = Signal.fromOrdinal(data.readChar());
-		inSignals[5] = Signal.fromOrdinal(data.readChar());
+		
+		ins = data.readChar();
+		outs = data.readChar();
+		
+		int i = data.readChar();
+		resC = new ArrayList<Character>();
+		res = new ArrayList<Boolean>();
+		resT = new ArrayList<Boolean>();
+		
+		for (int j = 0; j < i; j++) {
+			resC.add(data.readChar());
+			res.add(data.readBoolean());
+			boolean t = data.readBoolean();
+			resT.add(t);
+			
+		}	
 	}
 
 	public void execute(INetworkManager manager, Player player) {
@@ -98,12 +133,29 @@ public class PacketExtenderLiteData extends PLCPacket {
 				TileEntity tile = worldObj.getBlockTileEntity(x, y, z);
 				if (tile != null && tile instanceof TileExtender) {
 					TileExtender extender = (TileExtender) tile;
-					extender.setSidePowered(ForgeDirection.UP, inSignals[0]);
-					extender.setSidePowered(ForgeDirection.DOWN, inSignals[1]);
-					extender.setSidePowered(ForgeDirection.NORTH, inSignals[2]);
-					extender.setSidePowered(ForgeDirection.SOUTH, inSignals[3]);
-					extender.setSidePowered(ForgeDirection.EAST, inSignals[4]);
-					extender.setSidePowered(ForgeDirection.WEST, inSignals[5]);
+					char[] in = new char[ins];
+					char[] out = new char[outs];
+					
+					for (int i = 0; i<in.length; i++)
+						in[i] = 0;
+					for (int i = 0; i<out.length; i++)
+						out[i] = 0;					
+					
+					int i = 0;
+					
+					for (Character c : resC) {
+						
+						if (resT.get(i) && in.length > c) {
+							if (res.get(i))
+								in[c] = 2;
+							else in[c] = 1;
+						} else if (!resT.get(i) && out.length > c)
+							if (res.get(i))
+								out[c] = 2;
+							else out[c] = 1;
+						i++;
+					}
+					extender.updateStatus(in, out);
 					LogHelper.info("ExtenderLiteUpdate executed");
 				}
 			}

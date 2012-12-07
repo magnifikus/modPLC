@@ -13,9 +13,16 @@ import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
 
 public class CommonProxy implements IGuiHandler {
-	public static String ITEMS_PNG = "/tutorial/generic/items.png";
-	public static String BLOCK_PNG = "/tutorial/generic/block.png";
-
+	public static String BLOCKS_PNG = "/ressources/art/gui/blocks.png";
+	public static String BLOCKS2_PNG = "/ressources/art/gui/block2.png";
+	public static String CONTROLLER_PNG = "/ressources/art/gui/controller.png";
+	public static String EXTENDER_PNG = "/ressources/art/gui/extender.png";
+	public static String TOUCH_PNG = "/ressources/art/gui/touch.png";
+	
+	
+	protected static int blockRenderId = -1;
+	
+	
 	// Client stuff
 	public void registerRenderers() {
 		// Nothing here as this is the server side proxy
@@ -56,4 +63,11 @@ public class CommonProxy implements IGuiHandler {
 		} 
 		return null;
 	}
+
+	public static int getBlockRenderId() {
+		return blockRenderId;
+	}
+	
+	
+	
 }
