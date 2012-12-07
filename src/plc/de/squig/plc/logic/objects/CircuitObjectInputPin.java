@@ -22,7 +22,6 @@ public class CircuitObjectInputPin {
 	}
 	
 	public void commit() {
-		
 		if (listener != null) {
 			listener.onSignal(this, this.signal);
 		}

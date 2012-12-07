@@ -1,9 +1,10 @@
 package de.squig.plc.logic.helper;
 
+import de.squig.plc.tile.TilePLC;
 import net.minecraft.src.TileEntity;
 
 public class DistanceHelper {
-	public static double getDistance(TileEntity t1, TileEntity t2) {
+	public static double getDistance(TilePLC t1, TilePLC t2) {
 		if (t1 == null || t2 == null)
 			return -1;
 		if (t1.getWorldObj() != t2.getWorldObj())

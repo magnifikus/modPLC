@@ -131,5 +131,9 @@ public abstract class CircuitObject {
 		else linkNumber = ""+nmbr;
 	}
 
+	
+	public void commit() {
+		
+	}
 
 }

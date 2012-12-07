@@ -165,8 +165,6 @@ public class PacketExtenderLiteData extends PLCPacket {
 	
 	
 	public static void sendUpdateToClients (TileExtender extender) {
-		
-		
 		PacketExtenderLiteData pkg = new PacketExtenderLiteData();
 		pkg.setExtender(extender);
 		pkg.setCoords(extender.xCoord, extender.yCoord, extender.zCoord);
@@ -176,7 +174,7 @@ public class PacketExtenderLiteData extends PLCPacket {
 		// only server can do!
 		if (side == Side.SERVER) {
 			// Server
-			PacketDispatcher.sendPacketToAllAround(extender.xCoord, extender.yCoord, extender.zCoord, 64, extender.getWorldObj().getWorldInfo().getDimension() , packet);	
+			PacketDispatcher.sendPacketToAllAround(extender.xCoord, extender.yCoord, extender.zCoord, 32, extender.getWorldObj().getWorldInfo().getDimension() , packet);	
 		}
 	}
 	

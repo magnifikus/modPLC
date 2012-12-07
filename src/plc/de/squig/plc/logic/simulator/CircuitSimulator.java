@@ -12,6 +12,7 @@ import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.helper.LogHelper;
+import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.network.PacketControllerData;
 
@@ -70,13 +71,14 @@ public class CircuitSimulator {
 							}
 						} else {
 							ele.setInSignal(eleLeft.getSignal());
-							
+							//LogHelper.info("setting in from left line "+eleLeft.getSignal());
 						}
 						
 					} 
 				} else {
 					
 					ele.setInSignal(eleLeft.getSignal());
+					//LogHelper.info("setting in from left line "+eleLeft.getSignal());
 				}
 			} else {
 				if (!(ele instanceof Line)) {
@@ -84,14 +86,17 @@ public class CircuitSimulator {
 						ele.setInSignal(Signal.ON);
 				}
 			} 
-			if (!ele.isSimulated())
-				ele.simulate();
+			//if (!ele.isSimulated())
+			ele.simulate();
 			
 		}
 		for (Object com : circuit.getCommitList()) {
 			if (com instanceof CircuitObjectInputPin)
 				((CircuitObjectInputPin) com).commit();
 		}
+		
+		for (CircuitObject obj : circuit.getObjects())
+			obj.commit();
 		
 	}
 	

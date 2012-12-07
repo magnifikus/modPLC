@@ -10,6 +10,7 @@ import net.minecraft.src.EntityClientPlayerMP;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.EntityPlayerMP;
 import net.minecraft.src.INetworkManager;
+import net.minecraft.src.ModLoader;
 import net.minecraft.src.Packet;
 import net.minecraft.src.TileEntity;
 import net.minecraft.src.World;
@@ -259,6 +260,7 @@ public class PacketControllerData extends PLCPacket {
 		Packet packet = PacketTypeHandler.populatePacket(pkg);
 		PacketDispatcher.sendPacketToAllAround(tile.xCoord, tile.yCoord, tile.zCoord, i,tile.getWorldObj().getWorldInfo().getDimension() , packet);	
 	}
+	
 	public static void updateArroundWithPowermap(TileController tile, int i) {
 		PacketControllerData pkg = new PacketControllerData();
 		pkg.setCircuit(tile.getCircuit());

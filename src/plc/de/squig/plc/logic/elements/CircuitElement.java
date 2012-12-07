@@ -462,9 +462,7 @@ public class CircuitElement implements Serializable {
 	public Signal getSignal() {
 		//if (!isEvaluated())
 		//	evaluate();
-		if (inverted)
-			return signal.invert();
-		else return signal;	
+		return signal;	
 	}
 	
 	public void setSignal (Signal signal) {
@@ -526,8 +524,12 @@ public class CircuitElement implements Serializable {
 	}
 
 	public void simulate() {
+		
 		if (getOutputPin() != null) {
-			setSignal(inSignal.getLowerSignal(getOutputPin().getSignal()));
+			if (inverted)
+				setSignal(inSignal.getLowerSignal(getOutputPin().getSignal().invert()));
+			else setSignal(inSignal.getLowerSignal(getOutputPin().getSignal()));
+			
 		} else setSignal(inSignal);
 		if (getInputPin() != null) {
 			getInputPin().onSignal(getSignal());

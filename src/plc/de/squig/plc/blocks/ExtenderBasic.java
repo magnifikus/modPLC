@@ -128,7 +128,7 @@ public class ExtenderBasic extends BlockContainer {
 		    	TileExtender tilee = (TileExtender)tile;
 		    	res = tilee.isSidePowered(ForgeDirection.getOrientation(dir).getOpposite());
 	    	} else res = false;
-	    	LogHelper.info("powering called "+res);
+	    	
 	    	return res;
 	    	
 	    }

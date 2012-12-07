@@ -13,8 +13,6 @@ import de.squig.plc.logic.helper.LogHelper;
 public class LogicInput extends CircuitObject {
 	protected CircuitObjectOutputPin out;
 	
-	private List<ExtenderChannel> inChannels = new ArrayList<ExtenderChannel>();
-	
 	public LogicInput(Circuit circuit, String linkNumber) {
 		super(circuit, TYPES.INPUT);
 		out = new CircuitObjectOutputPin(this,"Input");
@@ -33,17 +31,7 @@ public class LogicInput extends CircuitObject {
 	
 	
 	
-	public void addChannel(ExtenderChannel channel) {
-		inChannels.add(channel);
-	}
-	
-	public void removeChannel (ExtenderChannel channel) {
-		inChannels.remove(channel);
-	}
-
-	
 	public void onSignal(Signal signal) {
-		
 		out.onSignal(signal);
 	}
 	

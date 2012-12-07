@@ -69,15 +69,20 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 	public void onSignal(CircuitObjectInputPin pin, Signal signal) {
 		if (pin == in) {
 			this.signal = signal;
-			updateRemotes(this.signal);
+			
 		} else if (pin == inSet && (signal.equals(Signal.ON) || signal.equals(Signal.PULSE))) {
 			this.signal = Signal.ON;
-			updateRemotes(this.signal);
+			
 		} else if (pin == inReset && (signal.equals(Signal.ON) || signal.equals(Signal.PULSE))) {
 			this.signal = Signal.OFF;
-			updateRemotes(this.signal);
+			
 		}
 		out.onSignal(this.signal);
+	}
+	
+	@Override
+	public void commit() {
+		updateRemotes(this.signal);
 	}
 	
 }

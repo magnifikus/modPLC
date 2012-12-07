@@ -146,7 +146,7 @@ public class PLC {
 		
 		for (PLCEventSubscriber sub : subs) {
 			// @Todo interdimensional events....
-			TileEntity tile = event.getSource().getWorldObj().getBlockTileEntity(sub.getX(),sub.getY(),sub.getZ());
+			TilePLC tile = (TilePLC) event.getSource().getWorldObj().getBlockTileEntity(sub.getX(),sub.getY(),sub.getZ());
 			if (tile instanceof TilePLC) {
 				 if (event.getRange() == null || DistanceHelper.getDistance(event.getSource(), tile) <= event.getRange())
 					 ((TilePLC) tile).onEvent(event);

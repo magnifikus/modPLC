@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.NBTTagCompound;
 import net.minecraft.src.TileEntity;
+import net.minecraft.src.World;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
 import de.squig.plc.PLC;
@@ -62,6 +63,7 @@ public class TilePLC extends TileEntity {
 			
 			init = true;
 		}
+		
 		for (PacketPLCBasedata pkg : delayedBaseData) {
 			pkg.sendResponse(this);
 		}
@@ -163,6 +165,11 @@ public class TilePLC extends TileEntity {
 
 	public List<PacketPLCBasedata> getDelayedBaseData() {
 		return delayedBaseData;
+	}
+	
+	@Override
+	public World getWorldObj() {
+		return worldObj;
 	}
     
 }

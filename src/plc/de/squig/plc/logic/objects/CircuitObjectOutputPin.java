@@ -23,12 +23,12 @@ public class CircuitObjectOutputPin {
 	}
 
 	public void onSignal(Signal signal) {
-		//LogHelper.info("onSignal "+circuitObject.getLinkNumber()+" on circ "+circuitObject.getCircuit());
+		
 		this.signal = signal;
 	}
 
 	public Signal getSignal() {
-		//LogHelper.info("getSignal "+circuitObject.getLinkNumber()+" on circ "+circuitObject.getCircuit());
+	
 		return signal;
 	}
  
