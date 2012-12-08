@@ -176,10 +176,14 @@ pip-log.txt
 /reobf/*
 /runtime/*
 /temp/*
+/othermod/*
 
 /src/minecraft/*
 /src/minecraft_server/*
 /src/common/*
+
+!/src/common/de/*
+!/src/common/ressources/*
 
 
 *.bat
