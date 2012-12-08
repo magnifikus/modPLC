@@ -1,3 +1,14 @@
+
+/**
+ * PacketTypeHandler
+ * 
+ * Handler that routes packets to the appropriate destinations depending on what kind of packet they are
+ * 
+ * @author pahimar
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ */
+
 package de.squig.plc.tile;
 
 import java.io.ByteArrayInputStream;
@@ -11,18 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import javax.swing.text.html.HTMLEditorKit.LinkController;
-
-import org.w3c.dom.events.EventTarget;
-
 import net.minecraft.src.IInventory;
 import net.minecraft.src.ItemStack;
 import net.minecraft.src.NBTTagCompound;
-import net.minecraft.src.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
-import cpw.mods.fml.common.registry.GameRegistry;
 import de.squig.plc.PLC;
 import de.squig.plc.event.PLCEvent;
 import de.squig.plc.event.SearchEvent;
@@ -32,13 +37,7 @@ import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.ExtenderChannelNetworkData;
 import de.squig.plc.logic.extender.function.BC3Function;
-import de.squig.plc.logic.extender.function.DisabledFunction;
-import de.squig.plc.logic.extender.function.ExtenderFunction;
-import de.squig.plc.logic.extender.function.RedstoneFunction;
 import de.squig.plc.logic.helper.LogHelper;
-import de.squig.plc.logic.objects.CircuitObject;
-import de.squig.plc.logic.objects.LogicInput;
-import de.squig.plc.logic.objects.LogicOutput;
 import de.squig.plc.network.PacketExtenderLiteData;
 
 public class TileExtender extends TilePLC implements IInventory {
@@ -218,7 +217,6 @@ public class TileExtender extends TilePLC implements IInventory {
 	@Override
 	protected void initialize() {
 		super.initialize();
-		extenderID = LinkGrid.getWorldMap(worldObj).newID(this);
 
 	}
 

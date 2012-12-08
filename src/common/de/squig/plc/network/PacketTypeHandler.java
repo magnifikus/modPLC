@@ -1,3 +1,15 @@
+
+/**
+ * PacketTypeHandler
+ * 
+ * Handler that routes packets to the appropriate destinations depending on what kind of packet they are
+ * 
+ * @author pahimar
+ * @license Lesser GNU Public License v3 (http://www.gnu.org/licenses/lgpl.html)
+ * 
+ * modified by magnifikus with packettypes
+ * 
+ */
 package de.squig.plc.network;
 
 import java.io.ByteArrayInputStream;

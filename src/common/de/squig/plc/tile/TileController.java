@@ -67,9 +67,6 @@ public class TileController extends TilePLC implements IInventory {
 		super.initialize();
 		LogHelper.info("Controler Init "+xCoord+" "+yCoord+" "+zCoord+" with uuid: "+uuid.toString());
 		
-		
-		
-		controllerID = LinkGrid.getWorldMap(worldObj).newID(this);
 		controllerName = "no name";
 	}
 

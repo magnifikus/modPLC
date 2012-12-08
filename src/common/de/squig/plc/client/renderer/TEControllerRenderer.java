@@ -1,3 +1,11 @@
+/**
+ * 
+ *  Contributors:
+ *   
+ *  Thunderdark - siding transformation and and rotation 
+ *  from https://github.com/Thunderdark/ModularForceFieldSystem/blob/master/src/minecraft/chb/mods/mffs/client/TECapacitorRenderer.java
+ * 
+ */
 package de.squig.plc.client.renderer;
 
 import java.nio.FloatBuffer;
