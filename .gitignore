@@ -182,9 +182,8 @@ pip-log.txt
 /src/minecraft_server/*
 /src/common/*
 
-!/src/common/de/*
-!/src/common/ressources/*
-
+!/src/common/de/
+!/src/common/ressources/
 
 *.bat
 *.sh
