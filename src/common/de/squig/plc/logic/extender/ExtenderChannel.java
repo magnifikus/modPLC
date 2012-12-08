@@ -32,7 +32,7 @@ public class ExtenderChannel {
 	private Object functionLocalData = "";
 	private Object triggerLocalData = "";
 	
-	
+	private int resetTimer = -1;
 	
 
 	private ExtenderFunction function = ExtenderFunction.disabledFunction;
@@ -41,12 +41,18 @@ public class ExtenderChannel {
 	private Signal signal = Signal.OFF;
 	private ExtenderTrigger trigger;
 
+	
+	
+	
 	public ExtenderChannel(TileExtender extender, TYPES type, int number) {
 		this.number = number;
 		this.type = type;
 		this.extender = extender;
 	}
-
+	
+	public void setSignalWithReset(Signal signal, int timer) {
+		
+	}
 
 	public int getLinkedChannel() {
 		return linkedChannel;

@@ -61,7 +61,7 @@ public class ExtenderBasic extends BlockContainer {
 
 	@Override
 	public TileEntity createNewTileEntity(World var1) {
-		return new TileExtender();
+		return TileExtender.createInstance();
 	}
 
 	public boolean onBlockActivated(World world, int x, int y, int z,

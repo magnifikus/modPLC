@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import net.minecraft.src.TileEntity;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.registry.GameRegistry;
 import de.squig.plc.PLC;
 import de.squig.plc.event.PLCEvent;
 import de.squig.plc.event.SearchEvent;
@@ -29,6 +31,7 @@ import de.squig.plc.event.SignalEvent;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.ExtenderChannelNetworkData;
+import de.squig.plc.logic.extender.function.BC3Function;
 import de.squig.plc.logic.extender.function.DisabledFunction;
 import de.squig.plc.logic.extender.function.ExtenderFunction;
 import de.squig.plc.logic.extender.function.RedstoneFunction;
@@ -98,7 +101,7 @@ public class TileExtender extends TilePLC implements IInventory {
 	}
 	
 	
-	public TileExtender() {
+	protected TileExtender() {
 		super(PLCEvent.TARGETTYPE.EXTENDER);
 		for (int i = 0; i < sidePowered.length; i++)
 			sidePowered[i] = Signal.OFF;
@@ -107,6 +110,20 @@ public class TileExtender extends TilePLC implements IInventory {
 		channels = new ArrayList<ExtenderChannel>();
 	}
 
+	public static TileExtender createInstance() {
+		try {
+			Class bc3Extender = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.compat.TileExtenderBC3");
+			Constructor constructor = bc3Extender.getConstructor(null);
+			TileExtender res = (TileExtender)
+			        constructor.newInstance(null);
+			return res;
+	     
+		} catch (Exception ex) {
+			return new TileExtender();
+		}
+	}
+	
+	
 	public boolean isSidePowered(ForgeDirection side) {
 		Signal signal = sidePowered[side.ordinal()];
 		if (signal.equals(Signal.ON) || signal.equals(Signal.PULSE))
@@ -138,6 +155,10 @@ public class TileExtender extends TilePLC implements IInventory {
 			//PacketExtenderLiteData.sendUpdateToClients(this);
 		}
 
+	}
+
+	public void setSheduleRemoteUpdate(boolean sheduleRemoteUpdate) {
+		this.sheduleRemoteUpdate = sheduleRemoteUpdate;
 	}
 
 	public void setSidePowered(ExtenderChannel channel, Signal signal) {
@@ -244,8 +265,10 @@ public class TileExtender extends TilePLC implements IInventory {
 				for (Long rem : remove)
 					sheduledUpdates.remove(rem);
 		}
-		
-		
+		for (ExtenderChannel chn : channels) {
+			if (chn.getFunction() instanceof BC3Function)
+				((BC3Function) chn.getFunction()).onUpdate(chn);
+		}
 		if (sheduleRemoteUpdate) {
 			PacketExtenderLiteData.sendUpdateToClients(this);
 			sheduleRemoteUpdate = false;

@@ -9,6 +9,7 @@ import de.squig.plc.client.gui.extender.GuiExtender;
 import de.squig.plc.container.ContainerController;
 import de.squig.plc.container.ContainerExtender;
 import de.squig.plc.lib.GuiIds;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
 
@@ -18,6 +19,8 @@ public class CommonProxy implements IGuiHandler {
 	public static String CONTROLLER_PNG = "/ressources/art/gui/controller.png";
 	public static String EXTENDER_PNG = "/ressources/art/gui/extender.png";
 	public static String TOUCH_PNG = "/ressources/art/gui/touch.png";
+	
+	public static String BC3_PNG = "/ressources/art/gui/bc3.png";
 	
 	
 	protected static int blockRenderId = -1;
@@ -31,7 +34,15 @@ public class CommonProxy implements IGuiHandler {
 	 public void initTileEntities() {
 	    	// TODO: Constant
 	    	GameRegistry.registerTileEntity(TileController.class, "tileController");
-	    	GameRegistry.registerTileEntity(TileExtender.class, "tileExtender");
+	    	
+	    	
+	    	try {
+		      Class bc3Extender = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.compat.TileExtenderBC3");
+		      GameRegistry.registerTileEntity(bc3Extender, "tileExtender");
+		    } catch (Exception t) {
+		    	GameRegistry.registerTileEntity(TileExtender.class, "tileExtender");
+		    }
+	    	
 	 }
 	
 	

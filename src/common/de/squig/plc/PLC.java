@@ -71,6 +71,20 @@ public class PLC {
 		LanguageRegistry.addName(extenderBasic, "Basic Extender");
 		MinecraftForge.setBlockHarvestLevel(extenderBasic, "pickaxe", 3);
 		GameRegistry.registerBlock(extenderBasic);
+		
+		
+		
+		
+		// trying to load bc3 int
+		
+		try
+	    {
+	      Class plcmod = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.BC3Integration");
+	      plcmod.getMethod("init", new Class[0]).invoke(null, new Object[0]);
+	    } catch (Exception t) {
+	      LogHelper.warn("could not load BC3 Integration! "+t.getMessage());
+	      t.printStackTrace();
+	    }
 
 	}
 
