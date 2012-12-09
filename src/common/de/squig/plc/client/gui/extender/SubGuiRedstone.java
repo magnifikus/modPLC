@@ -30,14 +30,11 @@ public class SubGuiRedstone implements SubGui {
 
 	@Override
 	public void onClose() {
-		LogHelper.info("red close");
+		
 		for (GuiButton btn : btnsFunct) {
 			guiExtender.removeControl(btn);
-			LogHelper.info("btnrem");
 		}
 		btnsFunct.clear();
-		LogHelper.info("btnrem: " + btnsFunct.size());
-
 	}
 
 	@Override

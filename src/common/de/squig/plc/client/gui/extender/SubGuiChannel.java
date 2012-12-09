@@ -37,7 +37,6 @@ public class SubGuiChannel implements SubGui {
 	
 	@Override
 	public void onClose() {
-		LogHelper.info("chan close");
 		if (subGui != null)
 			subGui.onClose();
 		
@@ -110,7 +109,7 @@ public class SubGuiChannel implements SubGui {
 			typ = "Output";
 		
 		
-		guiExtender.subDrawText("Config "+typ+" "+channel.getNumber(), 15, 0, 0x000000);
+		guiExtender.subDrawText(typ+" "+channel.getNumber(), 15, 0, 0x000000);
 		
 		if (subGui != null)
 			subGui.renderForeground();

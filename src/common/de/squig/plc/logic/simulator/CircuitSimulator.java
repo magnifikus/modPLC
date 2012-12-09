@@ -6,6 +6,10 @@ import java.util.List;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
+import de.squig.plc.PLC;
+import de.squig.plc.event.ControllerDataEvent;
+import de.squig.plc.event.payloads.ControllerDataPayload;
+import de.squig.plc.lib.StaticData;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.CircuitElement;
@@ -14,6 +18,7 @@ import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.CircuitObjectInputPin;
+import de.squig.plc.logic.objects.LogicOutput;
 import de.squig.plc.network.PacketControllerData;
 
 public class CircuitSimulator {
@@ -28,7 +33,7 @@ public class CircuitSimulator {
 	public synchronized void onTick(long tick) {
 		if (nextTick > tick)
 			return;
-		nextTick = tick + 10;
+		nextTick = tick + StaticData.SimulatorDelay;
 	
 		if (!circuit.isEvaluated())
 			evaluateCircuit();
@@ -98,6 +103,7 @@ public class CircuitSimulator {
 		for (CircuitObject obj : circuit.getObjects())
 			obj.commit();
 		
+		circuit.getController().sendUpdatesToExtenders(false);
 	}
 	
 }

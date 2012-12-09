@@ -21,7 +21,7 @@ public class ClientProxy extends CommonProxy {
 		
 		//MinecraftForgeClient.registerItemRenderer(501, blockRenderer);
 		blockRenderId = RenderingRegistry.getNextAvailableRenderId();
-	    ClientRegistry.bindTileEntitySpecialRenderer(TileController.class, new TEControllerRenderer());
+	    //ClientRegistry.bindTileEntitySpecialRenderer(TileController.class, new TEControllerRenderer());
 	    ClientRegistry.bindTileEntitySpecialRenderer(TileExtender.class, new TEExtenderRenderer());
 		    
 		

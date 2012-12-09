@@ -34,7 +34,8 @@ public class PacketExtenderData extends PLCPacket {
 	private UUID cUUID = null;
 	private String cName = null;
 	private Boolean cConnected = null;
-	private List<ExtenderChannelNetworkData> inChannels = null;
+	private List<ExtenderChannelNetworkData> channelsIn = null;
+	private List<ExtenderChannelNetworkData> channelsOut = null;
 	
 	private TileExtender extender;
 	
@@ -83,8 +84,13 @@ public class PacketExtenderData extends PLCPacket {
 		} else  {
 			data.writeBoolean(false);
 		}
-		data.writeChar(extender.getChannels().size());
-		for (ExtenderChannel channel : extender.getChannels()) {
+		
+		data.writeChar(extender.getChannelsIn().size());
+		for (ExtenderChannel channel : extender.getChannelsIn()) {
+			channel.saveTo(data);
+		}
+		data.writeChar(extender.getChannelsOut().size());
+		for (ExtenderChannel channel : extender.getChannelsOut()) {
 			channel.saveTo(data);
 		}
 		data.writeBoolean(false);
@@ -101,10 +107,18 @@ public class PacketExtenderData extends PLCPacket {
 			cName = data.readUTF();
 		} 
 		int dsize = data.readChar();
-		inChannels = new ArrayList<ExtenderChannelNetworkData>();
+		channelsIn = new ArrayList<ExtenderChannelNetworkData>();
 		for (int i = 0; i < dsize; i++) {
-			inChannels.add(ExtenderChannel.readFrom(data));
+			channelsIn.add(ExtenderChannel.readFrom(data));
 		}
+		
+		dsize = data.readChar();
+		channelsOut = new ArrayList<ExtenderChannelNetworkData>();
+		for (int i = 0; i < dsize; i++) {
+			channelsOut.add(ExtenderChannel.readFrom(data));
+		}
+		
+		
 	}
 
 	public void execute(INetworkManager manager, Player player) {
@@ -132,18 +146,15 @@ public class PacketExtenderData extends PLCPacket {
 				} else {
 					tileE.unlink();
 				}
-			
-					
-					
-				for (int i=0;i < 6;i++)
-					tileE.getSideChannels(i).clear();
-				for (int i=0;i < 6;i++)
-					tileE.setSidePowered(ForgeDirection.values()[i],Signal.OFF, false);
-				
-				
-				for (ExtenderChannelNetworkData dt : inChannels) {
-					tileE.injectChannel(dt);
+				for (ExtenderChannelNetworkData dt : channelsIn) {
+					tileE.injectChannel(ExtenderChannel.TYPES.INPUT,dt);
 				}
+				for (ExtenderChannelNetworkData dt : channelsOut) {
+					tileE.injectChannel(ExtenderChannel.TYPES.OUTPUT,dt);
+				}
+				tileE.sheduleNeighbourUpdate();
+				tileE.sheduleRemoteUpdate();
+				
 			}
 			
 		}

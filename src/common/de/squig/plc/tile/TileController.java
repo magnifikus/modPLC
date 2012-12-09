@@ -17,10 +17,12 @@ import net.minecraftforge.event.world.WorldEvent;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
 import de.squig.plc.PLC;
+import de.squig.plc.event.ControllerDataEvent;
 import de.squig.plc.event.PLCEvent;
 import de.squig.plc.event.SearchEvent;
 import de.squig.plc.event.SearchResponseEvent;
 import de.squig.plc.event.SignalEvent;
+import de.squig.plc.event.payloads.ControllerDataPayload;
 import de.squig.plc.logic.BasicCircuit;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.CircuitElementNetworkData;
@@ -28,6 +30,7 @@ import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.LogicInput;
+import de.squig.plc.logic.objects.LogicOutput;
 
 public class TileController extends TilePLC implements IInventory {
 	
@@ -59,7 +62,7 @@ public class TileController extends TilePLC implements IInventory {
 	public void updateEntity() {
 		super.updateEntity();
 		if (circuit != null && circuit.getSimulator() != null)
-			circuit.getSimulator().onTick(worldObj.getWorldTime());
+			circuit.getSimulator().onTick(worldObj.getTotalWorldTime());
 	}
 	
 	@Override
@@ -79,8 +82,9 @@ public class TileController extends TilePLC implements IInventory {
 				inp.onSignal(events.getSignal());
 			}
 		}
-		
-		else if (event instanceof SearchEvent) {
+		else if (event instanceof ControllerDataEvent) {
+			sendUpdatesToExtenders(true);
+		} else if (event instanceof SearchEvent) {
 			if (event.getSource().getWorldObj() == getWorldObj()) {
 				int dx = xCoord - event.getSource().xCoord;
 				int dy = yCoord - event.getSource().yCoord;
@@ -92,7 +96,7 @@ public class TileController extends TilePLC implements IInventory {
 							dist,uuid,controllerName,
 							circuit.getByType(CircuitObject.TYPES.INPUT).size(),
 							circuit.getByType(CircuitObject.TYPES.OUTPUT).size());
-					PLC.instance.fireEvent(resp);
+					PLC.instance.getNetworkBroker().fireEvent(resp);
 				}
 			}
 		}
@@ -236,6 +240,19 @@ public class TileController extends TilePLC implements IInventory {
 
 	public void setRange(int range) {
 		this.range = range;
+	}
+
+	public void sendUpdatesToExtenders(boolean updateAll) {
+		List<ControllerDataPayload> tosend = new ArrayList<ControllerDataPayload>();
+		for (CircuitObject out : circuit.getByType(CircuitObject.TYPES.OUTPUT)) {
+			LogicOutput lo = (LogicOutput) out;
+			if (lo.isChanged() || updateAll) {
+				tosend.add(new ControllerDataPayload(lo.getLinkNumberInt(), lo.getSignal()));
+				lo.setChanged(false);
+			}
+		}
+		if (tosend.size() > 0)
+			PLC.instance.getNetworkBroker().fireEvent(new ControllerDataEvent(circuit.getController(), circuit.getController().getUuid(), tosend));
 	}
 
 	

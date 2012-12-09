@@ -16,6 +16,7 @@ import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.client.gui.tiles.DisplayTile;
 import de.squig.plc.container.ContainerExtender;
 import de.squig.plc.logic.Circuit;
+import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.function.ExtenderFunction;
 import de.squig.plc.logic.objects.CircuitObject;
@@ -31,13 +32,17 @@ public class GuiExtender extends GuiContainer {
 	public int screenX = 28;
 	public int screenY = 7;
 
-	private static int selectedChannel = -1;
+	//private static int selectedChannel = -1;
+	
 
 	private SubGui subGui = null;
 
 	private ExtenderChannel.TYPES myChannelType;
+	
+	private ExtenderChannel edit = null;
 
-	ArrayList<GuiButton> btnsChannels = new ArrayList<GuiButton>();
+	ArrayList<GuiButton> btnsChannelsIn = new ArrayList<GuiButton>();
+	ArrayList<GuiButton> btnsChannelsOut = new ArrayList<GuiButton>();
 
 	protected InventoryPlayer iplayer;
 
@@ -45,14 +50,13 @@ public class GuiExtender extends GuiContainer {
 		super(new ContainerExtender(inventoryPlayer, extender));
 		this.extender = extender;
 		this.iplayer = inventoryPlayer;
-
 	}
 
 	
 	
 	public void initGui() {
 		super.initGui();
-		selectedChannel = 0;
+		//selectedChannel = 0;
 		
 		extender.sendBroadcastSearch();
 		
@@ -66,35 +70,43 @@ public class GuiExtender extends GuiContainer {
 		setSubGui(new SubGuiFront(this));
 	}
 	protected void refreshChannelButtons() {
-		controlList.removeAll(btnsChannels);
-		btnsChannels.clear();
+		controlList.removeAll(btnsChannelsIn);
+		controlList.removeAll(btnsChannelsOut);
+		btnsChannelsIn.clear();
+		btnsChannelsOut.clear();
 
 		int in = 0, out = 0;
-		for (ExtenderChannel chn : extender.getChannels()) {
+		
+		for (ExtenderChannel chn : extender.getChannelsIn()) {
 			GuiButton btn = null;
 			ChannelButton.TYPES typ = ChannelButton.TYPES.INACTIVE;
 			if (chn.getFunction().getId() > 0)
 				typ = ChannelButton.TYPES.OFF;
-			if (selectedChannel == extender
-					.getChannels().indexOf(chn))
+			if (chn.getSignal().equals(Signal.ON))
+				typ = ChannelButton.TYPES.ON;
+			if (chn == edit)
 				typ = ChannelButton.TYPES.EDIT;
+			btn = new ChannelButton(1, guiLeft + screenX, guiTop + screenY
+					+ 10 + in * 3, typ, chn.getNumber() , false);
+			btnsChannelsIn.add(btn);
+			controlList.add(btn);
+			in++;
+		}
+		for (ExtenderChannel chn : extender.getChannelsOut()) {
+			GuiButton btn = null;
+			ChannelButton.TYPES typ = ChannelButton.TYPES.INACTIVE;
+			if (chn.getFunction().getId() > 0)
+				typ = ChannelButton.TYPES.OFF;
+			if (chn.getSignal().equals(Signal.ON))
+				typ = ChannelButton.TYPES.ON;
+			if (chn == edit)
+				typ = ChannelButton.TYPES.EDIT;
+			btn = new ChannelButton(1, guiLeft + screenX + 136, guiTop + screenY
+						+ 10 + out * 3, typ, chn.getNumber(), true);
 			
-			if (chn.getType().equals(ExtenderChannel.TYPES.INPUT)) {
-				btn = new ChannelButton(1, guiLeft + screenX, guiTop + screenY
-						+ 10 + in * 3, typ, extender
-						.getChannels().indexOf(chn), false);
-				in++;
-			} else if (chn.getType().equals(ExtenderChannel.TYPES.OUTPUT)) {
-				btn = new ChannelButton(1, guiLeft + screenX + 136, guiTop + screenY
-						+ 10 + out * 3, typ, extender
-						.getChannels().indexOf(chn), true);
-				out++;
-			}
-
-			if (btn != null) {
-				btnsChannels.add(btn);
-				controlList.add(btn);
-			}
+			btnsChannelsOut.add(btn);
+			controlList.add(btn);
+			out++;
 		}
 	}
 
@@ -169,9 +181,13 @@ public class GuiExtender extends GuiContainer {
 		if (button instanceof ChannelButton) {
 			ChannelButton cbutton = (ChannelButton) button;
 			int idx = cbutton.getIdx();
-			selectedChannel = idx;
-			ExtenderChannel chn = extender.getChannels().get(idx);
-			setSubGui(new SubGuiChannel(chn, this));
+			
+			if (btnsChannelsIn.contains(button)) {
+				edit = extender.getChannelsIn().get(idx);	
+			} else {
+				edit = extender.getChannelsOut().get(idx);
+			}
+			setSubGui(new SubGuiChannel(edit, this));
 			refreshChannelButtons();
 			
 		} else {
@@ -219,8 +235,6 @@ public class GuiExtender extends GuiContainer {
 
 	public void invokeServerUpdate() {
 		PacketExtenderData.sendElements(extender, iplayer.player);
-		
-		
 	}
 
 }

@@ -35,7 +35,7 @@ public class CommonProxy implements IGuiHandler {
 	    	// TODO: Constant
 	    	GameRegistry.registerTileEntity(TileController.class, "tileController");
 	    	
-	    	
+	    	// Try bc3 first
 	    	try {
 		      Class bc3Extender = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.compat.TileExtenderBC3");
 		      GameRegistry.registerTileEntity(bc3Extender, "tileExtender");

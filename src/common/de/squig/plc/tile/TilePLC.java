@@ -36,7 +36,7 @@ public class TilePLC extends TileEntity {
 	}
 	
 	public void onDestroy() {
-		PLC.instance.removeEventListener(this);
+		PLC.instance.getNetworkBroker().removeEventListener(this);
 	}
 	
 	
@@ -48,11 +48,8 @@ public class TilePLC extends TileEntity {
 			if (side.equals(Side.SERVER)) {
 				if (uuid == null)
 					uuid = UUID.randomUUID();
-				PLCEventSubscriber sub = new PLCEventSubscriber(uuid,this.worldObj.getWorldInfo().getDimension(),
-						xCoord, yCoord, zCoord,
-						targettype);
-				
-				PLC.instance.addEventListener(sub);
+
+				PLC.instance.getNetworkBroker().addEventListener(this);
 				initialize();
 			}
 			
@@ -74,10 +71,7 @@ public class TilePLC extends TileEntity {
 
 	public void setBaseData(PacketPLCBasedata basedata) {
 		uuid = basedata.getUuid();
-		PLCEventSubscriber sub = new PLCEventSubscriber(uuid,this.worldObj.getWorldInfo().getDimension(),
-				xCoord, yCoord, zCoord,
-				targettype);
-		PLC.instance.addEventListener(sub);
+		PLC.instance.getNetworkBroker().addEventListener(this);
 		initialize();
 	}
 	
@@ -92,7 +86,7 @@ public class TilePLC extends TileEntity {
 	@Override
 	public void invalidate()
 	{
-		PLC.instance.removeEventListener(this);
+		PLC.instance.getNetworkBroker().removeEventListener(this);
 		init = false;
 		super.invalidate();
 	}

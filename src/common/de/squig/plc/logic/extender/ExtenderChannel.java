@@ -10,6 +10,7 @@ import net.minecraftforge.common.ForgeDirection;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.ISignalListener;
 import de.squig.plc.logic.Signal;
+import de.squig.plc.logic.extender.function.DisabledFunction;
 import de.squig.plc.logic.extender.function.ExtenderFunction;
 import de.squig.plc.logic.extender.function.ExtenderTrigger;
 import de.squig.plc.logic.extender.function.RedstoneFunction;
@@ -25,14 +26,14 @@ public class ExtenderChannel {
 	private TYPES type;
 	private int number;
 	private TileExtender extender;
-	private int linkedChannel = -1;
+
 	
 	private String functionData = "";
 	private String triggerData = "";
 	private Object functionLocalData = "";
 	private Object triggerLocalData = "";
 	
-	private int resetTimer = -1;
+	private long sheduledOn = -1;
 	
 
 	private ExtenderFunction function = ExtenderFunction.disabledFunction;
@@ -48,20 +49,13 @@ public class ExtenderChannel {
 		this.number = number;
 		this.type = type;
 		this.extender = extender;
+		this.function = ExtenderFunction.disabledFunction;
 	}
 	
 	public void setSignalWithReset(Signal signal, int timer) {
 		
 	}
 
-	public int getLinkedChannel() {
-		return linkedChannel;
-	}
-
-
-	public void setLinkedChannel(int linkedChannel) {
-		this.linkedChannel = linkedChannel;
-	}
 
 
 	public TYPES getType() {
@@ -92,12 +86,15 @@ public class ExtenderChannel {
 	}
 
 	public void setFunction(int functionid) {
+		if (function != null && function.getId() == functionid)
+			return;
 		if (function != null) {
 			function.onDestroy(this);
 		}
 		function = ExtenderFunction.getFunction(this,functionid);
 		if (function != null)
 			function.onCreate(this);
+		
 	}
 
 	public TileExtender getExtender() {
@@ -114,7 +111,7 @@ public class ExtenderChannel {
 
 	public void saveTo(DataOutputStream data) throws IOException {
 		data.writeChar(number);
-		data.writeChar(linkedChannel);
+	
 		data.writeChar(type.ordinal());
 		data.writeChar(side);
 		
@@ -132,21 +129,23 @@ public class ExtenderChannel {
 	}
 
 	public void setSide(int side) {
+		boolean update = this.side != side;
 		this.side = side;
+		if (update)
+			extender.sheduleNeighbourUpdate();
 	}
 
 	public static ExtenderChannelNetworkData readFrom(DataInputStream data)
 			throws IOException {
 
 		char number = data.readChar();
-		char linkNumber = data.readChar();
 		char type = data.readChar();
 		char side = data.readChar();
 		char functiontype = data.readChar();
 		char triggerid = data.readChar();
 		String functionData = data.readUTF();
 		String triggervalue = data.readUTF();
-		return new ExtenderChannelNetworkData(number,linkNumber, type, side, functiontype, triggerid, functionData,triggervalue);
+		return new ExtenderChannelNetworkData(number, type, side, functiontype, triggerid, functionData,triggervalue);
 
 	}
 
@@ -156,19 +155,12 @@ public class ExtenderChannel {
 					+ this.getType().ordinal() + " != " + dt.getType());
 			return;
 		}
-		this.linkedChannel = dt.getLinkNumber();
 		
-		side = dt.getSide();
-		if (side < 6)
-			extender.getSideChannels(side).add(this);
-		else if (side == 6)
-			for (int i = 0; i < 6; i++)
-				extender.getSideChannels(i).add(this);
-
+		
+		setSide(dt.getSide());
+		
 		setFunction(dt.getFunctionType());
-		if (dt.getFunctionType() != 0)
-			LogHelper.info("funct set to "+dt.getFunctionType()+ " chan: "+dt.getNumber());
-			
+		
 		if (dt.getTriggerType() < 255 && function != null && function.getTriggers() != null) {
 			for (ExtenderTrigger trg : function.getTriggers()) 
 				if (trg.getTriggerId() == dt.getTriggerType()) 
@@ -189,14 +181,9 @@ public class ExtenderChannel {
 			this.signal = signal;
 
 		} else if (type.equals(TYPES.OUTPUT)) {
-			if (function != null)
+			if (function != null && !(function instanceof DisabledFunction))
 				function.onSignal(this,signal);
-			
-			//this.signal = signal;
 		}
-	}
-	public void setSidePowered(Signal signal) {
-		extender.setSidePowered(this, signal);
 	}
 	
 	public void onRedstoneChanged(boolean isRedstonePowered, boolean b) {
@@ -204,6 +191,12 @@ public class ExtenderChannel {
 			((RedstoneFunction) function).onRedstoneChanged(this,isRedstonePowered,b);
 	}
 
+	public void enableShedule(long inticks) {
+		setSheduledOn(extender.getWorldObj().getTotalWorldTime()+inticks);
+		extender.addChannelToShedule(this);
+	}
+	
+	
 	public ExtenderTrigger getTrigger() {
 		return trigger;
 	}
@@ -249,6 +242,14 @@ public class ExtenderChannel {
 
 	public void setTriggerLocalData(Object triggerLocalData) {
 		this.triggerLocalData = triggerLocalData;
+	}
+
+	public long getSheduledOn() {
+		return sheduledOn;
+	}
+
+	public void setSheduledOn(long sheduledOn) {
+		this.sheduledOn = sheduledOn;
 	}
 	
 

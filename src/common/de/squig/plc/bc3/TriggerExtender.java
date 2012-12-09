@@ -37,9 +37,8 @@ public class TriggerExtender extends Trigger
     if (tile == null) return false;
     if ((tile instanceof TileExtender)) {
     	TileExtender teb = (TileExtender)tile;
-    	int chnnr = teb.getInChannels()+action;
-    	if (teb.getChannels().size() > chnnr) {
-    		ExtenderChannel chn = teb.getChannels().get(chnnr);
+    	if (teb.getChannelsOut().size() > action) {
+    		ExtenderChannel chn = teb.getChannelsOut().get(action);
     		return chn.getSignal().equals(Signal.ON);
     	}
     }

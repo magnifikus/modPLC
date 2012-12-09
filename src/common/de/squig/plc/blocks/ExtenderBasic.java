@@ -30,7 +30,7 @@ public class ExtenderBasic extends BlockContainer {
 		setHardness(4.0F); // 33% harder than diamond
 		setStepSound(Block.soundStoneFootstep);
 		setBlockName("Basic Extender");
-		setCreativeTab(CreativeTabs.tabBlock);
+		setCreativeTab(CreativeTabs.tabRedstone);
 
 	}
 
@@ -69,15 +69,11 @@ public class ExtenderBasic extends BlockContainer {
 
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (side == Side.SERVER) {
-			
 			TileExtender tileExtender = (TileExtender) world
 					.getBlockTileEntity(x, y, z);
 			if (tileExtender != null) {
-				player.sendChatToPlayer("UUID: "+tileExtender.getUuid().toString());
 				PacketExtenderData.sendElements(tileExtender, player);
 				player.openGui(PLC.instance, GuiIds.EXTENDER, world, x, y, z);
-
-				
 			}
 
 		}
@@ -91,11 +87,11 @@ public class ExtenderBasic extends BlockContainer {
 
 	@Override
 	public void onNeighborBlockChange(World world, int i, int j, int k, int l) {
-		TileExtender tile = (TileExtender) world.getBlockTileEntity(i, j, k);
-		if (tile != null) {
-			tile.checkRedstonePower();
-		}
-		
+		TileEntity tile =  world.getBlockTileEntity(i, j, k);
+		if (!(tile instanceof TileExtender))
+			return;
+		TileExtender tileE = (TileExtender)tile;
+		tileE.checkRedstonePower();
 	}
 
 	/**

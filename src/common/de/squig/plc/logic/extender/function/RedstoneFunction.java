@@ -44,19 +44,20 @@ public class RedstoneFunction extends ExtenderFunction {
 	
 	@Override
 	public void onDestroy(ExtenderChannel channel) {
-		channel.getExtender().removeRedstoneListener(channel);
+		channel.getExtender().sheduleNeighbourUpdate();
 	}
 	@Override
 	public void onCreate(ExtenderChannel channel) {
 		channel.setTrigger(defaultTrigger);
 		channel.setFunctionLocalData(Signal.OFF);
-		if (channel.getType().equals(ExtenderChannel.TYPES.INPUT))
-			channel.getExtender().addRedstoneListener(channel);
+		if (channel.getType().equals(ExtenderChannel.TYPES.OUTPUT))
+			channel.getExtender().requestUpdateFromController();
+		
 	}
 
 
 
-
+	
 	public void onRedstoneChanged(ExtenderChannel channel, boolean isRedstonePowered, boolean statePulse) {
 		//LogHelper.info("on change");
 		if (channel.getType() == ExtenderChannel.TYPES.INPUT) {
@@ -89,7 +90,7 @@ public class RedstoneFunction extends ExtenderFunction {
 					else tosend = Signal.OFF;
 					break;
 				case 4:	// change
-					LogHelper.info(lastpowered+" "+isRedstonePowered);
+					//LogHelper.info(lastpowered+" "+isRedstonePowered);
 					if (lastpowered != isRedstonePowered)
 						tosend = Signal.PULSE;
 					
@@ -109,32 +110,46 @@ public class RedstoneFunction extends ExtenderFunction {
 			else channel.setFunctionLocalData(Signal.OFF);
 			
 			if (tosend != null) {
+				channel.getExtender().sheduleRemoteUpdate();
 				channel.setSignal(tosend);
-				LogHelper.info("sending "+tosend);
-				SignalEvent event = new SignalEvent(channel.getExtender()
-						,channel.getExtender().getConnectedController(), 
-						tosend, channel.getNumber());
-				PLC.instance.fireEvent(event);
+				SignalEvent.fireDirected(channel.getExtender(), channel.getExtender().getConnectedController(), tosend, channel.getNumber());
 			}
 		}
 	}
-
+	
+	@Override
 	public void onSignal(ExtenderChannel channel, Signal signal) {
 		if (channel.getType() == ExtenderChannel.TYPES.OUTPUT) {
-			//LogHelper.info("receiving  "+signal);
-			
 			Signal lastSignal = Signal.OFF;
 			if (channel.getFunctionLocalData() instanceof Signal)
 				lastSignal = (Signal)channel.getFunctionLocalData();
-			
 			if (!lastSignal.equals(signal)) {
-				channel.setSidePowered(signal);
+				channel.getExtender().sheduleNeighbourUpdate();
+				channel.getExtender().sheduleRemoteUpdate();
 				lastSignal = signal;
+				if (signal.equals(Signal.PULSE)) {
+					signal = Signal.ON;
+					channel.enableShedule(1);
+				}
+				
 			}
 			channel.setFunctionLocalData(lastSignal);
 			channel.setSignal(signal);
 			
 		}
 	}
-
+	
+	@Override
+	public void onUpdate(ExtenderChannel channel,long worldTotalTime) {
+		if (channel.getType() == ExtenderChannel.TYPES.OUTPUT)
+			if (channel.getFunctionLocalData() instanceof Signal) {
+				Signal lastSignal = (Signal)channel.getFunctionLocalData();
+				if (lastSignal.equals(Signal.PULSE)) {
+					channel.setFunctionLocalData(Signal.OFF);
+					channel.setSignal(Signal.OFF);
+					channel.getExtender().sheduleNeighbourUpdate();
+				}
+			}
+		
+	}
 }

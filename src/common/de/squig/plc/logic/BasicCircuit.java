@@ -12,7 +12,7 @@ public class BasicCircuit extends Circuit {
 	
 	public BasicCircuit(TileController controller) {
 		super(controller,8,20);
-		LogHelper.info("BasicCircuit created "+this);
+	
 		
 		for (int i=0; i < 16; i++) {
 			addCircuitObject(new LogicInput(this, i+""));

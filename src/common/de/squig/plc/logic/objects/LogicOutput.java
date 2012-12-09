@@ -18,9 +18,10 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 	protected CircuitObjectInputPin inSet = new CircuitObjectInputPin(this, "Output Set");
 	protected CircuitObjectInputPin inReset = new CircuitObjectInputPin(this, "Output Reset");
 	 
-	
+	protected boolean changed = false;
 	
 	protected Signal signal = Signal.OFF;
+	protected Signal lastSignal = Signal.OFF;
 	
 	public LogicOutput(Circuit circuit, String linkNumber) {
 		super(circuit, TYPES.OUTPUT);
@@ -52,18 +53,6 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 		return null;
 	}
 	
-	public void updateRemotes(Signal signal) {
-		//LogHelper.info("got signal: "+signal);
-		SignalEvent event = new SignalEvent(getCircuit().getController(),PLCEvent.TARGETTYPE.EXTENDER,
-				signal,this.getLinkNumberInt(), circuit.getController().getRange());
-		PLC.instance.fireEvent(event);
-	}
-	
-	
-	public boolean getPowered () {
-		return true;
-	}
-
 
 	@Override
 	public void onSignal(CircuitObjectInputPin pin, Signal signal) {
@@ -82,7 +71,24 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 	
 	@Override
 	public void commit() {
-		updateRemotes(this.signal);
+		if (!signal.equals(lastSignal)) {
+			changed = true;
+			lastSignal = signal;
+		}
+	}
+
+
+	public boolean isChanged() {
+		return changed;
+	}
+
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+	}
+
+
+	public Signal getSignal() {
+		return signal;
 	}
 	
 }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,14 +30,20 @@ import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
 import de.squig.plc.PLC;
+import de.squig.plc.event.ControllerDataEvent;
 import de.squig.plc.event.PLCEvent;
+import de.squig.plc.event.PLCEventSubscriber;
 import de.squig.plc.event.SearchEvent;
 import de.squig.plc.event.SearchResponseEvent;
 import de.squig.plc.event.SignalEvent;
+import de.squig.plc.event.payloads.ControllerDataPayload;
+import de.squig.plc.lib.StaticData;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
+import de.squig.plc.logic.extender.ExtenderChannel.TYPES;
 import de.squig.plc.logic.extender.ExtenderChannelNetworkData;
 import de.squig.plc.logic.extender.function.BC3Function;
+import de.squig.plc.logic.extender.function.RedstoneFunction;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketExtenderLiteData;
 
@@ -47,44 +54,56 @@ public class TileExtender extends TilePLC implements IInventory {
 
 	private TYPE type = null;
 
-	private int extenderID = -1;
-
-	private int range = 16;
+	private int range = StaticData.ExtenderBaseRange;
 	
-	private int inChannels = 0;
-	private int outChannels = 0;
-
-	// SOFT!
+	
+	// SOFT link
 	private UUID connectedController = null;
 	private String connectedControllerName = null;
 
 	private List<SearchResponseEvent> controllersInRange = null;
 
-	private List<ExtenderChannel> channels = null;
-
-	private List<ExtenderChannel> redstoneListener = new ArrayList<ExtenderChannel>();
+	private List<ExtenderChannel> channelsIn = null;
+	private List<ExtenderChannel> channelsOut = null;
+	
+	private List<ExtenderChannel> sheduledChannelUpdates;
+	
+	
 	private List<ExtenderChannel> tickListener = new ArrayList<ExtenderChannel>();
-	private List<ExtenderChannel> changeListener = new ArrayList<ExtenderChannel>();
-
-	private Signal sidePowered[] = new Signal[6];
-
-	private List<ExtenderChannel> sideChannels[] = new ArrayList[6];
-
+	
 	private boolean isRedstonePowered;
-
-	private List<Long> sheduledUpdates = new ArrayList<Long>();
 	
 	
-	private boolean sheduleRemoteUpdate = false;
+	private boolean remoteUpdate = false;
+	private boolean neighbourUpdate = false;
 
-	// load/save shit
-
+	
+	
+	// load shit
 	private boolean needsLoad = false;
+	private List<ExtenderChannelNetworkData> loadChannelDataIn = null;
+	private List<ExtenderChannelNetworkData> loadChannelDataOut = null;
 	
-	private List<ExtenderChannelNetworkData> loadChannelData = null;
 	
+	
+	// status
 	private char[] instatus = new char[0];
 	private char[] outstatus = new char[0];
+	
+	
+
+	
+	protected TileExtender() {
+		super(PLCEvent.TARGETTYPE.EXTENDER);
+		channelsIn = new ArrayList<ExtenderChannel>();
+		channelsOut = new ArrayList<ExtenderChannel>();
+		sheduledChannelUpdates = new LinkedList<ExtenderChannel>();
+		
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side.equals(Side.CLIENT))
+			needsLoad = true;
+	
+	}
 	
 	public void updateStatus(char[] ins, char[] outs) {
 		instatus = ins;
@@ -99,22 +118,17 @@ public class TileExtender extends TilePLC implements IInventory {
 		return outstatus;
 	}
 	
-	
-	protected TileExtender() {
-		super(PLCEvent.TARGETTYPE.EXTENDER);
-		for (int i = 0; i < sidePowered.length; i++)
-			sidePowered[i] = Signal.OFF;
-		for (int i = 0; i < 6; i++)
-			sideChannels[i] = new ArrayList<ExtenderChannel>();
-		channels = new ArrayList<ExtenderChannel>();
-	}
 
+	/**
+	 * bc3 support integration
+	 * 
+	 * @return
+	 */
 	public static TileExtender createInstance() {
 		try {
 			Class bc3Extender = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.compat.TileExtenderBC3");
 			Constructor constructor = bc3Extender.getConstructor(null);
-			TileExtender res = (TileExtender)
-			        constructor.newInstance(null);
+			TileExtender res = (TileExtender)constructor.newInstance(null);
 			return res;
 	     
 		} catch (Exception ex) {
@@ -124,95 +138,29 @@ public class TileExtender extends TilePLC implements IInventory {
 	
 	
 	public boolean isSidePowered(ForgeDirection side) {
-		Signal signal = sidePowered[side.ordinal()];
-		if (signal.equals(Signal.ON) || signal.equals(Signal.PULSE))
-			return true;
-		else
-			return false;
+		return getSideSignal(side).equals(Signal.ON);
 	}
 
 	public Signal getSideSignal(ForgeDirection side) {
-		return sidePowered[side.ordinal()];
+		Signal ret = Signal.OFF;
+		for (int i = 0; i < channelsOut.size(); i++) {
+			ExtenderChannel chn = channelsOut.get(i);
+			if (chn.getFunction() instanceof RedstoneFunction 
+					&& (chn.getSide() == 6 || chn.getSide() == side.ordinal())) 
+				ret = ret.getHigherSignal(chn.getSignal());
+			
+		}
+		return ret;
+	}
+	
+	public void sheduleNeighbourUpdate() {
+		neighbourUpdate = true;
+	}
+	
+	public void sheduleRemoteUpdate() {
+		remoteUpdate = true;
 	}
 
-	public List<ExtenderChannel> getSideChannels(int side) {
-		return sideChannels[side];
-	}
-
-	public void setSidePowered(ForgeDirection side, Signal signal) {
-		setSidePowered(side, signal, true);
-	}
-
-	public void setSidePowered(ForgeDirection side, Signal signal,
-			boolean dNotify) {
-		if (!sidePowered[side.ordinal()].equals(signal)) {
-			sidePowered[side.ordinal()] = signal;
-		}
-		Side sside = FMLCommonHandler.instance().getEffectiveSide();
-		if (sside.equals(Side.SERVER) && dNotify) {
-			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, 501);
-			//PacketExtenderLiteData.sendUpdateToClients(this);
-		}
-
-	}
-
-	public void setSheduleRemoteUpdate(boolean sheduleRemoteUpdate) {
-		this.sheduleRemoteUpdate = sheduleRemoteUpdate;
-	}
-
-	public void setSidePowered(ExtenderChannel channel, Signal signal) {
-		
-		boolean update = false;
-		if (sideChannels[0].contains(channel)) {
-			if (!sidePowered[0].equals(signal)) {
-				update = true;
-				sidePowered[0] = signal;
-			}
-		}
-		if (sideChannels[1].contains(channel)) {
-			if (!sidePowered[1].equals(signal)) {
-				update = true;
-				sidePowered[1] = signal;
-			}
-		}
-		if (sideChannels[2].contains(channel)) {
-			if (!sidePowered[2].equals(signal)) {
-				update = true;
-				sidePowered[2] = signal;
-			}
-		}
-		if (sideChannels[3].contains(channel)) {
-			if (!sidePowered[3].equals(signal)) {
-				update = true;
-				sidePowered[3] = signal;
-			}
-		}
-		if (sideChannels[4].contains(channel)) {
-			if (!sidePowered[4].equals(signal)) {
-				update = true;
-				sidePowered[4] = signal;
-			}
-		}
-		if (sideChannels[5].contains(channel)) {
-			if (!sidePowered[5].equals(signal)) {
-				update = true;
-				sidePowered[5] = signal;
-			}
-		}
-		if (update) {
-			Side sside = FMLCommonHandler.instance().getEffectiveSide();
-			if (sside.equals(Side.SERVER)) {
-				worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord,
-						501);
-				sheduleRemoteUpdate  = true;
-			}
-			if (signal.equals(Signal.PULSE)
-					|| signal.equals(Signal.NEGATIVEPULSE))
-				sheduleUpdate(2);
-
-		}
-
-	}
 
 	@Override
 	protected void initialize() {
@@ -232,65 +180,68 @@ public class TileExtender extends TilePLC implements IInventory {
 		return true;
 	};
 
-	private void sheduledUpdate(Long updatetime) {
-		for (int i = 0; i < 6; i++) {
-			Signal spower = sidePowered[i];
-			if (spower.equals(Signal.PULSE)) {
-				setSidePowered(ForgeDirection.getOrientation(i), Signal.OFF);
-			} else if (spower.equals(Signal.NEGATIVEPULSE)) {
-				setSidePowered(ForgeDirection.getOrientation(i), Signal.ON);
-			}
-		}
-	}
 
-	private void sheduleUpdate(long timeto) {
-		sheduledUpdates.add(new Long(worldObj.getTotalWorldTime() + timeto));
+	public void addChannelToShedule(ExtenderChannel chn) {
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side.equals(Side.CLIENT))
+			return;
+		if (!sheduledChannelUpdates.contains(chn))
+			sheduledChannelUpdates.add(chn);
+		
 	}
+	
 
 	@Override
 	public void updateEntity() {
 		super.updateEntity();
-		if (needsLoad)
+		if (needsLoad) {
 			loadData();
-		if (sheduledUpdates.size() > 0) {
-			List<Long> remove = new ArrayList<Long>();
-			for (Long updt : sheduledUpdates)
-				if (worldObj.getTotalWorldTime() >= updt) {
-					remove.add(updt);
-					sheduledUpdate(updt);
-				}
-			if (remove.size() > 0)
-				for (Long rem : remove)
-					sheduledUpdates.remove(rem);
 		}
-		for (ExtenderChannel chn : channels) {
-			if (chn.getFunction() instanceof BC3Function)
-				((BC3Function) chn.getFunction()).onUpdate(chn);
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side.equals(Side.CLIENT))
+			return;
+		long now = worldObj.getTotalWorldTime();
+		for (ExtenderChannel chn : sheduledChannelUpdates) {
+			if (now >= chn.getSheduledOn() && chn.getFunction() != null) {
+				chn.getFunction().onUpdate(chn,now);
+				chn.setSheduledOn(-1);
+				sheduledChannelUpdates.remove(chn);
+			}
+			
 		}
-		if (sheduleRemoteUpdate) {
+		if (remoteUpdate) {
 			PacketExtenderLiteData.sendUpdateToClients(this);
-			sheduleRemoteUpdate = false;
+			remoteUpdate = false;
+		}
+		if (neighbourUpdate) {
+			worldObj.notifyBlocksOfNeighborChange(xCoord, yCoord, zCoord, StaticData.BlockExtender);
+			neighbourUpdate = false;
 		}
 	};
 
 	private void loadData() {
 		needsLoad = false;
-		inChannels = 0;
-		outChannels = 0;
-		for (int i = 0; i < 6; i++)
-			getSideChannels(i).clear();
-		for (int i = 0; i < 6; i++)
-			setSidePowered(ForgeDirection.values()[i], Signal.OFF, false);
-		for (ExtenderChannelNetworkData dt : loadChannelData) {
-			injectChannel(dt);
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side.equals(Side.CLIENT)) {
+			PacketExtenderLiteData.requestUpdateFromServer(this);
+			return;
 		}
-		for (ExtenderChannel chn : channels) {
-			if (chn.getType().equals(ExtenderChannel.TYPES.INPUT))
-				inChannels++;
-			else outChannels++;
+			
+		for (ExtenderChannelNetworkData dt : loadChannelDataIn) {
+			injectChannel(ExtenderChannel.TYPES.INPUT,dt);
+		}
+		for (ExtenderChannelNetworkData dt : loadChannelDataOut) {
+			injectChannel(ExtenderChannel.TYPES.OUTPUT,dt);
 		}
 		
-		loadChannelData = null;
+		if (connectedController != null) {
+			PLC.instance.getNetworkBroker().addMulticastListener(connectedController, this);
+			requestUpdateFromController();
+		}
+		
+		loadChannelDataIn = null;
+		loadChannelDataOut = null;
+		
 	}
 
 	public void readFromNBT(NBTTagCompound nbtTagCompound) {
@@ -301,14 +252,27 @@ public class TileExtender extends TilePLC implements IInventory {
 			connectedController = UUID.fromString(nbtTagCompound.getString("cuuid"));
 			connectedControllerName = nbtTagCompound.getString("cname");
 		}
-		loadChannelData = new ArrayList<ExtenderChannelNetworkData>();
-		for (int i = 0; i < 128; i++) {
-			if (nbtTagCompound.hasKey("channel-" + i)) {
+		loadChannelDataIn = new ArrayList<ExtenderChannelNetworkData>();
+		for (int i = 0; i < 64; i++) {
+			if (nbtTagCompound.hasKey("I-" + i)) {
 				try {
 					InputStream is = new ByteArrayInputStream(
-							nbtTagCompound.getByteArray("channel-" + i));
+							nbtTagCompound.getByteArray("I-" + i));
 					DataInputStream dis = new DataInputStream(is);
-					loadChannelData.add(ExtenderChannel.readFrom(dis));
+					loadChannelDataIn.add(ExtenderChannel.readFrom(dis));
+				} catch (IOException ex) {
+					LogHelper.error("exception durring reading data!");
+				}
+			}
+		}
+		loadChannelDataOut = new ArrayList<ExtenderChannelNetworkData>();
+		for (int i = 0; i < 32; i++) {
+			if (nbtTagCompound.hasKey("O-" + i)) {
+				try {
+					InputStream is = new ByteArrayInputStream(
+							nbtTagCompound.getByteArray("O-" + i));
+					DataInputStream dis = new DataInputStream(is);
+					loadChannelDataOut.add(ExtenderChannel.readFrom(dis));
 				} catch (IOException ex) {
 					LogHelper.error("exception durring reading data!");
 				}
@@ -328,25 +292,46 @@ public class TileExtender extends TilePLC implements IInventory {
 			nbtTagCompound.removeTag("cname");
 		}
 
-		for (int i = 0; i < 128; i++) {
-			if (i < channels.size()) {
+		for (int i = 0; i < 64; i++) {
+			if (i < channelsIn.size()) {
 				try {
 					ByteArrayOutputStream baos = new ByteArrayOutputStream();
 					DataOutputStream w = new DataOutputStream(baos);
 
-					ExtenderChannel chan = channels.get(i);
+					ExtenderChannel chan = channelsIn.get(i);
 					chan.saveTo(w);
 					w.flush();
 
 					byte[] result = baos.toByteArray();
-					nbtTagCompound.setByteArray("channel-" + i, result);
+					nbtTagCompound.setByteArray("I-" + i, result);
 
 				} catch (IOException ex) {
 					LogHelper.error("exception durring writing data!");
 				}
 			} else {
-				if (nbtTagCompound.hasKey("channel-" + i))
-					nbtTagCompound.removeTag("channel-" + i);
+				if (nbtTagCompound.hasKey("I-" + i))
+					nbtTagCompound.removeTag("I-" + i);
+			}
+		}
+		for (int i = 0; i < 32; i++) {
+			if (i < channelsOut.size()) {
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					DataOutputStream w = new DataOutputStream(baos);
+
+					ExtenderChannel chan = channelsOut.get(i);
+					chan.saveTo(w);
+					w.flush();
+
+					byte[] result = baos.toByteArray();
+					nbtTagCompound.setByteArray("O-" + i, result);
+
+				} catch (IOException ex) {
+					LogHelper.error("exception durring writing data!");
+				}
+			} else {
+				if (nbtTagCompound.hasKey("O-" + i))
+					nbtTagCompound.removeTag("O-" + i);
 			}
 		}
 
@@ -356,14 +341,14 @@ public class TileExtender extends TilePLC implements IInventory {
 	 * Returns the number of slots in the inventory.
 	 */
 	public int getSizeInventory() {
-		return this.calcinatorItemStacks.length;
+		return 0;
 	}
 
 	/**
 	 * Returns the stack in slot i
 	 */
 	public ItemStack getStackInSlot(int i) {
-		return this.calcinatorItemStacks[i];
+		return null;
 	}
 
 	public ItemStack decrStackSize(int i, int j) {
@@ -386,7 +371,7 @@ public class TileExtender extends TilePLC implements IInventory {
 	}
 
 	public int getInventoryStackLimit() {
-		return 64;
+		return 0;
 	}
 
 	public void openChest() {
@@ -397,9 +382,8 @@ public class TileExtender extends TilePLC implements IInventory {
 
 	public void sendBroadcastSearch() {
 		controllersInRange = new ArrayList<SearchResponseEvent>();
-		SearchEvent event = new SearchEvent(this,
-				PLCEvent.TARGETTYPE.CONTROLLER, null);
-		PLC.instance.fireEvent(event);
+		SearchEvent event = new SearchEvent(this,PLCEvent.TARGETTYPE.CONTROLLER, null);
+		PLC.instance.getNetworkBroker().fireEvent(event);
 	}
 
 	public List<SearchResponseEvent> getControllerInRange() {
@@ -408,70 +392,52 @@ public class TileExtender extends TilePLC implements IInventory {
 
 
 	private void createChannels(SearchResponseEvent linkto) {
-		channels.clear();
-
-		redstoneListener.clear();
-		changeListener.clear();
+		channelsIn.clear();
+		channelsOut.clear();
 		tickListener.clear();
-		inChannels = 0;
-		outChannels = 0;
+		char[] ins = new char[linkto.getInChannels()];
+		char[] outs = new char[linkto.getOutChannels()];
 
-		for (int i = 0; i < 6; i++) {
-			sideChannels[i].clear();
-			sidePowered[i] = Signal.OFF;
-		}
-		int nmbr = 0;
+	
 		for (int i = 0; i < linkto.getInChannels(); i++) {
 				ExtenderChannel channel = new ExtenderChannel(this,
-							ExtenderChannel.TYPES.INPUT, nmbr++);
-					channel.setLinkedChannel(i);
-					channels.add(channel);
-					inChannels++;
+							ExtenderChannel.TYPES.INPUT, i);
+				
+				channelsIn.add(channel);
+				ins[i] = 0;	
 				
 		}
 		for (int i = 0; i < linkto.getOutChannels(); i++) {
 			ExtenderChannel channel = new ExtenderChannel(this,
-						ExtenderChannel.TYPES.OUTPUT, nmbr++);
-				channel.setLinkedChannel(i);
-				channels.add(channel);
-				outChannels++;
+						ExtenderChannel.TYPES.OUTPUT, i);
+				
+				channelsOut.add(channel);
+				outs[i] = 0;
 		}
-		
+		updateStatus(ins, outs);
 	}
 
 
 
-
-	public List<ExtenderChannel> getChannels() {
-		return channels;
-	}
 
 	public void checkRedstonePower() {
-		boolean isRedstonePowered = worldObj.isBlockIndirectlyGettingPowered(
-				xCoord, yCoord, zCoord);
+		boolean isRedstonePowered = worldObj.isBlockIndirectlyGettingPowered(xCoord, yCoord, zCoord);
 
-		if (this.isRedstonePowered != isRedstonePowered) {
-			this.isRedstonePowered = isRedstonePowered;
-			for (ExtenderChannel channel : redstoneListener) {
+		for (ExtenderChannel channel : channelsIn) {
+			if (channel.getFunction() instanceof RedstoneFunction)
 				channel.onRedstoneChanged(isRedstonePowered, false);
-			}
 		}
-		PacketExtenderLiteData.sendUpdateToClients(this);
+	
 
 	}
 
-	public void addRedstoneListener(ExtenderChannel chn) {
-		redstoneListener.add(chn);
-
-	}
-
-	public void removeRedstoneListener(ExtenderChannel chn) {
-		redstoneListener.remove(chn);
-	}
-
-	public void injectChannel(ExtenderChannelNetworkData dt) {
+	public void injectChannel(TYPES input, ExtenderChannelNetworkData dt) {
 		ExtenderChannel chnn = null;
-		for (ExtenderChannel chn : channels)
+		List<ExtenderChannel> chns = channelsIn;
+		if (input.equals(ExtenderChannel.TYPES.OUTPUT))
+			chns = channelsOut;
+		
+		for (ExtenderChannel chn : chns)
 			if (chn.getType().ordinal() == dt.getType())
 				if (chn.getNumber() == dt.getNumber()) {
 					chnn = chn;
@@ -481,53 +447,76 @@ public class TileExtender extends TilePLC implements IInventory {
 			chnn = new ExtenderChannel(this,
 					ExtenderChannel.TYPES.values()[dt.getType()],
 					dt.getNumber());
-			channels.add(chnn);
+			chns.add(chnn);
 		}
 		chnn.inject(dt);
 	}
 
 	public void onEvent(PLCEvent event) {
-		if (event instanceof SearchResponseEvent) {
+		if (event instanceof ControllerDataEvent) {
+			ControllerDataEvent eventd = (ControllerDataEvent) event;
+			for (ControllerDataPayload load : eventd.getPayload()) {
+				if (load.channel < channelsOut.size()) {
+					ExtenderChannel chn = channelsOut.get(load.channel);
+					chn.onSignal(load.signal);
+				}
+			}
+			
+		} else if (event instanceof SignalEvent) {
+			SignalEvent events = (SignalEvent) event;
+			int chn = events.getChannel();
+			
+			ExtenderChannel channel;
+			if (chn < channelsOut.size() && (channel = channelsOut.get(chn)) != null)
+				channel.onSignal(events.getSignal());
+			else LogHelper.warn("cound not route event to channel "+events.getChannel());
+		} else if (event instanceof SearchResponseEvent) {
 			if (controllersInRange == null)
 				controllersInRange = new ArrayList<SearchResponseEvent>();
 			controllersInRange.add((SearchResponseEvent) event);
 			return;
 		}
 
-		if (event instanceof SignalEvent) {
-			SignalEvent events = (SignalEvent) event;
-			
-			for (ExtenderChannel channel : channels) {
-				if (channel.getType().equals(ExtenderChannel.TYPES.OUTPUT))
-					if (channel.getLinkedChannel() == events.getChannel()) {	
-						//LogHelper.info(channel+" executes");
-						channel.onSignal(events.getSignal());
-					}
-			}
-		}
+		
 	}
 
 	public void link(SearchResponseEvent linkto) {
 		connectedController = linkto.getUuid();
 		connectedControllerName = linkto.getName();
-		LogHelper.info("controller is now " + connectedController);
 		createChannels(linkto);
+		
 	}
 	public void linkFromPackage(UUID controller, String controllerName) {
+		if (connectedController != null)
+			PLC.instance.getNetworkBroker().removeMulticastListener(connectedController, this);
+		boolean requestUpdate = (this.connectedController == null || !this.connectedController.equals(controller));
 		connectedController = controller;
 		connectedControllerName = controllerName;
-		LogHelper.info("controller is now " + connectedController);
+		if (connectedController != null)
+			PLC.instance.getNetworkBroker().addMulticastListener(connectedController, this);
+		
+		if (requestUpdate) 
+			requestUpdateFromController();
+		
+	
 	}
+	
+	
 	public void unlink() {
+		if (connectedController != null)
+			PLC.instance.getNetworkBroker().removeMulticastListener(connectedController, this);
 		connectedController = null;
 		connectedControllerName = null;
-		channels.clear();
-		redstoneListener.clear();
-		changeListener.clear();
+		channelsIn.clear();
+		channelsOut.clear();
 		tickListener.clear();
+		sheduleNeighbourUpdate();
+		sheduleRemoteUpdate();
 	}
 	
-	
+	public void requestUpdateFromController() {
+		PLC.instance.getNetworkBroker().fireEvent(new ControllerDataEvent(this, connectedController, null));
+	}
 	
 	public UUID getConnectedController() {
 		return connectedController;
@@ -537,13 +526,15 @@ public class TileExtender extends TilePLC implements IInventory {
 		return connectedControllerName;
 	}
 
-	public int getInChannels() {
-		return inChannels;
+	public List<ExtenderChannel> getChannelsIn() {
+		return channelsIn;
 	}
 
-	public int getOutChannels() {
-		return outChannels;
+	public List<ExtenderChannel> getChannelsOut() {
+		return channelsOut;
 	}
 
+	
+	
 
 }

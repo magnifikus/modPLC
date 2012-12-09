@@ -27,9 +27,9 @@ public class BC3Integration implements ITriggerProvider, IActionProvider {
 		triggersExtender = new ArrayList<TriggerExtender>();
 		actionsExtender = new ArrayList<ActionExtender>();
 		for (int i = 0; i < 32; i++)
-			triggersExtender.add(new TriggerExtender(250 + i, i));
+			triggersExtender.add(new TriggerExtender(820 + i, i));
 		for (int i = 0; i < 64; i++)
-			actionsExtender.add(new ActionExtender(250 + i, i));
+			actionsExtender.add(new ActionExtender(820 + i, i));
 		BC3Integration bc3int = new BC3Integration();
 		ActionManager.registerTriggerProvider(bc3int);
 		ActionManager.registerActionProvider(bc3int);
@@ -38,16 +38,18 @@ public class BC3Integration implements ITriggerProvider, IActionProvider {
 		
 		return true;
 	}
-
+	
+	@Override
 	public LinkedList getPipeTriggers(IPipe pipe) {
 		return null;
 		
 	}
-
+	
+	@Override
 	public LinkedList getNeighborTriggers(Block block, TileEntity tile) {
 		LinkedList temp = new LinkedList();
 		if (tile instanceof TileExtender) {
-			for (int i = 0; i < ((TileExtender) tile).getOutChannels(); i++)
+			for (int i = 0; i < ((TileExtender) tile).getChannelsIn().size(); i++)
 				temp.add(triggersExtender.get(i));
 		}
 		return temp;
@@ -57,7 +59,7 @@ public class BC3Integration implements ITriggerProvider, IActionProvider {
 	public LinkedList<IAction> getNeighborActions(Block block, TileEntity tile) {
 		LinkedList temp = new LinkedList();
 		if (tile instanceof de.squig.plc.tile.TileExtender) {
-			for (int i = 0; i < ((de.squig.plc.tile.TileExtender) tile).getInChannels(); i++)
+			for (int i = 0; i < ((de.squig.plc.tile.TileExtender) tile).getChannelsOut().size(); i++)
 				temp.add(actionsExtender.get(i));
 		}
 		return temp;

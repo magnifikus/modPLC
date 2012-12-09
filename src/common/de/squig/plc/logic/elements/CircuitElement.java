@@ -117,7 +117,7 @@ public class CircuitElement implements Serializable {
 			element.setFunction(ElementFunction.getById(data.functionID));
 			
 			int link = data.linkNumber;
-			LogHelper.info("setting link "+link);
+			
 			
 			if (link != 255)
 				element.setLinkNumber("" + link);
@@ -171,7 +171,7 @@ public class CircuitElement implements Serializable {
 	}
 
 	public void onObjectChange() {
-		System.out.println("Object change!");
+		
 		if (function != null && function.getLinkType() != null && linkedObject != null) {
 			if (function.getIotype() == IoType.INPUT) {
 				outputPin = linkedObject.getOutputPin(function);
@@ -214,7 +214,7 @@ public class CircuitElement implements Serializable {
 		this.function = function;
 		onObjectChange();
 		isChanged = true;
-		LogHelper.info("fnct set to"+function.getId());
+		
 	}
 
 	public void tryInvert() {

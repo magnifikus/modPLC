@@ -4,24 +4,18 @@ import java.util.UUID;
 
 import net.minecraft.src.World;
 import de.squig.plc.event.PLCEvent.TARGETTYPE;
+import de.squig.plc.tile.TilePLC;
 
 public class PLCEventSubscriber {
 	private UUID uuid;
-	private int dim;
-	private int x;
-	private int y;
-	private int z;
+
+	TilePLC tile;
 	private PLCEvent.TARGETTYPE targetType;
-	public PLCEventSubscriber(UUID uuid,int dim, int x, int y, int z,
-			TARGETTYPE targetType) {
+	public PLCEventSubscriber(TilePLC tile) {
 		super();
-		this.uuid = uuid;
-		this.dim = dim;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	
-		this.targetType = targetType;
+		this.tile = tile;
+		this.uuid = tile.getUuid();
+		this.targetType = tile.getTargettype();
 	}
 	
 	
@@ -31,36 +25,20 @@ public class PLCEventSubscriber {
 		return uuid;
 	}
 
-	public int getDim() {
-		return dim;
-	}
-	public void setDim(int dim) {
-		this.dim = dim;
-	}
-	public int getX() {
-		return x;
-	}
-	public void setX(int x) {
-		this.x = x;
-	}
-	public int getY() {
-		return y;
-	}
-	public void setY(int y) {
-		this.y = y;
-	}
-	public int getZ() {
-		return z;
-	}
-	public void setZ(int z) {
-		this.z = z;
-	}
+
 
 	public PLCEvent.TARGETTYPE getTargetType() {
 		return targetType;
 	}
 	public void setTargetType(PLCEvent.TARGETTYPE targetType) {
 		this.targetType = targetType;
+	}
+
+
+
+
+	public TilePLC getTile() {
+		return tile;
 	}
 	
 	

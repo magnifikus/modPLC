@@ -6,7 +6,7 @@ import java.util.List;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 
-public class ExtenderFunction {
+public abstract class ExtenderFunction {
 	
 	private String displayName;
 	private List<ExtenderChannel.TYPES>  ioTypes;
@@ -59,7 +59,8 @@ public class ExtenderFunction {
 	}
 	public void onCreate(ExtenderChannel channel) {
 	}
-	
+	public void onUpdate(ExtenderChannel channel,long worldTotalTime) {
+	}
 	
 	
 	

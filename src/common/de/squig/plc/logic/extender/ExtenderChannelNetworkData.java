@@ -9,7 +9,7 @@ import de.squig.plc.tile.TileExtender;
 
 public class ExtenderChannelNetworkData {
 	private char number;
-	private char linkNumber;
+
 	private char type;
 	private char side;
 
@@ -17,12 +17,12 @@ public class ExtenderChannelNetworkData {
 	private char triggerType;
 	private String functionData;
 	private String triggerData;
-	public ExtenderChannelNetworkData(char number, char linkNumber, char type,
+	public ExtenderChannelNetworkData(char number, char type,
 			 char side,
 			char functionType, char triggerType, String functionData, String triggerData) {
 		super();
 		this.number = number;
-		this.linkNumber = linkNumber;
+	
 		this.type = type;
 	
 		this.side = side;
@@ -33,10 +33,6 @@ public class ExtenderChannelNetworkData {
 		this.triggerData = triggerData;
 	}
 	
-	public char getLinkNumber() {
-		return linkNumber;
-	}
-
 	public char getNumber() {
 		return number;
 	}

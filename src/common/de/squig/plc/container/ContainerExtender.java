@@ -18,10 +18,10 @@ public class ContainerExtender extends Container {
     	this.extender = extender;
     	
     	// Add the calcinator "to be calcined" slot to the container
-        this.addSlotToContainer(new Slot(extender, 0, 56, 17));
+      //  this.addSlotToContainer(new Slot(extender, 0, 56, 17));
         
         // Add the calcinator fuel slot to the container
-        this.addSlotToContainer(new Slot(extender, 1, 56, 62));
+       // this.addSlotToContainer(new Slot(extender, 1, 56, 62));
         
         // Add the calcined results slot to the container
         // TODO Add a slot here

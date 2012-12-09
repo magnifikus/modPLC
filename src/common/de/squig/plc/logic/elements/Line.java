@@ -127,7 +127,7 @@ public class Line extends CircuitElement  {
 	
 	
 	private void updateConnstate() {
-		LogHelper.info(mapX+" "+mapY+" updateConnstate called()");
+		//LogHelper.info(mapX+" "+mapY+" updateConnstate called()");
 		boolean sleft = left;
 		boolean sright = right;
 		if (!top && isConnTop())
@@ -226,7 +226,7 @@ public class Line extends CircuitElement  {
 	public void setConnTop(boolean connTop) {
 		if (this.connTop != connTop) {
 			setChanged(true);
-			LogHelper.info(mapX+" "+mapY+" top is now "+connTop);
+			//LogHelper.info(mapX+" "+mapY+" top is now "+connTop);
 		}
 		this.connTop = connTop;
 	}
@@ -238,7 +238,7 @@ public class Line extends CircuitElement  {
 	public void setConnBot(boolean connBot) {
 		if (this.connBot != connBot) {
 			setChanged(true);
-			LogHelper.info(mapX+" "+mapY+" bot is now "+connBot);
+			//LogHelper.info(mapX+" "+mapY+" bot is now "+connBot);
 		}
 
 		this.connBot = connBot;

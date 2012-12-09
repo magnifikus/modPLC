@@ -2,6 +2,7 @@ package de.squig.plc.event;
 
 import java.util.UUID;
 
+import de.squig.plc.PLC;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.tile.TilePLC;
 
@@ -14,11 +15,6 @@ public class SignalEvent extends PLCEvent {
 		this.signal = signal;
 		this.channel = channel;
 	}
-	public SignalEvent(TilePLC source, TARGETTYPE target , Signal signal, int channel, int range) {
-		super(source,target, range);
-		this.signal = signal;
-		this.channel = channel;
-	}
 	
 	
 	public Signal getSignal() {
@@ -26,6 +22,12 @@ public class SignalEvent extends PLCEvent {
 	}
 	public int getChannel() {
 		return channel;
+	}
+
+	
+	public static void fireDirected (TilePLC src, UUID dest, Signal signal, int chn) {
+		SignalEvent event = new SignalEvent(src,dest, signal,chn);
+		PLC.instance.getNetworkBroker().fireEvent(event);
 	}
 	
 }

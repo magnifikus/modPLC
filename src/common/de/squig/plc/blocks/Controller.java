@@ -25,9 +25,7 @@ public class Controller extends BlockContainer {
 		setHardness(4.0F); // 33% harder than diamond
 		setStepSound(Block.soundStoneFootstep);
 		setBlockName("Controller");
-		setCreativeTab(CreativeTabs.tabBlock);
-		
-
+		setCreativeTab(CreativeTabs.tabRedstone);
 	}
 
 	@Override
@@ -84,14 +82,8 @@ public class Controller extends BlockContainer {
 			TileController tileController = (TileController) world
 					.getBlockTileEntity(x, y, z);
 			if (tileController != null) {
-				player.sendChatToPlayer("UUID: "+tileController.getUuid().toString());
-				
 				player.openGui(PLC.instance, GuiIds.CONTROLLER, world, x, y, z);
-
-				// Circuit circuit = tileController.getCircuit();
-
 				PacketControllerData.sendElements(tileController, player, true);
-
 			}
 
 		}

@@ -17,8 +17,8 @@ public class TileExtenderBC3 extends TileExtender implements IActionReceptor {
 	public void actionActivated(IAction action) {
 		if (action instanceof ActionExtender) {
 			int chn = ((ActionExtender) action).getAction();
-			if (chn < getChannels().size()) {
-				ExtenderChannel channel = getChannels().get(chn);
+			if (chn < getChannelsIn().size()) {
+				ExtenderChannel channel = getChannelsIn().get(chn);
 				if (channel.getFunction() instanceof BC3Function) 
 					((BC3Function) channel.getFunction()).onBCAction(channel);
 			}

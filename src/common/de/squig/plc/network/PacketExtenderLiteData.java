@@ -33,7 +33,6 @@ import de.squig.plc.tile.TileExtender;
 public class PacketExtenderLiteData extends PLCPacket {
 
 	public int x, y, z;
-	
 
 	private List<Character> resC = null;
 	private List<Boolean> res = null;
@@ -41,9 +40,8 @@ public class PacketExtenderLiteData extends PLCPacket {
 	private int ins = 0;
 	private int outs = 0;
 
-	private TileExtender extender  = null;
-	
-	
+	private TileExtender extender = null;
+
 	public PacketExtenderLiteData() {
 		super(PacketTypeHandler.EXTENDERLITEDATA, true);
 	}
@@ -53,44 +51,61 @@ public class PacketExtenderLiteData extends PLCPacket {
 		this.y = y;
 		this.z = z;
 	}
-	
-	public void setExtender (TileExtender extender) {
+
+	public void setExtender(TileExtender extender) {
 		this.extender = extender;
 	}
 
-
 	// int x,y,z
-	// 
+	//
 	// int in, int out
 	// boolean en, boolean on
-	
+
 	@Override
 	public void writeData(DataOutputStream data) throws IOException {
-	
+
 		data.writeInt(x);
 		data.writeInt(y);
 		data.writeInt(z);
-		data.writeChar(extender.getInChannels());
-		data.writeChar(extender.getOutChannels());
-		
-		List<Character> resC = new LinkedList<Character>();
-		List<Boolean> res = new ArrayList<Boolean>();
-		List<Boolean> resT = new ArrayList<Boolean>();
-		for (ExtenderChannel chn : extender.getChannels()) {
-			if (chn.getFunction() != null && !(chn.getFunction() instanceof DisabledFunction)) {
-				resC.add((char)chn.getLinkedChannel());
-				res.add(!chn.getSignal().equals(Signal.OFF));
-				resT.add(chn.getType().equals(ExtenderChannel.TYPES.INPUT));
+
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side.equals(Side.SERVER)) {
+			data.writeChar(extender.getChannelsIn().size());
+			data.writeChar(extender.getChannelsOut().size());
+
+			List<Character> resC = new LinkedList<Character>();
+			List<Boolean> res = new ArrayList<Boolean>();
+			List<Boolean> resT = new ArrayList<Boolean>();
+
+			for (ExtenderChannel chn : extender.getChannelsIn()) {
+				if (chn.getFunction() != null
+						&& !(chn.getFunction() instanceof DisabledFunction)) {
+					resC.add((char) chn.getNumber());
+					res.add(!chn.getSignal().equals(Signal.OFF));
+					resT.add(chn.getType().equals(ExtenderChannel.TYPES.INPUT));
+				}
 			}
+			for (ExtenderChannel chn : extender.getChannelsOut()) {
+				if (chn.getFunction() != null
+						&& !(chn.getFunction() instanceof DisabledFunction)) {
+					resC.add((char) chn.getNumber());
+					res.add(!chn.getSignal().equals(Signal.OFF));
+					resT.add(chn.getType().equals(ExtenderChannel.TYPES.INPUT));
+				}
+			}
+
+			data.writeChar((char) resC.size());
+			int i = 0;
+			for (Character c : resC) {
+				data.writeChar(c);
+				data.writeBoolean(res.get(i));
+				data.writeBoolean(resT.get(i++));
+			}
+
+		} else {
+			data.writeChar(0);
+			data.writeChar(0);
 		}
-		
-		data.writeChar((char)resC.size());
-		int i = 0;
-		for (Character c : resC) {
-			data.writeChar(c);
-			data.writeBoolean(res.get(i));
-			data.writeBoolean(resT.get(i++));
-		}	
 		data.writeBoolean(false);
 	}
 
@@ -98,22 +113,22 @@ public class PacketExtenderLiteData extends PLCPacket {
 		this.x = data.readInt();
 		this.y = data.readInt();
 		this.z = data.readInt();
-		
+
 		ins = data.readChar();
 		outs = data.readChar();
-		
+
 		int i = data.readChar();
 		resC = new ArrayList<Character>();
 		res = new ArrayList<Boolean>();
 		resT = new ArrayList<Boolean>();
-		
+
 		for (int j = 0; j < i; j++) {
 			resC.add(data.readChar());
 			res.add(data.readBoolean());
 			boolean t = data.readBoolean();
 			resT.add(t);
-			
-		}	
+
+		}
 	}
 
 	public void execute(INetworkManager manager, Player player) {
@@ -123,7 +138,7 @@ public class PacketExtenderLiteData extends PLCPacket {
 			if (player instanceof EntityClientPlayerMP)
 				worldObj = ((EntityClientPlayerMP) player).worldObj;
 		} else if (side == Side.SERVER) {
-			
+
 			if (player instanceof EntityPlayerMP)
 				worldObj = ((EntityPlayerMP) player).worldObj;
 		}
@@ -135,36 +150,42 @@ public class PacketExtenderLiteData extends PLCPacket {
 					TileExtender extender = (TileExtender) tile;
 					char[] in = new char[ins];
 					char[] out = new char[outs];
-					
-					for (int i = 0; i<in.length; i++)
+
+					for (int i = 0; i < in.length; i++)
 						in[i] = 0;
-					for (int i = 0; i<out.length; i++)
-						out[i] = 0;					
-					
+					for (int i = 0; i < out.length; i++)
+						out[i] = 0;
 					int i = 0;
-					
 					for (Character c : resC) {
-						
+
 						if (resT.get(i) && in.length > c) {
 							if (res.get(i))
 								in[c] = 2;
-							else in[c] = 1;
+							else
+								in[c] = 1;
 						} else if (!resT.get(i) && out.length > c)
 							if (res.get(i))
 								out[c] = 2;
-							else out[c] = 1;
+							else
+								out[c] = 1;
 						i++;
 					}
 					extender.updateStatus(in, out);
 					LogHelper.info("ExtenderLiteUpdate executed");
 				}
+
+			} else if (side == Side.SERVER) {
+				TileEntity tile = worldObj.getBlockTileEntity(x, y, z);
+				if (tile != null && tile instanceof TileExtender) {
+					TileExtender extender = (TileExtender) tile;
+					extender.sheduleRemoteUpdate();
+				}
 			}
 		}
+
 	}
 
-	
-	
-	public static void sendUpdateToClients (TileExtender extender) {
+	public static void sendUpdateToClients(TileExtender extender) {
 		PacketExtenderLiteData pkg = new PacketExtenderLiteData();
 		pkg.setExtender(extender);
 		pkg.setCoords(extender.xCoord, extender.yCoord, extender.zCoord);
@@ -174,8 +195,25 @@ public class PacketExtenderLiteData extends PLCPacket {
 		// only server can do!
 		if (side == Side.SERVER) {
 			// Server
-			PacketDispatcher.sendPacketToAllAround(extender.xCoord, extender.yCoord, extender.zCoord, 32, extender.getWorldObj().getWorldInfo().getDimension() , packet);	
+			PacketDispatcher.sendPacketToAllAround(extender.xCoord,
+					extender.yCoord, extender.zCoord, 32, extender
+							.getWorldObj().getWorldInfo().getDimension(),
+					packet);
 		}
 	}
-	
+
+	public static void requestUpdateFromServer(TileExtender extender) {
+		PacketExtenderLiteData pkg = new PacketExtenderLiteData();
+		pkg.setExtender(extender);
+		pkg.setCoords(extender.xCoord, extender.yCoord, extender.zCoord);
+		Packet packet = PacketTypeHandler.populatePacket(pkg);
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+
+		// only client can do!
+		if (side == Side.CLIENT) {
+			// Server
+			PacketDispatcher.sendPacketToServer(packet);
+		}
+	}
+
 }

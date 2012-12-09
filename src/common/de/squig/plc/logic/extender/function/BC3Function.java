@@ -59,45 +59,40 @@ public class BC3Function extends ExtenderFunction {
 			lastReset = (Integer) channel.getFunctionLocalData();
 		}
 		if (channel.getSignal().equals(Signal.OFF)) {
-			SignalEvent event = new SignalEvent(channel.getExtender(), channel
-					.getExtender().getConnectedController(), Signal.ON,
-					channel.getLinkedChannel());
-			PLC.instance.fireEvent(event);
-			channel.getExtender().setSheduleRemoteUpdate(true);
+			SignalEvent.fireDirected(channel.getExtender(), channel.getExtender().getConnectedController(), Signal.ON, channel.getNumber());
+			channel.getExtender().sheduleRemoteUpdate();
 		}
+		channel.enableShedule(15);
 		channel.setSignal(Signal.ON);
 		channel.setFunctionLocalData(new Integer(15));	
 		
 	}
-
-	public void onUpdate(ExtenderChannel channel) {
+	@Override
+	public void onUpdate(ExtenderChannel channel,long worldTotalTime) {
 		if (channel.getType().equals(ExtenderChannel.TYPES.INPUT)) {
-			if (channel.getFunctionLocalData() instanceof Integer) {
+			/*if (channel.getFunctionLocalData() instanceof Integer) {
 				int lastReset = (Integer) channel.getFunctionLocalData();
 				if (lastReset >= 0)
 					lastReset--;
-				if (lastReset == 0 ) {
-					SignalEvent event = new SignalEvent(channel.getExtender(),
-							channel.getExtender().getConnectedController(),
-							Signal.OFF, channel.getNumber());
-					PLC.instance.fireEvent(event);
+				if (lastReset == 0 ) {*/
+					SignalEvent.fireDirected(channel.getExtender(), channel.getExtender().getConnectedController(), Signal.OFF, channel.getNumber());
 					channel.setSignal(Signal.OFF);
 					channel.setFunctionLocalData(new Integer(-1));
-					channel.getExtender().setSheduleRemoteUpdate(true);
-				}
+					channel.getExtender().sheduleRemoteUpdate();
+			/*	}
 				
 				if (lastReset >= 0) {
 					channel.setFunctionLocalData(new Integer(lastReset));
 				}
-			}
+			}*/
 		} 
 	}
-
+	@Override
 	public void onSignal(ExtenderChannel channel, Signal signal) {
 		if (channel.getType() == ExtenderChannel.TYPES.OUTPUT) {
 			if (!channel.getSignal().equals(signal)) {
 				channel.setSignal(signal);
-				channel.getExtender().setSheduleRemoteUpdate(true);
+				channel.getExtender().sheduleRemoteUpdate();
 			}
 		}
 	}

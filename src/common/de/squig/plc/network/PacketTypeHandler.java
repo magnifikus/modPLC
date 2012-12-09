@@ -15,6 +15,8 @@ package de.squig.plc.network;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
+import de.squig.plc.logic.helper.LogHelper;
+
 import net.minecraft.src.Packet;
 import net.minecraft.src.Packet250CustomPayload;
 
@@ -70,7 +72,7 @@ public enum PacketTypeHandler {
 		packet250.data = data;
 		packet250.length = data.length;
 		packet250.isChunkDataPacket = plcPacket.isChunkDataPacket;
-
+		
 		return packet250;
 	}
 }
