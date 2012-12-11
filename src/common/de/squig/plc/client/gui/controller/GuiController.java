@@ -208,6 +208,11 @@ public class GuiController extends GuiScreen {
 		this.mc.renderEngine.bindTexture(var4);
 		// GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		// Draw Screen
+		for (int x = 0; x < 20; x++) {
+			this.drawTexturedModalRect(screenX+x*16, screenY, 240, 0, 16, 192);
+		}
+		
+		
 		for (int x = 0; x < screenCols + 2; x++) {
 			for (int y = 0; y < screenRows + 2; y++) {
 				

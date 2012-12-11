@@ -38,7 +38,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 	
 	protected boolean gotUpdatedForSimulator = true;
 	protected boolean needsSimulation = true;
-	
+	protected long needsSimInTicks = -1;
 	
 
 	public Circuit(TileController controller, int width, int height) {
@@ -289,6 +289,14 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public void setNeedsSimulation(boolean needsSimulation) {
 		this.needsSimulation = needsSimulation;
+	}
+
+	public long getNeedsSimInTicks() {
+		return needsSimInTicks;
+	}
+
+	public void setNeedsSimInTicks(long needsSimInTicks) {
+		this.needsSimInTicks = needsSimInTicks;
 	}
 
 	

@@ -40,6 +40,7 @@ public class CircuitElement implements Serializable {
 	protected IoType iotype = null;
 	protected int mapX = -1;
 	protected int mapY = -1;
+	protected String data = "";
 
 	protected Circuit circuit = null;
 
@@ -101,31 +102,7 @@ public class CircuitElement implements Serializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
-		
-		
-		
-		/*
-		if (TYPES.INPUT.ordinal() == data.typeID) {
-			element = new Input(null, data.mapX, data.mapY);
-		} else if (TYPES.OUTPUT.ordinal() == data.typeID) {
-			element = new Output(null, data.mapX, data.mapY);
-		} else if (TYPES.LINE.ordinal() == data.typeID) {
-			element = new Line(null, data.mapX, data.mapY);
-		} else if (TYPES.NOT.ordinal() == data.typeID) {
-			element = new Not(null, data.mapX, data.mapY);
-		} else if (TYPES.HIGH.ordinal() == data.typeID) {
-			element = new High(null,  data.mapX, data.mapY);
-		} else if (TYPES.PULSE.ordinal() == data.typeID) {
-			element = new Pulse(null, data.mapX, data.mapY);
-		} else if (TYPES.TIMER.ordinal() == data.typeID) {
-			element = new Timer(null,  data.mapX, data.mapY);
-		} else if (TYPES.COUNTER.ordinal() == data.typeID) {
-			element = new Counter(null, data.mapX, data.mapY);
-		} else if (TYPES.DELETED.ordinal() == data.typeID) {
-			element = new Deleted(null, data.mapX, data.mapY);
-		}
-		*/
-		
+
 		if (element != null) {
 			element.setCircuit(circuit);
 			element.setFunction(ElementFunction.getById(data.functionID));
@@ -141,6 +118,7 @@ public class CircuitElement implements Serializable {
 			element.setCustomFlags(data.customFlags);
 			element.onObjectChange();
 			element.setChanged(false);
+			
 		}
 
 		return element;
@@ -440,6 +418,7 @@ public class CircuitElement implements Serializable {
 			data.writeChar(255);
 		data.writeShort(this.getFlags());
 		data.writeShort(this.getCustomFlags());
+		data.writeUTF(this.getData());
 	}
  	
 
@@ -452,8 +431,9 @@ public class CircuitElement implements Serializable {
 		char linkNumber = data.readChar();
 		short flags = data.readShort();
 		short customFlags = data.readShort();
+		String datas = data.readUTF();
 		return new CircuitElementNetworkData(mapX,
-				mapY, typeID, functionID, linkNumber, flags, customFlags);
+				mapY, typeID, functionID, linkNumber, flags, customFlags,datas);
 	}
 
 	public boolean isEvaluated() {
@@ -552,6 +532,14 @@ public class CircuitElement implements Serializable {
 		if (getInputPin() != null) {
 			getInputPin().onSignal(getSignal());
 		}
+	}
+
+	public String getData() {
+		return data;
+	}
+
+	public void setData(String data) {
+		this.data = data;
 	}
 	
 }

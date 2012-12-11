@@ -41,6 +41,8 @@ public class ElementFunction {
 	public final static ElementFunction COUNTERTOP = new ElementFunction((short) 20,LogicTextureTile.TAG_TOP,  LogicCounter.class,IoType.INPUT);
 	public final static ElementFunction COUNTERBOTTOM = new ElementFunction((short) 21,LogicTextureTile.TAG_BOTTOM,  LogicCounter.class,IoType.INPUT);
 	
+	public final static ElementFunction DELAY = new ElementFunction((short) 22,null, null, IoType.INTERN);
+	
 	private LogicTextureTile tag;
 	private Class linkType;
 	private IoType iotype = null;

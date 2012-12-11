@@ -41,11 +41,11 @@ public class LogicTextureTile {
 	
 	
 	public final static LogicTextureTile LOGIC_PULSE = new LogicTextureTile(0,12);
-	public final static LogicTextureTile LOGIC_NOT = new LogicTextureTile(1,12,1);
+	public final static LogicTextureTile LOGIC_NOT = new LogicTextureTile(1,12,ONOffset);
 	public final static LogicTextureTile LOGIC_HIGH = new LogicTextureTile(2,12);
-	public final static LogicTextureTile LOGIC_TIMER = new LogicTextureTile(3,12);
-	public final static LogicTextureTile LOGIC_COUNTER = new LogicTextureTile(4,12);
-	
+	public final static LogicTextureTile LOGIC_TIMER = new LogicTextureTile(3,12,ONOffset);
+	public final static LogicTextureTile LOGIC_COUNTER = new LogicTextureTile(4,12,ONOffset);
+	public final static LogicTextureTile LOGIC_DELAY = new LogicTextureTile(8,12,ONOffset);
 	
 	public final static int MODIFIER_ON = 4;
 

@@ -10,9 +10,10 @@ public class CircuitElementNetworkData {
 	public char linkNumber;
 	public short flags;
 	public short customFlags;
+	public String data;
 	
 	public CircuitElementNetworkData(char mapX, char mapY, short typeID,
-			short functionID, char linkNumber, short flags, short customFlags) {
+			short functionID, char linkNumber, short flags, short customFlags, String data) {
 		super();
 		this.mapY = mapY;
 		this.mapX = mapX;
@@ -21,6 +22,7 @@ public class CircuitElementNetworkData {
 		this.linkNumber = linkNumber;
 		this.flags = flags;
 		this.customFlags = customFlags;
+		this.data = data;
 	}
 
 	

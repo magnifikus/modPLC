@@ -11,7 +11,7 @@ import de.squig.plc.logic.elements.functions.ElementFunction;
 public abstract class CircuitObject {
 	
 	public static enum TYPES {
-		INPUT, OUTPUT, MEMORY, COUNTER, TIMER
+		INPUT, OUTPUT, MEMORY, COUNTER, TIMER, DELAY
 	}
 	protected TYPES type = null;
 	

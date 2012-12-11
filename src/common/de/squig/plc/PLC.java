@@ -26,6 +26,7 @@ import de.squig.plc.handlers.TickHandler;
 import de.squig.plc.lib.StaticData;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Counter;
+import de.squig.plc.logic.elements.Delay;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.High;
 import de.squig.plc.logic.elements.Input;
@@ -74,13 +75,14 @@ public class PLC {
 		
 		CircuitElement.addCircuitElementType(0, Deleted.class);
 		CircuitElement.addCircuitElementType(1, Line.class);
-		CircuitElement.addCircuitElementType(2, Counter.class);
-		CircuitElement.addCircuitElementType(3, High.class);
-		CircuitElement.addCircuitElementType(4, Input.class);
-		CircuitElement.addCircuitElementType(5, Not.class);
-		CircuitElement.addCircuitElementType(6, Output.class);
-		CircuitElement.addCircuitElementType(7, Pulse.class);
-		CircuitElement.addCircuitElementType(8, Timer.class);
+		CircuitElement.addCircuitElementType(2, Input.class);
+		CircuitElement.addCircuitElementType(3, Output.class);
+		CircuitElement.addCircuitElementType(50, Not.class);
+		CircuitElement.addCircuitElementType(51, High.class);
+		CircuitElement.addCircuitElementType(100, Counter.class);
+		CircuitElement.addCircuitElementType(101, Pulse.class);
+		CircuitElement.addCircuitElementType(102, Timer.class);
+		CircuitElement.addCircuitElementType(103, Delay.class);
 		
 	}
 

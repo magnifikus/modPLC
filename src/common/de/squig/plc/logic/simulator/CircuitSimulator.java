@@ -29,9 +29,13 @@ public class CircuitSimulator {
 		//	return;
 		//nextTick = tick + 1;//StaticData.SimulatorDelay;
 		
-		if (!circuit.isNeedsSimulation())
+		if (!circuit.isNeedsSimulation() && circuit.getNeedsSimInTicks() >= 0)
 			return;
 		circuit.setNeedsSimulation(false);
+		long siminTicks = circuit.getNeedsSimInTicks();
+		if (siminTicks >= 0)
+			circuit.setNeedsSimInTicks(siminTicks);
+		
 		
 		
 		if (!circuit.isEvaluated())
@@ -39,7 +43,7 @@ public class CircuitSimulator {
 		simulateCircuit();
 		PacketControllerData.updateArroundWithPowermap(circuit.getController(), 8);
 		long took = System.nanoTime()-start;
-		LogHelper.info("took "+took+" nanos");
+		//LogHelper.info("took "+took+" nanos");
 	}
 	
 	

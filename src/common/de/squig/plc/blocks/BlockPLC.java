@@ -83,7 +83,8 @@ public abstract class BlockPLC extends BlockContainer {
 		if (tileEntity instanceof TilePLC)
 			facing = ((TilePLC) tileEntity).getSide();
 		
-		
+		if (facing == l && facing == 1)
+			return textureindex+4;
 		if (facing == l)
 			return textureindex;
 		if (l  == 1)
