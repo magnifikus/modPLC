@@ -3,7 +3,7 @@ package de.squig.plc.logic.elements;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.squig.plc.client.gui.tiles.LogicTextureTile;
+import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
@@ -32,7 +32,7 @@ public class Line extends CircuitElement  {
 	private List<Line> connectedLines = new ArrayList<Line>();
 	
 	public Line(Circuit circuit, int mapX, int mapY) {
-		super(circuit, mapX, mapY, TYPES.LINE, ElementFunction.LINE);
+		super(circuit, mapX, mapY, ElementFunction.LINE);
 		connLeft = true;
 		connRight = true;
 		updateConnections();

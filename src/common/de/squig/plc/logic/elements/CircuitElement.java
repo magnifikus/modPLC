@@ -4,13 +4,15 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Side;
 
-import de.squig.plc.client.gui.tiles.LogicTextureTile;
+import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
@@ -21,20 +23,19 @@ import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.logic.objects.CircuitObjectOutputPin;
 
 public class CircuitElement implements Serializable {
-	public static enum TYPES {
-		INPUT, OUTPUT, LINE, NOT, PULSE, HIGH, COUNTER, TIMER, DELETED
-	}
+	//public static enum TYPES {
+	//	INPUT, OUTPUT, LINE, NOT, PULSE, HIGH, COUNTER, TIMER, DELETED
+	//}
+	
 	public enum SIDES {UNDEF,TOP,BOTTOM,LEFT,RIGHT}
 	
+	private static Class elements[] = new Class[256];
 	
-	public TYPES getType() {
-		return type;
-	}
-
+	
+	
+	
 	protected boolean evaluated = false;
 	protected boolean simulated = false;
-
-	protected TYPES type = null;
 
 	protected IoType iotype = null;
 	protected int mapX = -1;
@@ -75,16 +76,15 @@ public class CircuitElement implements Serializable {
 
 	protected String name = null;
 	
-	public CircuitElement(Circuit circuit, int mapX, int mapY, TYPES type) {
+	public CircuitElement(Circuit circuit, int mapX, int mapY) {
 		this.circuit = circuit;
 		this.mapX = mapX;
 		this.mapY = mapY;
-		this.type = type;
 	}
 
-	public CircuitElement(Circuit circuit, int mapX, int mapY, TYPES type,
+	public CircuitElement(Circuit circuit, int mapX, int mapY,
 			ElementFunction defaultFunction) {
-		this(circuit, mapX, mapY, type);
+		this(circuit, mapX, mapY);
 		this.defaultFunction = defaultFunction;
 		this.function = defaultFunction;
 		if (function != null && function.getTag() != null)
@@ -93,6 +93,18 @@ public class CircuitElement implements Serializable {
 
 	public static CircuitElement createFromPacket(Circuit circuit, CircuitElementNetworkData data) {
 		CircuitElement element = null;
+		
+		Class typeClass = elements[data.typeID];
+		try {
+			Constructor<CircuitElement> c =  typeClass.getConstructor(Circuit.class,int.class, int.class);
+			element = c.newInstance(null, data.mapX, data.mapY);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		
+		
+		
+		/*
 		if (TYPES.INPUT.ordinal() == data.typeID) {
 			element = new Input(null, data.mapX, data.mapY);
 		} else if (TYPES.OUTPUT.ordinal() == data.typeID) {
@@ -112,6 +124,8 @@ public class CircuitElement implements Serializable {
 		} else if (TYPES.DELETED.ordinal() == data.typeID) {
 			element = new Deleted(null, data.mapX, data.mapY);
 		}
+		*/
+		
 		if (element != null) {
 			element.setCircuit(circuit);
 			element.setFunction(ElementFunction.getById(data.functionID));
@@ -122,8 +136,7 @@ public class CircuitElement implements Serializable {
 			if (link != 255)
 				element.setLinkNumber("" + link);
 			else element.setLinkNumber("");
-			
-			
+
 			element.setFlags(data.flags);
 			element.setCustomFlags(data.customFlags);
 			element.onObjectChange();
@@ -361,10 +374,6 @@ public class CircuitElement implements Serializable {
 		this.outputPin = outputPin;
 	}
 
-	public int getTypeID() {
-		return type.ordinal();
-	}
-
 
 	public ElementFunction getFunction() {
 		return function;
@@ -412,7 +421,7 @@ public class CircuitElement implements Serializable {
 	public void saveTo(DataOutputStream data) throws IOException {
 		data.writeChar(this.getMapX());
 		data.writeChar(this.getMapY());
-		data.writeShort(this.getTypeID());
+		data.writeShort(getCircuitElementId(this.getClass()));
 		
 		if (this.getFunction() != null) {
 			data.writeShort(this.getFunction().getId());
@@ -471,9 +480,18 @@ public class CircuitElement implements Serializable {
 			powered = true;
 			
 		}
-
 	}
 	
+	
+	public static void addCircuitElementType(int id, Class type) {
+		elements[id] = type;
+	}
+	public static int getCircuitElementId(Class type) {
+		for (int i = 0; i < elements.length; i++)
+			if (type.equals(elements[i]))
+				return i;
+		return -1;
+	}
 	
 
 	protected Signal manipulateSignal(Signal signal) {

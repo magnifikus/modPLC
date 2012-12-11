@@ -1,6 +1,7 @@
 package de.squig.plc.client.gui.extender;
 
 import net.minecraft.src.GuiButton;
+import de.squig.plc.client.gui.SubGui;
 import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.event.SearchResponseEvent;
@@ -61,10 +62,10 @@ public class SubGuiFront implements SubGui {
 		}
 		if (state.equals(State.connected)) {
 		
-			guiExtender.subDrawText("Linked to: "+guiExtender.extender.getConnectedControllerName(), 15, 0, 0x000000);
+			guiExtender.subDrawText("Link: "+guiExtender.extender.getConnectedControllerName(), 15, 0, 0x000000);
 		
-			guiExtender.subDrawText("State:  RUN ", 15, 15, 0x000000);
-			guiExtender.subDrawText("STOP", 80, 15, 0xFF0000);
+			//guiExtender.subDrawText("State:  RUN ", 15, 15, 0x000000);
+			//guiExtender.subDrawText("STOP", 80, 15, 0xFF0000);
 			
 			guiExtender.subDrawText("< Inputs          Outputs >", 5, 35, 0x000000);
 			guiExtender.subDrawText("click one to configure", 15, 50, 0x000000);

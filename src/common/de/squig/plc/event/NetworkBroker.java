@@ -89,6 +89,8 @@ public class NetworkBroker {
 	}
 
 	public void fireEvent(PLCEvent event) {
+		
+		long start = System.nanoTime();
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 
 		
@@ -106,36 +108,36 @@ public class NetworkBroker {
 			// UUID directed
 			PLCEventSubscriber sub = eventSubscriber.get(event.getDest().toString());
 			if (sub != null) {
-				if (sub.getTile().isInvalid()) {
-					removeEventListener(sub.getTile());
-				} else
+				//if (sub.getTile().isInvalid()) {
+				//	removeEventListener(sub.getTile());
+				//} else
 					subs.add(sub);	
 			}
 
 		} else if (event.getTarget() != null) {
 
 			// Broadcast
-			List<PLCEventSubscriber> toRemove = new LinkedList<PLCEventSubscriber>();
+			//List<PLCEventSubscriber> toRemove = new LinkedList<PLCEventSubscriber>();
 			
 			for (PLCEventSubscriber sub1 : eventSubscriber.values())
-				if (sub1.tile.isInvalid())
+				/*if (sub1.tile.isInvalid())
 					toRemove.add(sub1);
-				else
+				else */
 					if (sub1.getTargetType().equals(event.getTarget()))
 						subs.add(sub1);
-			for (PLCEventSubscriber sub1 : toRemove)
-				removeEventListener(sub1.getTile());
+			//for (PLCEventSubscriber sub1 : toRemove)
+			//	removeEventListener(sub1.getTile());
 			
 		} else if (event.getDest() != null) {
 			// Multicast
 			List<PLCEventSubscriber> subs2 = eventSubscriberMulticast.get(event.getDest().toString());
 			if (subs2 != null) {
-				List<PLCEventSubscriber> toRemove = new LinkedList<PLCEventSubscriber>();
+				/*List<PLCEventSubscriber> toRemove = new LinkedList<PLCEventSubscriber>();
 				for (PLCEventSubscriber sub1 : subs2)
 					if (sub1.tile.isInvalid())
 						toRemove.add(sub1);
 				for (PLCEventSubscriber sub1 : toRemove)
-					removeMulticastListener(event.getDest(), sub1.getTile());
+					removeMulticastListener(event.getDest(), sub1.getTile());*/
 				subs = subs2;
 			}
 			
@@ -144,20 +146,21 @@ public class NetworkBroker {
 		if (subs.size() == 0) {
 			LogHelper.info("No receipients for message found!");
 		}
-
+		long start2 = 0;
 		for (PLCEventSubscriber sub : subs) {
 			TilePLC tile = sub.getTile();
 			if (tile instanceof TilePLC) {
 				if (event.getRange() == null
 						|| DistanceHelper.getDistance(event.getSource(), tile) <= event
 								.getRange()) {
+					start2 = System.nanoTime();
 					((TilePLC) tile).onEvent(event);
-					LogHelper.info("message delivered to "+tile.getTargettype()+" from "+event.getSource().getTargettype());
+					//LogHelper.info("message delivered to "+tile.getTargettype()+" from "+event.getSource().getTargettype());
 				}
 			}
 
 		}
-
+		//LogHelper.info("took "+(start2-start)+" ns   onEventTook:"+(System.nanoTime()-start2));
 	}
 
 }

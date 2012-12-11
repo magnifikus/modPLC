@@ -32,19 +32,14 @@ import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.LogicInput;
 import de.squig.plc.logic.objects.LogicOutput;
 
-public class TileController extends TilePLC implements IInventory {
+public class TileController extends TilePLC {
+	public enum STATES {STOP, RUN, EDIT, ERROR};
+
+	private STATES state = STATES.STOP;
 	
 
-	
-	public final static int STATE_EDIT = 0;
-	public final static int STATE_STOP = 1;
-	public final static int STATE_RUN = 2;
-	public final static int STATE_ERROR = 3;
-	
-	private int controllerID = -1;
-	
 	private Circuit circuit = null;
-	public int machineState = -1;
+
 	private String controllerName = "unknown";
 	
 	private int range = 32;
@@ -53,7 +48,6 @@ public class TileController extends TilePLC implements IInventory {
 	public TileController() {
 		super(PLCEvent.TARGETTYPE.CONTROLLER);
 		LogHelper.info("Controler Constructor");
-		machineState = TileController.STATE_EDIT;
 		circuit = new BasicCircuit(this);
 		
 	}
@@ -68,9 +62,7 @@ public class TileController extends TilePLC implements IInventory {
 	@Override
 	protected void initialize() {
 		super.initialize();
-		LogHelper.info("Controler Init "+xCoord+" "+yCoord+" "+zCoord+" with uuid: "+uuid.toString());
 		
-		controllerName = "no name";
 	}
 
 	public void onEvent(PLCEvent event) {
@@ -115,18 +107,15 @@ public class TileController extends TilePLC implements IInventory {
 		circuit.onDestroy();
 		super.onDestroy();
 	}
+
 	
-	/**
-     * The ItemStacks that hold the items currently being used in the Calcinator
-     */
-	
-	
-	private ItemStack[] calcinatorItemStacks = new ItemStack[3];
 
     public void readFromNBT(NBTTagCompound nbtTagCompound) {
 		super.readFromNBT(nbtTagCompound);
 		LogHelper.info("readFromNBT called");
-
+		
+		if (nbtTagCompound.hasKey("name"))
+			controllerName = nbtTagCompound.getString("name");
 		try {
 			InputStream is = new ByteArrayInputStream(
 					nbtTagCompound.getByteArray("elements"));
@@ -142,6 +131,7 @@ public class TileController extends TilePLC implements IInventory {
 		super.writeToNBT(nbtTagCompound);
 		LogHelper.info("writeToNBT called");
 		
+		nbtTagCompound.setString("name", controllerName);
 		try {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream w = new DataOutputStream(baos);
@@ -154,62 +144,9 @@ public class TileController extends TilePLC implements IInventory {
 		}
 		
 		
-		
-		// Write the ItemStacks in the inventory to NBT
-		/*NBTTagList tagList = new NBTTagList();
-        for (int currentIndex = 0; currentIndex < this.calcinatorItemStacks.length; ++currentIndex) {
-            if (this.calcinatorItemStacks[currentIndex] != null) {
-                NBTTagCompound tagCompound = new NBTTagCompound();
-                tagCompound.setByte("Slot", (byte)currentIndex);
-                this.calcinatorItemStacks[currentIndex].writeToNBT(tagCompound);
-                tagList.appendTag(tagCompound);
-            }
-        }
-        nbtTagCompound.setTag("Items", tagList);
-        */
 	}
 
-	/**
-     * Returns the number of slots in the inventory.
-     */
-	public int getSizeInventory() {
-		return this.calcinatorItemStacks.length;
-	}
 
-	/**
-     * Returns the stack in slot i
-     */
-	public ItemStack getStackInSlot(int i) {
-		return this.calcinatorItemStacks[i];
-	}
-
-	public ItemStack decrStackSize(int i, int j) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public ItemStack getStackInSlotOnClosing(int i) {
-		return null;
-	}
-
-	@Override
-	public void setInventorySlotContents(int var1, ItemStack var2) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public String getInvName() {
-		return "container.plcController"; //+ ModBlocks.CALCINATOR_NAME;
-	}
-
-	public int getInventoryStackLimit() {
-		return 64;
-	}
-
-	public void openChest() { }
-	public void closeChest() { }
-
-	
 	
 	
 	public Circuit getCircuit() {
@@ -220,13 +157,14 @@ public class TileController extends TilePLC implements IInventory {
 		this.circuit = circuit;
 	}
 
-	public int getMachineState() {
-		return machineState;
+	public TileController.STATES getState() {
+		return this.state;
 	}
-
-	public void setMachineState(int machineState) {
-		this.machineState = machineState;
+	public void  setState(TileController.STATES state) {
+		this.state = state;
 	}
+	 
+	
 	public String getControllerName() {
 		return controllerName;
 	}
@@ -254,10 +192,5 @@ public class TileController extends TilePLC implements IInventory {
 		if (tosend.size() > 0)
 			PLC.instance.getNetworkBroker().fireEvent(new ControllerDataEvent(circuit.getController(), circuit.getController().getUuid(), tosend));
 	}
-
-	
-	
-	
-	
 
 }

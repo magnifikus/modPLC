@@ -30,11 +30,14 @@ public abstract class Circuit implements Serializable, ITickNotified {
 	protected TileController controller;
 	protected CircuitSimulator simulator;
 	
-	protected boolean gotUpdatedForSimulator = true;
+	
 	
 	protected List<CircuitElement> simulationList = null;
 	protected List<Object> commitList = null;
 	protected boolean evaluated = false;
+	
+	protected boolean gotUpdatedForSimulator = true;
+	protected boolean needsSimulation = true;
 	
 	
 
@@ -184,12 +187,10 @@ public abstract class Circuit implements Serializable, ITickNotified {
 				CircuitElement ele = map.getElementAt(x, y); 
 				if (ele != null && !(ele instanceof Deleted)) {
 					data.writeBoolean(ele.isPowered());
-					//data.writeBoolean(ele.isInpowered());
 					injmap += ""+ele.isPowered();
 				}
 				else {
 					data.writeBoolean(false);
-					//data.writeBoolean(false);
 				}
 			}
 		}
@@ -204,12 +205,12 @@ public abstract class Circuit implements Serializable, ITickNotified {
 				CircuitElement ele = map.getElementAt(x, y); 
 				if (ele != null && !(ele instanceof Deleted)) {
 					ele.setPowered(netPowered.getMap().get(i));
-					//ele.setInpowered(netPowered.getMap().get(i+1));
+
 					injmap += ""+ele.isPowered();
 				}
 				i += 1;
 			}
-		//LogHelper.info(injmap);
+	
 		
 	}
 
@@ -280,6 +281,14 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public CircuitSimulator getSimulator() {
 		return simulator;
+	}
+
+	public boolean isNeedsSimulation() {
+		return needsSimulation;
+	}
+
+	public void setNeedsSimulation(boolean needsSimulation) {
+		this.needsSimulation = needsSimulation;
 	}
 
 	

@@ -25,13 +25,13 @@ public class TEControllerRenderer extends TileEntitySpecialRenderer {
 	public void renderTileEntityAt(TileEntity tile, double x, double y,
 			double z, float f) {
 
-		TileController topview = (TileController) tile;
+		TileController controller = (TileController) tile;
 
 		GL11.glPushMatrix();
 
 		// @TODO side impl
 
-		int side = 3;
+		int side = controller.getSide();
 
 		float dx = 1F / 16;
 		float dz = 1F / 16;

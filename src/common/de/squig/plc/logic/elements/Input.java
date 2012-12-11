@@ -2,7 +2,7 @@ package de.squig.plc.logic.elements;
 
 import java.util.List;
 
-import de.squig.plc.client.gui.tiles.LogicTextureTile;
+import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 import de.squig.plc.logic.objects.CircuitObject;
@@ -13,7 +13,7 @@ import de.squig.plc.logic.objects.LogicOutput;
 public class Input extends CircuitElement {
 	
 	public Input(Circuit circuit, int mapX, int mapY) {
-		super(circuit, mapX, mapY, TYPES.INPUT,  ElementFunction.INPUT);
+		super(circuit, mapX, mapY,   ElementFunction.INPUT);
 		setTexture(LogicTextureTile.INPIN);
 		functions.add(ElementFunction.INPUT);
 		functions.add(ElementFunction.OUTPUTREAD);

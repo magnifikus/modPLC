@@ -3,7 +3,7 @@ package de.squig.plc.logic.elements.functions;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import de.squig.plc.client.gui.tiles.LogicTextureTile;
+import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.objects.LogicCounter;
 import de.squig.plc.logic.objects.LogicInput;
 import de.squig.plc.logic.objects.LogicMemory;

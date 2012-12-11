@@ -1,6 +1,6 @@
 package de.squig.plc.logic.elements;
 
-import de.squig.plc.client.gui.tiles.LogicTextureTile;
+import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
@@ -11,7 +11,7 @@ public class Pulse extends CircuitElement {
 	private Signal oldSignal = Signal.OFF;
 	
 	public Pulse(Circuit circuit, int mapX, int mapY) {
-		super(circuit, mapX, mapY, TYPES.PULSE, ElementFunction.PULSE);
+		super(circuit, mapX, mapY, ElementFunction.PULSE);
 		setTexture(LogicTextureTile.LOGIC_PULSE);
 		name = "Pulse Generator";
 	}

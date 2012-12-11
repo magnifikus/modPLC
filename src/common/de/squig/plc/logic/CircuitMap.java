@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import de.squig.plc.logic.elements.CircuitElement;
+import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.helper.Coordinates;
 
 public class CircuitMap {
@@ -136,7 +137,7 @@ public class CircuitMap {
 	public void removeDeleted() {
 		List<CircuitElement> toremove = new ArrayList<CircuitElement>();
 		for (CircuitElement element :  getAllElement())
-			if (element.getType() == CircuitElement.TYPES.DELETED)
+			if (element instanceof Deleted)
 				toremove.add(element);
 		for (CircuitElement element : toremove) {
 			map[element.getMapX()][element.getMapY()] = null;

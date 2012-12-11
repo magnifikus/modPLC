@@ -24,7 +24,7 @@ public class RedstoneFunction extends ExtenderFunction {
 			add(new ExtenderTrigger("inverted input", false, 1, ExtenderChannel.TYPES.INPUT));
 			add(new ExtenderTrigger("pulse on raising", false, 2, ExtenderChannel.TYPES.INPUT));
 			add(new ExtenderTrigger("pulse on falling", false, 3, ExtenderChannel.TYPES.INPUT));
-			//add(new ExtenderTrigger("pulse on change", false, 4, ExtenderChannel.TYPES.INPUT));
+			add(new ExtenderTrigger("pulse on change", false, 4, ExtenderChannel.TYPES.INPUT));
 			//add(new ExtenderTrigger("stable input", false, 5, ExtenderChannel.TYPES.INPUT));
 
 		}
@@ -148,6 +148,7 @@ public class RedstoneFunction extends ExtenderFunction {
 					channel.setFunctionLocalData(Signal.OFF);
 					channel.setSignal(Signal.OFF);
 					channel.getExtender().sheduleNeighbourUpdate();
+					channel.getExtender().sheduleRemoteUpdate();
 				}
 			}
 		

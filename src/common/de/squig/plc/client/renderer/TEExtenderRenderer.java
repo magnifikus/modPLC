@@ -38,7 +38,7 @@ public class TEExtenderRenderer extends TileEntitySpecialRenderer {
 
 		// @TODO side impl
 
-		int side = 3;
+		int side = ext.getSide();
 
 		float dx = 1F / 16;
 		float dz = 1F / 16;

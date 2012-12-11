@@ -1,4 +1,4 @@
-package de.squig.plc.client.gui.tiles;
+package de.squig.plc.client.gui.controller;
 
 public class LogicTextureTile {
 	private final static int ONOffset = 4;

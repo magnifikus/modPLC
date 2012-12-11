@@ -3,6 +3,7 @@ package de.squig.plc.client.gui.extender;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.squig.plc.client.gui.SubGui;
 import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.logic.extender.ExtenderChannel;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.src.GuiButton;
+import de.squig.plc.client.gui.SubGui;
 import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.function.ExtenderFunction;
@@ -107,7 +108,6 @@ public class SubGuiChannel implements SubGui {
 		String typ = "Input";
 		if (output)
 			typ = "Output";
-		
 		
 		guiExtender.subDrawText(typ+" "+channel.getNumber(), 15, 0, 0x000000);
 		

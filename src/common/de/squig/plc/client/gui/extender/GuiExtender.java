@@ -10,10 +10,11 @@ import net.minecraftforge.common.ForgeDirection;
 
 import org.lwjgl.opengl.GL11;
 
+import de.squig.plc.client.gui.SubGui;
+import de.squig.plc.client.gui.controller.DisplayTile;
 import de.squig.plc.client.gui.controlls.ChannelButton;
 import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.client.gui.controlls.TouchButton;
-import de.squig.plc.client.gui.tiles.DisplayTile;
 import de.squig.plc.container.ContainerExtender;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
@@ -36,10 +37,13 @@ public class GuiExtender extends GuiContainer {
 	
 
 	private SubGui subGui = null;
+	private SubGui nextSubGui = null;
 
 	private ExtenderChannel.TYPES myChannelType;
 	
 	private ExtenderChannel edit = null;
+	
+	
 
 	ArrayList<GuiButton> btnsChannelsIn = new ArrayList<GuiButton>();
 	ArrayList<GuiButton> btnsChannelsOut = new ArrayList<GuiButton>();
@@ -142,6 +146,15 @@ public class GuiExtender extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2,
 			int par3) {
+		if (nextSubGui != null) {
+			subGui = nextSubGui;
+			if (subGui != null)
+				subGui.onOpen();
+			nextSubGui = null;
+			
+		}
+		
+		
 		// draw your Gui here, only thing you need to change is the path
 		int texture = mc.renderEngine
 				.getTexture("/ressources/art/gui/extender.png");
@@ -209,10 +222,9 @@ public class GuiExtender extends GuiContainer {
 		if (subGui != this.subGui) {
 			if (this.subGui != null)
 				this.subGui.onClose();
-			if (subGui != null)
-				subGui.onOpen();
+			
 		}
-		this.subGui = subGui;
+		this.nextSubGui = subGui;
 	}
 	
 	

@@ -113,21 +113,23 @@ public class PacketExtenderLiteData extends PLCPacket {
 		this.x = data.readInt();
 		this.y = data.readInt();
 		this.z = data.readInt();
+		Side side = FMLCommonHandler.instance().getEffectiveSide();
+		if (side.equals(Side.CLIENT)) {
+			ins = data.readChar();
+			outs = data.readChar();
 
-		ins = data.readChar();
-		outs = data.readChar();
+			int i = data.readChar();
+			resC = new ArrayList<Character>();
+			res = new ArrayList<Boolean>();
+			resT = new ArrayList<Boolean>();
 
-		int i = data.readChar();
-		resC = new ArrayList<Character>();
-		res = new ArrayList<Boolean>();
-		resT = new ArrayList<Boolean>();
+			for (int j = 0; j < i; j++) {
+				resC.add(data.readChar());
+				res.add(data.readBoolean());
+				boolean t = data.readBoolean();
+				resT.add(t);
 
-		for (int j = 0; j < i; j++) {
-			resC.add(data.readChar());
-			res.add(data.readBoolean());
-			boolean t = data.readBoolean();
-			resT.add(t);
-
+			}
 		}
 	}
 
@@ -171,7 +173,7 @@ public class PacketExtenderLiteData extends PLCPacket {
 						i++;
 					}
 					extender.updateStatus(in, out);
-					LogHelper.info("ExtenderLiteUpdate executed");
+					//LogHelper.info("ExtenderLiteUpdate executed");
 				}
 
 			} else if (side == Side.SERVER) {

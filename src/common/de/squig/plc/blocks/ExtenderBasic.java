@@ -24,9 +24,9 @@ import de.squig.plc.network.PacketExtenderData;
 import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
 
-public class ExtenderBasic extends BlockContainer {
+public class ExtenderBasic extends BlockPLC {
 	public ExtenderBasic(int id) {
-		super(id, Material.rock);
+		super(id, Material.rock, 0);
 		setHardness(4.0F); // 33% harder than diamond
 		setStepSound(Block.soundStoneFootstep);
 		setBlockName("Basic Extender");
@@ -46,18 +46,6 @@ public class ExtenderBasic extends BlockContainer {
 	}
 
 	
-	@Override
-	public int getBlockTextureFromSide(int i) {
-		switch (i) {
-			case 3:
-				return 1;
-			case 1:
-				return 2;
-			default:
-				return 2;
-		}
-		
-	}
 
 	@Override
 	public TileEntity createNewTileEntity(World var1) {

@@ -19,8 +19,10 @@ import de.squig.plc.network.PacketPLCBasedata;
 public class TilePLC extends TileEntity {
 	protected UUID uuid = null;
 	private byte direction;
-	private short state;
+	
 	private String owner;
+	
+	private short side = 0;
 
 	private PLCEvent.TARGETTYPE targettype;
 	
@@ -71,6 +73,7 @@ public class TilePLC extends TileEntity {
 
 	public void setBaseData(PacketPLCBasedata basedata) {
 		uuid = basedata.getUuid();
+		side = basedata.getSide();
 		PLC.instance.getNetworkBroker().addEventListener(this);
 		initialize();
 	}
@@ -101,13 +104,7 @@ public class TilePLC extends TileEntity {
 		this.direction = direction;
 	}
 
-	public short getState() {
-		return state;
-	}
 
-	public void setState(short state) {
-		this.state = state;
-	}
 
 	public String getOwner() {
 		return owner;
@@ -126,6 +123,9 @@ public class TilePLC extends TileEntity {
         
         if (nbtTagCompound.hasKey("uuid"))
         	uuid = UUID.fromString(nbtTagCompound.getString("uuid"));
+        if (nbtTagCompound.hasKey("side"))
+        	side = nbtTagCompound.getShort("side");
+        
         //direction = nbtTagCompound.getByte(Reference.TE_GEN_DIRECTION_NBT_TAG_LABEL);
        // state = nbtTagCompound.getShort(Reference.TE_GEN_STATE_NBT_TAG_LABEL);
         //owner = nbtTagCompound.getString(Reference.TE_GEN_OWNER_NBT_TAG_LABEL);
@@ -135,6 +135,7 @@ public class TilePLC extends TileEntity {
         super.writeToNBT(nbtTagCompound);
         if (uuid != null)
         	nbtTagCompound.setString("uuid", uuid.toString());
+    	nbtTagCompound.setShort("side", side);
         
        // nbtTagCompound.setByte(Reference.TE_GEN_DIRECTION_NBT_TAG_LABEL, direction);
       //  nbtTagCompound.setShort(Reference.TE_GEN_STATE_NBT_TAG_LABEL, state);
@@ -164,6 +165,14 @@ public class TilePLC extends TileEntity {
 	@Override
 	public World getWorldObj() {
 		return worldObj;
+	}
+
+	public short getSide() {
+		return side;
+	}
+
+	public void setSide(short side) {
+		this.side = side;
 	}
     
 }

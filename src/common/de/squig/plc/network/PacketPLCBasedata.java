@@ -35,6 +35,7 @@ public class PacketPLCBasedata extends PLCPacket {
 	// Replydata
 
 	private UUID uuid;
+	private short side;
 	private Player player;
 
 	public PacketPLCBasedata() {
@@ -59,7 +60,9 @@ public class PacketPLCBasedata extends PLCPacket {
 		else {
 			data.writeBoolean(true);
 			data.writeUTF(uuid.toString());
+			data.writeShort(side);
 		}
+		
 	}
 
 	public void readData(DataInputStream data) throws IOException {
@@ -68,9 +71,10 @@ public class PacketPLCBasedata extends PLCPacket {
 		this.y = data.readInt();
 		this.z = data.readInt();
 		boolean response = data.readBoolean();
-		if (response)
+		if (response) {
 			uuid = UUID.fromString(data.readUTF());
-
+			side = data.readShort();
+		}
 	}
 
 	public void execute(INetworkManager manager, Player player) {
@@ -119,6 +123,7 @@ public class PacketPLCBasedata extends PLCPacket {
 		pkg.setCoords(tplc.getWorldObj().getWorldInfo().getDimension(), 
 				tplc.xCoord, tplc.yCoord, tplc.zCoord);
 		pkg.setUuid(uuid); 
+		pkg.setSide(tplc.getSide());
 		PacketDispatcher.sendPacketToPlayer(PacketTypeHandler.populatePacket(pkg),player);
 	}
 	
@@ -136,6 +141,14 @@ public class PacketPLCBasedata extends PLCPacket {
 
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
+	}
+
+	public short getSide() {
+		return side;
+	}
+
+	public void setSide(short side) {
+		this.side = side;
 	}
 
 

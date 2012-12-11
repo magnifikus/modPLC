@@ -47,7 +47,7 @@ public class PacketControllerData extends PLCPacket {
 	private boolean dataObjectsAll = false;
 	private boolean dataPowered = false;
 	
-	private String controllerID = "Generic Controller";
+	private String controllerName = null;
 	
 	public PacketControllerData() {
 		super(PacketTypeHandler.CIRCUITDATA, true);
@@ -84,7 +84,12 @@ public class PacketControllerData extends PLCPacket {
 		data.writeInt(x);
 		data.writeInt(y);
 		data.writeInt(z);
-		data.writeUTF(controllerID);
+		
+		if (controllerName != null) {
+			data.writeBoolean(true);
+			data.writeUTF(controllerName);
+		} else  data.writeBoolean(false);
+		
 		data.writeBoolean(dataState);
 		if (dataState) {
 			circuit.saveStateTo(data);
@@ -111,7 +116,11 @@ public class PacketControllerData extends PLCPacket {
 		this.x = data.readInt();
 		this.y = data.readInt();
 		this.z = data.readInt();
-		controllerID = data.readUTF();
+		
+		boolean hasName = data.readBoolean();
+		if (hasName)
+			controllerName = data.readUTF();
+		else controllerName = null;
 		
 		dataState = data.readBoolean();
 		if (dataState) {
@@ -149,6 +158,10 @@ public class PacketControllerData extends PLCPacket {
 			TileEntity tile = worldObj.getBlockTileEntity(x, y, z);
 			if (tile != null && tile instanceof TileController) {
 				TileController tileController = (TileController) tile;
+				
+				if (controllerName != null)
+					tileController.setControllerName(controllerName);
+				
 				Circuit circ = tileController.getCircuit();
 				if (dataState)
 					circ.injectState(inState);
@@ -233,7 +246,7 @@ public class PacketControllerData extends PLCPacket {
 		if (purge)
 			pkg.setDataElementsAll(true);
 		pkg.setCoords(tile.xCoord, tile.yCoord, tile.zCoord);
-		
+		pkg.setControllerName(tile.getControllerName());
 		Packet packet = PacketTypeHandler.populatePacket(pkg);
 
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
@@ -254,6 +267,7 @@ public class PacketControllerData extends PLCPacket {
 	private static void updateArround(TileController tile, int i) {
 		PacketControllerData pkg = new PacketControllerData();
 		pkg.setCircuit(tile.getCircuit());
+		pkg.setControllerName(tile.getControllerName());
 		pkg.setDataElements(true);
 		pkg.setDataElementsAll(false);
 		pkg.setCoords(tile.xCoord, tile.yCoord, tile.zCoord);
@@ -270,5 +284,15 @@ public class PacketControllerData extends PLCPacket {
 		
 		PacketDispatcher.sendPacketToAllAround(tile.xCoord, tile.yCoord, tile.zCoord, i,tile.getWorldObj().getWorldInfo().getDimension() , packet);	
 	}
+
+	public String getControllerName() {
+		return controllerName;
+	}
+
+	public void setControllerName(String controllerName) {
+		this.controllerName = controllerName;
+	}
+	
+	
 	
 }

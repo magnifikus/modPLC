@@ -1,4 +1,4 @@
-package de.squig.plc.client.gui.extender;
+package de.squig.plc.client.gui;
 
 import net.minecraft.src.GuiButton;
 

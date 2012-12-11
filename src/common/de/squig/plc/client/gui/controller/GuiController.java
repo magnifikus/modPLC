@@ -1,13 +1,13 @@
-package de.squig.plc.client.gui;
+package de.squig.plc.client.gui.controller;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
+import net.minecraft.src.GuiTextField;
 import cpw.mods.fml.client.FMLClientHandler;
-import de.squig.plc.client.gui.tiles.DisplayTile;
-import de.squig.plc.client.gui.tiles.LogicTextureTile;
+import cpw.mods.fml.common.network.Player;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.CircuitMap;
 import de.squig.plc.logic.elements.CircuitElement;
@@ -46,6 +46,9 @@ public class GuiController extends GuiScreen {
 	private List<DisplayTile> displayTiles = new ArrayList<DisplayTile>();
 	private Circuit circuit;
 	
+	private GuiTextField txtName = null;
+	private String loadedName = null;
+	
 	public GuiController(TileController controller) {
 		super();
 		// super(new ContainerController(player, controller));
@@ -56,9 +59,13 @@ public class GuiController extends GuiScreen {
 
 	public void initGui() {
 		controlList.clear();
-		//GuiButton btn1 = new GuiButton(1, width / 2 - 50, height / 2 - 40, 100, 20, "Program");
-		//btn1.enabled = false;
-		//controlList.add(btn1);
+		screenX = (this.width - xSize) / 2;
+		screenY = (this.height - ySize) / 2;
+		
+		txtName = new GuiTextField(fontRenderer, screenX+163, screenY+20, 100, 16);
+		loadedName = controller.getControllerName();
+		txtName.setText(loadedName);
+		txtName.setMaxStringLength(14);
 		
 	}
 	
@@ -72,14 +79,15 @@ public class GuiController extends GuiScreen {
 	}
 
 	public void drawScreen(int i, int j, float f) {
-		screenX = (this.width - xSize) / 2;
-		screenY = (this.height - ySize) / 2;
+		if (!controller.getControllerName().equals(loadedName)) {
+			loadedName = controller.getControllerName();
+			txtName.setText(loadedName);
+		}
+			
 		displayTiles.clear();
 		
 		
 		drawControllerScreen();
-
-		
 
 		CircuitMap map = circuit.getMap();
 		int rows = map.getHeight();
@@ -107,6 +115,8 @@ public class GuiController extends GuiScreen {
 		
 
 		// Second run draw Text
+		txtName.drawTextBox();
+		
 		for (int x = 0; x < map.getWidth(); x++)
 			for (int y = 0; y < rows; y++) {
 				CircuitElement element = map.getElementAt(x, y+yOffset);
@@ -146,13 +156,6 @@ public class GuiController extends GuiScreen {
 			this.drawTexturedModalRect(sx, sy, tile.xon, tile.yon, 16, 16);
 		}
 		
-		/*if (hasInput) {
-			if (inputPowered) {
-				this.drawTexturedModalRect(sx, sy, LogicTextureTile.INPIN.x, LogicTextureTile.INPIN.y, 16, 16);
-			} else
-				this.drawTexturedModalRect(sx, sy, LogicTextureTile.INPIN.xon, LogicTextureTile.INPIN.yon, 16, 16);
-		}
-		*/
 		
 	}
 	
@@ -165,32 +168,35 @@ public class GuiController extends GuiScreen {
 		int colorRun = 0xdddddd;
 		int colorEdit = 0xdddddd;
 		int colorStop = 0xdddddd;
-		if (controller.getMachineState() == TileController.STATE_EDIT)
+		if (controller.getState().equals(TileController.STATES.EDIT))
 			colorEdit = 0x777777;
 		
-		if (controller.getMachineState() == TileController.STATE_RUN)
+		if (controller.getState().equals(TileController.STATES.RUN))
 			colorRun = 0x777777;
 		
-		if (controller.getMachineState() == TileController.STATE_STOP || controller.getMachineState() == TileController.STATE_ERROR)
+		if (controller.getState().equals(TileController.STATES.STOP) || controller.getState().equals(TileController.STATES.ERROR))
 			colorStop = 0x777777;
 		
 		this.fontRenderer.drawString("EDIT", xStart+6, screenY + 5, colorEdit);
 		this.fontRenderer.drawString("RUN", xStart+6+32 + 2, screenY + 5, colorRun);
 		this.fontRenderer.drawString("STOP", xStart+4+64 + 2, screenY + 5, colorStop);
+		//this.fontRenderer.drawString("Name", xStart+2+112 + 2, screenY + 9 + 16, 0xdddddd);
 		
-		displayTiles.add(new DisplayTile(screenRows, 0, xStart, screenY, 32, 16));
-		displayTiles.add(new DisplayTile(screenRows+1, 0, xStart+32, screenY, 32, 16));
-		displayTiles.add(new DisplayTile(screenRows+2, 0, xStart+64, screenY, 32, 16));
+		// state buttons
+		displayTiles.add(new DisplayTile(screenCols, 0, xStart, screenY, 32, 16));
+		displayTiles.add(new DisplayTile(screenCols+1, 0, xStart+32, screenY, 32, 16));
+		displayTiles.add(new DisplayTile(screenCols+2, 0, xStart+64, screenY, 32, 16));
+		// rename button
+		//displayTiles.add(new DisplayTile(screenCols+1, 1, xStart+112, screenY+16+4, 32, 16));
 		
 		
-		
-		if (controller.getMachineState() == TileController.STATE_ERROR)
+		if (controller.getState().equals(TileController.STATES.ERROR))
 			this.fontRenderer.drawString("ERROR", xStart+110, screenY + 4, 0xff0000);
-		if (controller.getMachineState() == TileController.STATE_RUN)
+		else if (controller.getState().equals(TileController.STATES.RUN))
 			this.fontRenderer.drawString("RUN", xStart+110, screenY + 4, 0x00ff00);
-		if (controller.getMachineState() == TileController.STATE_EDIT)
+		else if (controller.getState().equals(TileController.STATES.EDIT))
 			this.fontRenderer.drawString("EDIT", xStart+110, screenY + 4, 0x000000);
-		if (controller.getMachineState() == TileController.STATE_STOP)
+		else if (controller.getState().equals(TileController.STATES.STOP))
 			this.fontRenderer.drawString("STOP", xStart+110, screenY + 4, 0xFF4500);
 		
 	}
@@ -204,8 +210,10 @@ public class GuiController extends GuiScreen {
 		// Draw Screen
 		for (int x = 0; x < screenCols + 2; x++) {
 			for (int y = 0; y < screenRows + 2; y++) {
+				
 				int tx = 16;
 				int ty = 16;
+				
 				if (x == 0)
 					tx = 0;
 				if (y == 0)
@@ -270,15 +278,18 @@ public class GuiController extends GuiScreen {
 		this.drawTexturedModalRect(xStart+32, screenY, 64, 0, 32, 16);
 		this.drawTexturedModalRect(xStart+64, screenY, 64, 0, 32, 16);
 		
+		//this.drawTexturedModalRect(xStart+112, screenY+16+4, 64, 0, 32, 16);
+		
 		// draw lamp
-		if (controller.getMachineState() == TileController.STATE_ERROR)
+		if (controller.getState().equals(TileController.STATES.ERROR))
 			this.drawTexturedModalRect(xStart+102, screenY+6, 128, 0, 5, 5);	
-		if (controller.getMachineState() == TileController.STATE_RUN)
+		else if (controller.getState().equals(TileController.STATES.RUN))
 			this.drawTexturedModalRect(xStart+102, screenY+6, 128, 6, 5, 5);
-		if (controller.getMachineState() == TileController.STATE_EDIT 
-				|| controller.getMachineState() == TileController.STATE_STOP)
+		else if (controller.getState().equals(TileController.STATES.EDIT))
 			this.drawTexturedModalRect(xStart+102, screenY+6, 133, 0, 5, 5);
-
+		else if (controller.getState().equals(TileController.STATES.STOP))
+			this.drawTexturedModalRect(xStart+102, screenY+6, 133, 0, 5, 5);
+		
 	}
 	
 	
@@ -308,9 +319,7 @@ public class GuiController extends GuiScreen {
 	}
 
 	public void actionPerformed(GuiButton button) {
-		if (button.id == 1) {
-			tutorialString = "GoodBye World";
-		}
+		
 
 	}
 	
@@ -321,25 +330,27 @@ public class GuiController extends GuiScreen {
 			cursorY = y + yOffset;
 		} else {
 			if (y == 0) {
-				if (x == screenCols +2) {
+				if (x == screenCols) {
 					// Edit button
-					controller.setMachineState(TileController.STATE_EDIT);
+					controller.setState(TileController.STATES.EDIT);
 				}
-				else if (x == screenCols +3) {
+				else if (x == screenCols +1) {
 					// Run button
-					controller.setMachineState(TileController.STATE_RUN);
+					controller.setState(TileController.STATES.RUN);
 					
 				}
-				else if (x == screenCols +4) {
+				else if (x == screenCols +2) {
 					// Stop button
-					controller.setMachineState(TileController.STATE_STOP);
+					controller.setState(TileController.STATES.STOP);
 				}
 			}
+		
 		}
 	}
 	
 	@Override
 	protected void mouseClicked(int x, int y, int mouseButton) {
+			txtName.mouseClicked(x, y, mouseButton);
 			boolean found = false;
 			for (DisplayTile dt : displayTiles) {
 				if (dt.checkClicked(x, y)) {
@@ -356,6 +367,15 @@ public class GuiController extends GuiScreen {
 	@Override
 	 protected void keyTyped(char par1, int par2)
     {
+		if (par1 == 27)
+			super.keyTyped(par1,par2);
+		
+		if (txtName.isFocused()) {
+				txtName.textboxKeyTyped(par1, par2);
+				controller.setControllerName(txtName.getText());
+				sendUpdate(false);
+			return;
+		}
 		boolean handled = false;
 		
 		switch (par2) {
@@ -389,10 +409,7 @@ public class GuiController extends GuiScreen {
 			default:
 				if (!keyEvent(par1))
 					super.keyTyped(par1, par2);
-		
 		}
-	
-        
     }
 	
 	private boolean keyEvent(char cin) {
@@ -404,8 +421,6 @@ public class GuiController extends GuiScreen {
 			sendUpdate(false);
 			return true;
 		}
-			
-		
 		
 		switch (c) {
 			case 'I':

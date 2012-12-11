@@ -32,9 +32,19 @@ public class LogicInput extends CircuitObject {
 	
 	
 	public void onSignal(Signal signal) {
-		out.onSignal(signal);
+		if (!signal.equals(out.getSignal())) {
+			out.onSignal(signal);
+			circuit.setNeedsSimulation(true);
+		}
 	}
 	
+	@Override
+	public void commit() {
+		if (out.getSignal().equals(Signal.PULSE))
+			out.onSignal(Signal.OFF);
+		else if (out.getSignal().equals(Signal.NEGATIVEPULSE))
+			out.onSignal(Signal.ON);
+	}
 	
 	
 }

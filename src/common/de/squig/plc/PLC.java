@@ -1,14 +1,8 @@
 package de.squig.plc;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
 import net.minecraft.src.Block;
-import net.minecraft.src.TileEntity;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
@@ -27,14 +21,20 @@ import cpw.mods.fml.common.registry.TickRegistry;
 import de.squig.plc.blocks.Controller;
 import de.squig.plc.blocks.ExtenderBasic;
 import de.squig.plc.event.NetworkBroker;
-import de.squig.plc.event.PLCEvent;
-import de.squig.plc.event.PLCEventSubscriber;
 import de.squig.plc.handlers.PacketHandler;
 import de.squig.plc.handlers.TickHandler;
 import de.squig.plc.lib.StaticData;
-import de.squig.plc.logic.helper.DistanceHelper;
+import de.squig.plc.logic.elements.CircuitElement;
+import de.squig.plc.logic.elements.Counter;
+import de.squig.plc.logic.elements.Deleted;
+import de.squig.plc.logic.elements.High;
+import de.squig.plc.logic.elements.Input;
+import de.squig.plc.logic.elements.Line;
+import de.squig.plc.logic.elements.Not;
+import de.squig.plc.logic.elements.Output;
+import de.squig.plc.logic.elements.Pulse;
+import de.squig.plc.logic.elements.Timer;
 import de.squig.plc.logic.helper.LogHelper;
-import de.squig.plc.tile.TilePLC;
 
 @Mod(modid = "PLC", name = "ProgrammableLogicControllers", version = "0.0.1")
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, packetHandler = PacketHandler.class, channels = { "modPLCChannel12" })
@@ -71,6 +71,16 @@ public class PLC {
 		controller = new Controller(StaticData.BlockController);
 		extenderBasic = new ExtenderBasic(StaticData.BlockExtender);
 		
+		
+		CircuitElement.addCircuitElementType(0, Deleted.class);
+		CircuitElement.addCircuitElementType(1, Line.class);
+		CircuitElement.addCircuitElementType(2, Counter.class);
+		CircuitElement.addCircuitElementType(3, High.class);
+		CircuitElement.addCircuitElementType(4, Input.class);
+		CircuitElement.addCircuitElementType(5, Not.class);
+		CircuitElement.addCircuitElementType(6, Output.class);
+		CircuitElement.addCircuitElementType(7, Pulse.class);
+		CircuitElement.addCircuitElementType(8, Timer.class);
 		
 	}
 

@@ -1,4 +1,4 @@
-package de.squig.plc.client.gui.tiles;
+package de.squig.plc.client.gui.controller;
 
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.CircuitElement;

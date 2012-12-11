@@ -1,22 +1,19 @@
 package de.squig.plc.bc3;
 
-import java.lang.instrument.Instrumentation;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.squig.plc.tile.TileExtender;
-
 import net.minecraft.src.Block;
-import net.minecraft.src.IBlockAccess;
 import net.minecraft.src.TileEntity;
-
 import buildcraft.api.gates.ActionManager;
 import buildcraft.api.gates.IAction;
 import buildcraft.api.gates.IActionProvider;
-import buildcraft.api.gates.ITrigger;
 import buildcraft.api.gates.ITriggerProvider;
 import buildcraft.api.transport.IPipe;
+import de.squig.plc.logic.extender.ExtenderChannel;
+import de.squig.plc.logic.extender.function.BC3Function;
+import de.squig.plc.tile.TileExtender;
 
 public class BC3Integration implements ITriggerProvider, IActionProvider {
 
@@ -49,8 +46,13 @@ public class BC3Integration implements ITriggerProvider, IActionProvider {
 	public LinkedList getNeighborTriggers(Block block, TileEntity tile) {
 		LinkedList temp = new LinkedList();
 		if (tile instanceof TileExtender) {
-			for (int i = 0; i < ((TileExtender) tile).getChannelsIn().size(); i++)
-				temp.add(triggersExtender.get(i));
+			TileExtender tileE = (TileExtender) tile;
+			int i = 0;
+			for (ExtenderChannel chn : tileE.getChannelsOut()) {
+				if (chn.getFunction() instanceof BC3Function)
+					temp.add(triggersExtender.get(i));
+				i++;
+			}
 		}
 		return temp;
 	}
@@ -59,8 +61,13 @@ public class BC3Integration implements ITriggerProvider, IActionProvider {
 	public LinkedList<IAction> getNeighborActions(Block block, TileEntity tile) {
 		LinkedList temp = new LinkedList();
 		if (tile instanceof de.squig.plc.tile.TileExtender) {
-			for (int i = 0; i < ((de.squig.plc.tile.TileExtender) tile).getChannelsOut().size(); i++)
-				temp.add(actionsExtender.get(i));
+			TileExtender tileE = (TileExtender) tile;
+			int i = 0;
+			for (ExtenderChannel chn : tileE.getChannelsIn()) {
+				if (chn.getFunction() instanceof BC3Function)
+					temp.add(actionsExtender.get(i));
+				i++;
+			}
 		}
 		return temp;
 	}

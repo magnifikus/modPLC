@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.squig.plc.logic.Circuit;
-import de.squig.plc.logic.elements.CircuitElement.TYPES;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 
 public abstract class CircuitObject {

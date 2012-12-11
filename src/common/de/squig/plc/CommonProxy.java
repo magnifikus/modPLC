@@ -4,7 +4,7 @@ import net.minecraft.src.EntityPlayer;
 import net.minecraft.src.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
-import de.squig.plc.client.gui.GuiController;
+import de.squig.plc.client.gui.controller.GuiController;
 import de.squig.plc.client.gui.extender.GuiExtender;
 import de.squig.plc.container.ContainerController;
 import de.squig.plc.container.ContainerExtender;
