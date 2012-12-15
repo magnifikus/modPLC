@@ -129,7 +129,7 @@ public class RedstoneFunction extends ExtenderFunction {
 				lastSignal = signal;
 				if (signal.equals(Signal.PULSE)) {
 					signal = Signal.ON;
-					channel.enableShedule(1);
+					channel.enableShedule(2);
 				}
 				
 			}

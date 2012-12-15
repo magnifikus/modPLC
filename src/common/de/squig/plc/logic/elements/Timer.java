@@ -27,5 +27,4 @@ public class Timer extends CircuitElement {
 	
 	
 	
-	
 }

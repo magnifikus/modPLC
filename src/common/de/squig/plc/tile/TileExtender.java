@@ -198,14 +198,17 @@ public class TileExtender extends TilePLC implements IInventory {
 		if (side.equals(Side.CLIENT))
 			return;
 		long now = worldObj.getTotalWorldTime();
-		if (sheduledChannelUpdates.size() > 0)
+		if (sheduledChannelUpdates.size() > 0) {
+			List<ExtenderChannel> tr = new LinkedList<ExtenderChannel>();
 			for (ExtenderChannel chn : sheduledChannelUpdates) {
 				if (now >= chn.getSheduledOn() && chn.getFunction() != null) {
 					chn.getFunction().onUpdate(chn,now);
 					chn.setSheduledOn(-1);
-					sheduledChannelUpdates.remove(chn);
-				}			
+					tr.add(chn);
+				}
 			}
+			sheduledChannelUpdates.removeAll(tr);
+		}
 		if (remoteUpdate) {
 			PacketExtenderLiteData.sendUpdateToClients(this);
 			remoteUpdate = false;

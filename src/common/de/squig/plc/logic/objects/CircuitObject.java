@@ -50,8 +50,14 @@ public abstract class CircuitObject {
 	}
 
 
-
-
+	public long getNextActivation() {
+		return -1;
+	}
+	
+	public void preSimulation() {
+	}
+	public void postSimulation() {
+	}
 
 	public CircuitObjectInputPin getInputPin(ElementFunction funct) {
 		return null;
@@ -107,8 +113,10 @@ public abstract class CircuitObject {
 		short type = data.readShort();
 		char linkNumberc = data.readChar();
 		short flags = data.readShort();
-		String datas = data.readUTF();
-		CircuitObjectNetworkData obj = new CircuitObjectNetworkData(type,linkNumberc, flags, datas);
+		CircuitObjectData dt = null;
+		if (objectsData[type] != null)
+			dt = CircuitObjectData.readFromStream(objectsData[type], data);
+		CircuitObjectNetworkData obj = new CircuitObjectNetworkData(type,linkNumberc, flags, dt);
 		return obj;
 	}
 	
@@ -116,7 +124,8 @@ public abstract class CircuitObject {
 		data.writeShort(getCircuitObjectId(this.getClass()));
 		data.writeShort(getLinkNumber());
 		data.writeShort(flags);
-		data.writeUTF(getData());
+		if (objData != null)
+			objData.saveToStream(data);
 	}
 
 

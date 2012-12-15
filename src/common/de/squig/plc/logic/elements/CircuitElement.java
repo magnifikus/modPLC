@@ -405,7 +405,6 @@ public class CircuitElement implements Serializable {
 		
 		if (this.getFunction() != null) {
 			data.writeShort(this.getFunction().getId());
-			
 		} else
 			data.writeShort(0);
 

@@ -33,11 +33,15 @@ public abstract class Circuit implements Serializable, ITickNotified {
 	
 	protected List<CircuitElement> simulationList = null;
 	protected List<Object> commitList = null;
+	protected List<CircuitObject> watchList = null;
+	
+	
+
 	protected boolean evaluated = false;
 	
 	protected boolean gotUpdatedForSimulator = true;
 	protected boolean needsSimulation = true;
-	protected long needsSimInTicks = -1;
+	protected long needsSimInTick = -1;
 	protected long simulationTime = -1;
 	
 
@@ -151,7 +155,6 @@ public abstract class Circuit implements Serializable, ITickNotified {
 			ele.afterLoad();
 			if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
 				ele.setChanged(true);
-
 			}
 		}
 		
@@ -168,6 +171,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public void injectObjects(List<CircuitObjectNetworkData> objects,
 			boolean all) {
+		
 
 	}
 
@@ -289,12 +293,12 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		this.needsSimulation = needsSimulation;
 	}
 
-	public long getNeedsSimInTicks() {
-		return needsSimInTicks;
+	public long getNeedsSimInTick() {
+		return needsSimInTick;
 	}
 
-	public void setNeedsSimInTicks(long needsSimInTicks) {
-		this.needsSimInTicks = needsSimInTicks;
+	public void setNeedsSimInTick(long needsSimInTicks) {
+		this.needsSimInTick = needsSimInTicks;
 	}
 
 	public long getSimulationTime() {
@@ -305,6 +309,12 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		this.simulationTime = simulationTime;
 	}
 
-	
+	public List<CircuitObject> getWatchList() {
+		return watchList;
+	}
+
+	public void setWatchList(List<CircuitObject> watchList) {
+		this.watchList = watchList;
+	}
 
 }

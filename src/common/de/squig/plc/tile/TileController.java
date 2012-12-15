@@ -185,6 +185,7 @@ public class TileController extends TilePLC {
 		for (CircuitObject out : circuit.getByType(LogicOutput.class)) {
 			LogicOutput lo = (LogicOutput) out;
 			if (lo.isChanged() || updateAll) {
+				//LogHelper.info("sending "+lo.getLinkNumber()+" "+lo.getSignal());
 				tosend.add(new ControllerDataPayload(lo.getLinkNumber(), lo.getSignal()));
 				lo.setChanged(false);
 			}

@@ -4,11 +4,11 @@ public class CircuitObjectNetworkData {
 	private short typeID;
 	private char linkName;
 	private short flags;
-	private String data;
+	private CircuitObjectData data;
 	
 	
 	public CircuitObjectNetworkData(short typeID, char linkName, short flags,
-			String data) {
+			CircuitObjectData data) {
 		super();
 		this.typeID = typeID;
 		this.linkName = linkName;
@@ -35,10 +35,10 @@ public class CircuitObjectNetworkData {
 	public void setFlags(short flags) {
 		this.flags = flags;
 	}
-	public String getData() {
+	public CircuitObjectData getData() {
 		return data;
 	}
-	public void setData(String data) {
+	public void setData(CircuitObjectData data) {
 		this.data = data;
 	}
 	

@@ -71,11 +71,15 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 	
 	@Override
 	public void commit() {
-		if (!signal.equals(lastSignal)) {
+		if (!signal.equals(lastSignal)  ) { // || signal.equals(Signal.PULSE) || signal.equals(Signal.NEGATIVEPULSE)) {
 			changed = true;
 			lastSignal = signal;
 		}
-	}
+		if (signal.equals(Signal.PULSE))
+			lastSignal = Signal.OFF;
+		if (signal.equals(Signal.NEGATIVEPULSE))
+			lastSignal = Signal.ON;
+	}	
 
 
 	public boolean isChanged() {

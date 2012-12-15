@@ -21,32 +21,40 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.squig.plc.logic.Circuit;
+import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
+import de.squig.plc.logic.helper.LogHelper;
 
-public class LogicTimer extends CircuitObject {
+public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinListener {
 	public static List<Class> dataTypes = new ArrayList<Class>() {{
 		add(Long.class); // timeBase
 		add(Boolean.class); // pause
 		add(Long.class); // pauseTime
+		add(Long.class); // duration
 	}};
+	private enum dataMap {TIME_BASE, PAUSE, TIME_PAUSE, TIME_DURATION};
+	
+	private long nextActionCache = -1;
 	
 	
 	protected CircuitObjectOutputPin out = new CircuitObjectOutputPin(this, "Timer pulse");
 	protected CircuitObjectInputPin inStop = new CircuitObjectInputPin(this, "Stop Timer");
 	protected CircuitObjectInputPin inReset = new CircuitObjectInputPin(this, "Reset Timer");
 	
-	protected long timeBase = -1;
-	protected long timePause = -1;
-	protected boolean paused = false;
-	
+
 	public LogicTimer(Circuit circuit, short linkNumber) {
 		super(circuit,dataTypes);
 		addOutputPin(out);
 		addInputPin(inStop);
 		addInputPin(inReset);
-		
 		setLinkNumber(linkNumber);
+		inStop.setListener(this);
+		inReset.setListener(this);
 		name = "Internal Timer";
+		setPause(false);
+		setTimeBase(circuit.getSimulationTime());
+		setTimeDuration(200);
+		
 	}
 	
 
@@ -65,30 +73,97 @@ public class LogicTimer extends CircuitObject {
 	}
 	
 	
-
-	public long getNextActivation(long now) {
-		return -1;
+	@Override
+	public long getNextActivation() {
+		if (isPause())
+			return -1;
+		if (nextActionCache > circuit.getSimulationTime())
+			return nextActionCache;
+		
+		long now = circuit.getSimulationTime();
+		long base = getTimeBase();
+		long duration = getTimeDuration();
+		nextActionCache = base + (((now - base) / duration)+1)*duration;
+		
+		return nextActionCache;
 	}
 	
-	public void pause() {
+	
+	@Override
+	public void preSimulation() {
+		if (isPause() || inReset.getSignal().equals(Signal.ON)) {
+			out.onSignal(Signal.OFF);
+			return;
+		}
+		if (nextActionCache  == circuit.getSimulationTime())
+			out.onSignal(Signal.PULSE);
+		else out.onSignal(Signal.OFF);
+	}
+	
+	
+	
+	
+
+	@Override
+	public void onSignal(CircuitObjectInputPin pin, Signal signal) {
+		if (pin.equals(inStop)) {
+			if (signal.equals(Signal.ON))
+				pause();
+			else if (signal.equals(Signal.OFF))
+				resume();
+		} else if (pin.equals(inReset)) {
+			if (signal.equals(Signal.ON) || signal.equals(Signal.PULSE))
+				reset();
+		}
 		
 	}
+	
+	
+	public void pause() {
+		if (!isPause()) {
+			setPause(true);
+			setTimePause(circuit.getSimulationTime());
+		}	
+	}
+	
 	public void resume() {
-		
+		if (isPause()) {
+			setPause(false);
+			setTimeBase( getTimeBase()+ circuit.getSimulationTime()-getTimePause());		
+		}
 	}
 	
 	public void reset() {
-		
+		setTimeBase(circuit.getSimulationTime());
+		nextActionCache = -1;
 	}
 	
 	
-	public void saveTo() {
-		
-		
+	public long getTimeBase() {
+		return (Long)objData.get(dataMap.TIME_BASE.ordinal());
+	}
+	public boolean isPause() {
+		return (Boolean)objData.get(dataMap.PAUSE.ordinal());
+	}
+	public long getTimePause() {
+		return (Long)objData.get(dataMap.TIME_PAUSE.ordinal());
+	}
+	public long getTimeDuration() {
+		return (Long)objData.get(dataMap.TIME_DURATION.ordinal());
 	}
 	
-	public void deserialize(byte[] data) {
-		
+	public void setTimeBase(long timeBase) {
+		objData.set(dataMap.TIME_BASE.ordinal(),timeBase);
 	}
+	public void setPause(boolean pause) {
+		objData.set(dataMap.PAUSE.ordinal(),pause);
+	}
+	public void setTimePause(long timePause) {
+		objData.set(dataMap.TIME_PAUSE.ordinal(),timePause);
+	}
+	public void setTimeDuration(long timeDuration) {
+		objData.set(dataMap.TIME_DURATION.ordinal(),timeDuration);
+	}
+
 
 }

@@ -1,7 +1,6 @@
 package de.squig.plc.logic.simulator;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import de.squig.plc.logic.Circuit;
@@ -24,35 +23,50 @@ public class CircuitSimulator {
 	}
 
 	public synchronized void onTick(long tick) {
-		long start = System.nanoTime();
-		//if (nextTick > tick)
-		//	return;
-		//nextTick = tick + 1;//StaticData.SimulatorDelay;
-		
-		if (!circuit.isNeedsSimulation() && circuit.getNeedsSimInTicks() >= 0)
-			return;
-		circuit.setNeedsSimulation(false);
-		
-		long siminTicks = circuit.getNeedsSimInTicks();
-		if (siminTicks >= 0)
-			circuit.setNeedsSimInTicks(siminTicks);
-		
 		
 		circuit.setSimulationTime(tick);
 		
 		
+		if (!circuit.isNeedsSimulation() && (circuit.getNeedsSimInTick() < 0 || circuit.getNeedsSimInTick()  > tick))
+			return;
+		if (circuit.isNeedsSimulation()) {
+			circuit.setNeedsSimulation(false);
+		}
+		
+		long start = System.nanoTime();
+		
+		
 		if (!circuit.isEvaluated())
 			evaluateCircuit();
+		
 		simulateCircuit();
+		
 		PacketControllerData.updateArroundWithPowermap(circuit.getController(), 8);
+		
+		calcNextSimulationTick();
+		
 		long took = System.nanoTime()-start;
-		//LogHelper.info("took "+took+" nanos");
+		LogHelper.info("CircuitSimulator tick="+tick+" took "+took+" nanos");
+	}
+	
+	private void calcNextSimulationTick() {
+		long nextActivation = -1;
+		for (CircuitObject obj : circuit.getWatchList()) {
+			long nt = obj.getNextActivation();
+			if (nt > 0 && (nt < nextActivation || nextActivation < 0)) {
+				
+				nextActivation = nt;
+			}
+		}
+		
+		circuit.setNeedsSimInTick(nextActivation);
 	}
 	
 	
 	private void evaluateCircuit () {
-		List<CircuitElement> simObjects = new ArrayList<CircuitElement>();
-		List<Object> comObjects = new ArrayList<Object>();
+		List<CircuitElement> simObjects = new LinkedList<CircuitElement>();
+		List<Object> comObjects = new LinkedList<Object>();
+		List<CircuitObject> watchObjects = new LinkedList<CircuitObject>();
 		for (int x=0; x < circuit.getMap().getWidth(); x++)
 			for (int y=0; y < circuit.getMap().getHeight(); y++) {
 				CircuitElement ele = circuit.getMap().getElementAt(x, y);
@@ -60,16 +74,22 @@ public class CircuitSimulator {
 					simObjects.add(ele);
 					if (ele.getInputPin() != null)
 						comObjects.add(ele.getInputPin());
+					if (ele.getOutputPin() != null)
+						watchObjects.add(ele.getLinkedObject());
+						
 				}
 			}
 		circuit.setSimulationList(simObjects);
 		circuit.setCommitList(comObjects);
+		circuit.setWatchList(watchObjects);
 		circuit.setEvaluated(true);
 	}
 	private void simulateCircuit () {
 		for (CircuitElement ele : circuit.getSimulationList()) {
 			ele.setSimulated(false);
 		}
+		for (CircuitObject obj : circuit.getWatchList())
+			obj.preSimulation();	
 		
 		for (CircuitElement ele : circuit.getSimulationList()) {
 			// lets check for left Signal
@@ -102,6 +122,10 @@ public class CircuitSimulator {
 			ele.simulate();
 			
 		}
+			
+		for (CircuitObject obj : circuit.getWatchList())
+			obj.postSimulation();	
+
 		for (Object com : circuit.getCommitList()) {
 			if (com instanceof CircuitObjectInputPin)
 				((CircuitObjectInputPin) com).commit();

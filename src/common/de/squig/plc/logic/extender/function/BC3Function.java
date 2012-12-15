@@ -70,27 +70,23 @@ public class BC3Function extends ExtenderFunction {
 	@Override
 	public void onUpdate(ExtenderChannel channel,long worldTotalTime) {
 		if (channel.getType().equals(ExtenderChannel.TYPES.INPUT)) {
-			/*if (channel.getFunctionLocalData() instanceof Integer) {
-				int lastReset = (Integer) channel.getFunctionLocalData();
-				if (lastReset >= 0)
-					lastReset--;
-				if (lastReset == 0 ) {*/
-					SignalEvent.fireDirected(channel.getExtender(), channel.getExtender().getConnectedController(), Signal.OFF, channel.getNumber());
-					channel.setSignal(Signal.OFF);
-					channel.setFunctionLocalData(new Integer(-1));
-					channel.getExtender().sheduleRemoteUpdate();
-			/*	}
-				
-				if (lastReset >= 0) {
-					channel.setFunctionLocalData(new Integer(lastReset));
-				}
-			}*/
-		} 
+				SignalEvent.fireDirected(channel.getExtender(), channel.getExtender().getConnectedController(), Signal.OFF, channel.getNumber());
+				channel.setSignal(Signal.OFF);
+				channel.setFunctionLocalData(new Integer(-1));
+				channel.getExtender().sheduleRemoteUpdate();
+		} else {
+			channel.setSignal(Signal.OFF);
+			channel.getExtender().sheduleRemoteUpdate();
+		}
 	}
 	@Override
 	public void onSignal(ExtenderChannel channel, Signal signal) {
 		if (channel.getType() == ExtenderChannel.TYPES.OUTPUT) {
-			if (!channel.getSignal().equals(signal)) {
+			if (signal.equals(Signal.PULSE)) {
+				channel.enableShedule(10);
+				channel.setSignal(signal.ON);
+				channel.getExtender().sheduleRemoteUpdate();
+			} else if (!channel.getSignal().equals(signal)) {
 				channel.setSignal(signal);
 				channel.getExtender().sheduleRemoteUpdate();
 			}

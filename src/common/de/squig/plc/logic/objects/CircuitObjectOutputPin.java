@@ -17,18 +17,12 @@ public class CircuitObjectOutputPin {
 		return name;
 	}
 	
-	
-	public void afterCycle() {
-		
-	}
 
 	public void onSignal(Signal signal) {
-		
 		this.signal = signal;
 	}
 
 	public Signal getSignal() {
-	
 		return signal;
 	}
  

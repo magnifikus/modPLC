@@ -15,6 +15,9 @@ public class CircuitObjectData {
 	public CircuitObjectData(List<Class> types) {
 		data = new ArrayList<Object>();
 		this.types = types;
+		for (Class t : types)
+			data.add(null);
+		
 	}
 	
 	public void saveToStream(DataOutputStream datas) throws IOException {
@@ -74,6 +77,11 @@ public class CircuitObjectData {
 		return data;
 	}
 	
-	
+	public Object get(int i) {
+		return data.get(i);
+	}
+	public void set(int i, Object datai) {
+		data.set(i, datai);
+	}
 	
 }
