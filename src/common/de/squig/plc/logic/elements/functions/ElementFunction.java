@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.objects.LogicCounter;
+import de.squig.plc.logic.objects.LogicDelay;
 import de.squig.plc.logic.objects.LogicInput;
 import de.squig.plc.logic.objects.LogicMemory;
 import de.squig.plc.logic.objects.LogicOutput;
@@ -41,7 +42,7 @@ public class ElementFunction {
 	public final static ElementFunction COUNTERTOP = new ElementFunction((short) 20,LogicTextureTile.TAG_TOP,  LogicCounter.class,IoType.INPUT);
 	public final static ElementFunction COUNTERBOTTOM = new ElementFunction((short) 21,LogicTextureTile.TAG_BOTTOM,  LogicCounter.class,IoType.INPUT);
 	
-	public final static ElementFunction DELAY = new ElementFunction((short) 22,null, null, IoType.INTERN);
+	public final static ElementFunction DELAY = new ElementFunction((short) 22,null, LogicDelay.class, IoType.DUAL);
 	
 	private LogicTextureTile tag;
 	private Class linkType;

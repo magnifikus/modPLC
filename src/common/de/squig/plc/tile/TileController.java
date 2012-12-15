@@ -68,7 +68,7 @@ public class TileController extends TilePLC {
 	public void onEvent(PLCEvent event) {
 		if (event instanceof SignalEvent) {
 			SignalEvent events = (SignalEvent) event;
-			CircuitObject obj = circuit.getByType(CircuitObject.TYPES.INPUT, events.getChannel()+"");
+			CircuitObject obj = circuit.getByType(LogicInput.class, events.getChannel());
 			if (obj instanceof LogicInput) {
 				LogicInput inp = (LogicInput) obj;
 				inp.onSignal(events.getSignal());
@@ -86,8 +86,8 @@ public class TileController extends TilePLC {
 					SearchResponseEvent resp = new SearchResponseEvent(this, 
 							event.getSource().getUuid(),
 							dist,uuid,controllerName,
-							circuit.getByType(CircuitObject.TYPES.INPUT).size(),
-							circuit.getByType(CircuitObject.TYPES.OUTPUT).size());
+							circuit.getByType(LogicInput.class).size(),
+							circuit.getByType(LogicOutput.class).size());
 					PLC.instance.getNetworkBroker().fireEvent(resp);
 				}
 			}
@@ -182,10 +182,10 @@ public class TileController extends TilePLC {
 
 	public void sendUpdatesToExtenders(boolean updateAll) {
 		List<ControllerDataPayload> tosend = new ArrayList<ControllerDataPayload>();
-		for (CircuitObject out : circuit.getByType(CircuitObject.TYPES.OUTPUT)) {
+		for (CircuitObject out : circuit.getByType(LogicOutput.class)) {
 			LogicOutput lo = (LogicOutput) out;
 			if (lo.isChanged() || updateAll) {
-				tosend.add(new ControllerDataPayload(lo.getLinkNumberInt(), lo.getSignal()));
+				tosend.add(new ControllerDataPayload(lo.getLinkNumber(), lo.getSignal()));
 				lo.setChanged(false);
 			}
 		}

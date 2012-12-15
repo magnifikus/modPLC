@@ -32,7 +32,6 @@ import cpw.mods.fml.common.Side;
 import de.squig.plc.PLC;
 import de.squig.plc.event.ControllerDataEvent;
 import de.squig.plc.event.PLCEvent;
-import de.squig.plc.event.PLCEventSubscriber;
 import de.squig.plc.event.SearchEvent;
 import de.squig.plc.event.SearchResponseEvent;
 import de.squig.plc.event.SignalEvent;
@@ -42,7 +41,6 @@ import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.ExtenderChannel.TYPES;
 import de.squig.plc.logic.extender.ExtenderChannelNetworkData;
-import de.squig.plc.logic.extender.function.BC3Function;
 import de.squig.plc.logic.extender.function.RedstoneFunction;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketExtenderLiteData;
@@ -130,7 +128,6 @@ public class TileExtender extends TilePLC implements IInventory {
 			Constructor constructor = bc3Extender.getConstructor(null);
 			TileExtender res = (TileExtender)constructor.newInstance(null);
 			return res;
-	     
 		} catch (Exception ex) {
 			return new TileExtender();
 		}

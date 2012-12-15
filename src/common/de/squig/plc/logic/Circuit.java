@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -15,9 +16,7 @@ import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.CircuitElementNetworkData;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
-import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
-import de.squig.plc.logic.objects.CircuitObject.TYPES;
 import de.squig.plc.logic.objects.CircuitObjectNetworkData;
 import de.squig.plc.logic.simulator.CircuitSimulator;
 import de.squig.plc.tile.TileController;
@@ -39,6 +38,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 	protected boolean gotUpdatedForSimulator = true;
 	protected boolean needsSimulation = true;
 	protected long needsSimInTicks = -1;
+	protected long simulationTime = -1;
 	
 
 	public Circuit(TileController controller, int width, int height) {
@@ -61,40 +61,26 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		TickHandler.getInstance().removeListener(this);
 	}
 
-	public List getByType(Class typ) {
-		List result = new ArrayList();
+	public CircuitObject getByType(short typeid, int number) {
+		Class type = CircuitObject.getClassForType(typeid);
 		for (CircuitObject obj : objects)
-			if (obj.getClass().isInstance(typ))
-				result.add(obj);
-		return result;
-	}
-
-	public CircuitObject getByType(int typeid, String number) {
-		for (CircuitObject obj : objects)
-			if (obj.getType() == typeid && number.equals(obj.getLinkNumber()))
-				return obj;
-		return null;
-	}
-	public CircuitObject getByType(TYPES type, String number) {
-		for (CircuitObject obj : objects)
-			if (obj.getType() == type.ordinal() && number.equals(obj.getLinkNumber()))
+			if (obj.getClass().equals(type) && number == obj.getLinkNumber())
 				return obj;
 		return null;
 	}
 
-	public CircuitObject getByType(Class typ, String number) {
+	public CircuitObject getByType(Class typ, int number) {
 		for (CircuitObject obj : objects)
 			if (obj.getClass().equals(typ))
-				if (obj.getLinkNumber() != null
-						&& obj.getLinkNumber().equals(number))
+				if (obj.getLinkNumber() == number)
 					return obj;
 		return null;
 	}
 
-	public List<CircuitObject> getByType(CircuitObject.TYPES type) {
+	public List<CircuitObject> getByType(Class type) {
 		List result = new ArrayList();
 		for (CircuitObject obj : objects)
-			if (obj.getType() == type.ordinal())
+			if (obj.getClass().equals(type))
 				result.add(obj);
 		return result;
 	}
@@ -123,7 +109,17 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public void saveObjectsTo(DataOutputStream data, boolean all)
 			throws IOException {
-
+		List<CircuitObject> tosave = new LinkedList<CircuitObject>();
+		for (CircuitObject obj : objects) {
+			if (all || obj.isChanged()) {
+				tosave.add(obj);
+			}
+		}
+		data.writeShort(tosave.size());
+		for (CircuitObject obj : tosave) {
+			data.writeUTF(obj.getData());
+		}
+		
 	}
 
 	public void saveStateTo(DataOutputStream data) throws IOException {
@@ -140,8 +136,6 @@ public abstract class Circuit implements Serializable, ITickNotified {
 			getMap().empty();
 		}
 		List<CircuitElement> toFire = new ArrayList<CircuitElement>();
-
-		
 		for (CircuitElementNetworkData netElement : elements) {
 			CircuitElement element;
 			if ((element = getMap().getElementAt(netElement.mapX,
@@ -151,7 +145,6 @@ public abstract class Circuit implements Serializable, ITickNotified {
 			element = CircuitElement.createFromPacket(this, netElement);
 			getMap().addElement(element, -1, -1, false);
 			toFire.add(element);
-			
 		}
 		
 		for (CircuitElement ele : toFire) {
@@ -226,7 +219,12 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public static List<CircuitObjectNetworkData> loadObjectsFrom(
 			DataInputStream data, boolean all) throws IOException {
-		return null;
+		List<CircuitObjectNetworkData> objs = new ArrayList<CircuitObjectNetworkData>();
+		int num = data.readShort();
+		for (int i = 0; i < num; i++) {
+			objs.add(CircuitObject.readFrom(data));
+		}
+		return objs;
 	}
 
 	public static CircuitStateNetworkData loadStateFrom(DataInputStream data)
@@ -297,6 +295,14 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public void setNeedsSimInTicks(long needsSimInTicks) {
 		this.needsSimInTicks = needsSimInTicks;
+	}
+
+	public long getSimulationTime() {
+		return simulationTime;
+	}
+
+	public void setSimulationTime(long simulationTime) {
+		this.simulationTime = simulationTime;
 	}
 
 	

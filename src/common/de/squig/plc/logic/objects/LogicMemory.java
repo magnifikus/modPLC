@@ -9,8 +9,8 @@ public class LogicMemory extends CircuitObject {
 	protected CircuitObjectInputPin inReset = new CircuitObjectInputPin(this, "Memory Reset");
 	
 	
-	public LogicMemory(Circuit circuit, String linkNumber) {
-		super(circuit, TYPES.MEMORY);
+	public LogicMemory(Circuit circuit, short linkNumber) {
+		super(circuit,null);
 		setLinkNumber(linkNumber);
 		addInputPin(inSet);
 		addInputPin(inReset);

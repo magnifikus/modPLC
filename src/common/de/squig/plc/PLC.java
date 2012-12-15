@@ -36,6 +36,13 @@ import de.squig.plc.logic.elements.Output;
 import de.squig.plc.logic.elements.Pulse;
 import de.squig.plc.logic.elements.Timer;
 import de.squig.plc.logic.helper.LogHelper;
+import de.squig.plc.logic.objects.CircuitObject;
+import de.squig.plc.logic.objects.LogicCounter;
+import de.squig.plc.logic.objects.LogicDelay;
+import de.squig.plc.logic.objects.LogicInput;
+import de.squig.plc.logic.objects.LogicMemory;
+import de.squig.plc.logic.objects.LogicOutput;
+import de.squig.plc.logic.objects.LogicTimer;
 
 @Mod(modid = "PLC", name = "ProgrammableLogicControllers", version = "0.0.1")
 @NetworkMod(clientSideRequired = true, serverSideRequired = true, packetHandler = PacketHandler.class, channels = { "modPLCChannel12" })
@@ -83,6 +90,15 @@ public class PLC {
 		CircuitElement.addCircuitElementType(101, Pulse.class);
 		CircuitElement.addCircuitElementType(102, Timer.class);
 		CircuitElement.addCircuitElementType(103, Delay.class);
+		
+		CircuitObject.addCircuitObjectType(1, LogicInput.class, null);
+		CircuitObject.addCircuitObjectType(2, LogicOutput.class, null);
+		CircuitObject.addCircuitObjectType(3, LogicMemory.class, null);
+		CircuitObject.addCircuitObjectType(10, LogicDelay.class, LogicDelay.dataTypes);
+		CircuitObject.addCircuitObjectType(11, LogicTimer.class, LogicTimer.dataTypes);
+		CircuitObject.addCircuitObjectType(12, LogicCounter.class, LogicCounter.dataTypes);
+		
+		
 		
 	}
 

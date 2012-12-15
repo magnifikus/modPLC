@@ -13,8 +13,8 @@ import de.squig.plc.logic.helper.LogHelper;
 public class LogicInput extends CircuitObject {
 	protected CircuitObjectOutputPin out;
 	
-	public LogicInput(Circuit circuit, String linkNumber) {
-		super(circuit, TYPES.INPUT);
+	public LogicInput(Circuit circuit, short linkNumber) {
+		super(circuit,null);
 		out = new CircuitObjectOutputPin(this,"Input");
 		addOutputPin(out);
 		setLinkNumber(linkNumber);

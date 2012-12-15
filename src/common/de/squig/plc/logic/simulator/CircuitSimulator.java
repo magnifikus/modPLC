@@ -32,10 +32,13 @@ public class CircuitSimulator {
 		if (!circuit.isNeedsSimulation() && circuit.getNeedsSimInTicks() >= 0)
 			return;
 		circuit.setNeedsSimulation(false);
+		
 		long siminTicks = circuit.getNeedsSimInTicks();
 		if (siminTicks >= 0)
 			circuit.setNeedsSimInTicks(siminTicks);
 		
+		
+		circuit.setSimulationTime(tick);
 		
 		
 		if (!circuit.isEvaluated())

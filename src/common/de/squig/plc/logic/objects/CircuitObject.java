@@ -1,36 +1,47 @@
 package de.squig.plc.logic.objects;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import buildcraft.core.ByteBuffer;
 
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 
 public abstract class CircuitObject {
+	private static Class objects[] = new Class[256];
+	private static List<Class> objectsData[] = new List[256];
 	
-	public static enum TYPES {
-		INPUT, OUTPUT, MEMORY, COUNTER, TIMER, DELAY
-	}
-	protected TYPES type = null;
+	private List<Class> dataTypes;
 	
 	protected Circuit circuit;
 	
-	protected String linkNumber = null;
+	protected short linkNumber = -1;
 	protected String name = null;
 	protected short flags = 0;
+	
+	protected boolean changed = true;
 	
 	
 	private List<CircuitObjectInputPin> inputs;
 	private List<CircuitObjectOutputPin> outputs;
 	
+	protected CircuitObjectData objData = null;
 	
-	public CircuitObject(Circuit circuit, TYPES type) {
+	
+	
+	
+	public CircuitObject(Circuit circuit, List<Class> dataTypes) {
 		this.circuit = circuit;
-		this.type = type;
+		this.dataTypes = dataTypes;
+		if (dataTypes != null)
+			objData = new CircuitObjectData(dataTypes);
 		inputs = new ArrayList<CircuitObjectInputPin>();
 		outputs = new ArrayList<CircuitObjectOutputPin>();
+		
 	}
 	
 	
@@ -38,18 +49,6 @@ public abstract class CircuitObject {
 		return circuit;
 	}
 
-
-
-	public String getLinkNumber() {
-		return linkNumber;
-	}
-
-
-
-
-	public void setLinkNumber(String linkNumber) {
-		this.linkNumber = linkNumber;
-	}
 
 
 
@@ -89,11 +88,6 @@ public abstract class CircuitObject {
 	}
 	
 	
-	public int getType() {
-		return type.ordinal();
-	}
-	
-	
 	public String saveState() {
 		return "";
 	}
@@ -109,25 +103,28 @@ public abstract class CircuitObject {
 	}
 	
 	
-	public CircuitObjectNetworkData readFrom(DataInputStream data) throws IOException {
+	public static CircuitObjectNetworkData readFrom(DataInputStream data) throws IOException {
 		short type = data.readShort();
 		char linkNumberc = data.readChar();
 		short flags = data.readShort();
-		String state = data.readUTF();
-		CircuitObjectNetworkData obj = new CircuitObjectNetworkData(type,linkNumberc, flags, state);
+		String datas = data.readUTF();
+		CircuitObjectNetworkData obj = new CircuitObjectNetworkData(type,linkNumberc, flags, datas);
 		return obj;
 	}
-
-
-	public int getLinkNumberInt() {
-		if (linkNumber == null)
-			return 255;
-		else return Integer.parseInt(linkNumber);
+	
+	public void saveTo(DataOutputStream data) throws IOException {
+		data.writeShort(getCircuitObjectId(this.getClass()));
+		data.writeShort(getLinkNumber());
+		data.writeShort(flags);
+		data.writeUTF(getData());
 	}
-	public void setLinkNumber(int nmbr) {
-		if (nmbr == 255)
-			linkNumber = "";
-		else linkNumber = ""+nmbr;
+
+
+	public short getLinkNumber() {
+		return linkNumber;
+	}
+	public void setLinkNumber(short nmbr) {
+		linkNumber = nmbr;
 	}
 
 	
@@ -135,4 +132,38 @@ public abstract class CircuitObject {
 		
 	}
 
+	
+	public boolean isChanged() {
+		return changed;
+	}
+
+
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+	}
+
+
+	public String getData() {
+		return "";
+	}
+	public void setData(String data) {
+		
+	}
+	
+	
+	public static void addCircuitObjectType(int id, Class type, List<Class> dataTypes) {
+		objects[id] = type;
+		objectsData[id] = dataTypes;
+	}
+	public static short getCircuitObjectId(Class type) {
+		for (short i = 0; i < objects.length; i++)
+			if (type.equals(objects[i]))
+				return i;
+		return -1;
+	}
+	public static Class getClassForType(short type) {
+		return objects[type];
+	}
+	
+	
 }

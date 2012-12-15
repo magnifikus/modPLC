@@ -11,12 +11,15 @@ import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.helper.LogHelper;
 
 public class LogicDelay extends CircuitObject {
+	public static List<Class> dataTypes = new ArrayList<Class>() {{
+		add(Short.class); // value
+	}};
 	protected CircuitObjectOutputPin out = new CircuitObjectOutputPin(this, "Output");
 	protected CircuitObjectInputPin in = new CircuitObjectInputPin(this, "Input");
 	
 	
-	public LogicDelay(Circuit circuit, String linkNumber) {
-		super(circuit, TYPES.DELAY);
+	public LogicDelay(Circuit circuit, short linkNumber) {
+		super(circuit,dataTypes);
 		addInputPin(in);
 		addOutputPin(out);
 		setLinkNumber(linkNumber);

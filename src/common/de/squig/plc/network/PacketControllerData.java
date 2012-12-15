@@ -29,7 +29,7 @@ import de.squig.plc.logic.objects.CircuitObjectNetworkData;
 import de.squig.plc.tile.TileController;
 
 public class PacketControllerData extends PLCPacket {
-
+	private static enum FLAGS {NAME,STATE, ELEMENTS, ELEMENTSALL, OBJECTS, OBJECTSALL, POWERED};
 	public int x, y, z;
 	
 
@@ -85,58 +85,74 @@ public class PacketControllerData extends PLCPacket {
 		data.writeInt(y);
 		data.writeInt(z);
 		
-		if (controllerName != null) {
-			data.writeBoolean(true);
-			data.writeUTF(controllerName);
-		} else  data.writeBoolean(false);
+		short flags = 0;
 		
-		data.writeBoolean(dataState);
+		if (controllerName != null)
+			flags += 1 << FLAGS.NAME.ordinal();
+		if (dataState) 
+			flags += (1 << FLAGS.STATE.ordinal()) ;
+		if (dataElements) 
+			flags += (1 << FLAGS.ELEMENTS.ordinal()) ;
+		if (dataElementsAll) 
+			flags += (1 << FLAGS.ELEMENTSALL.ordinal());
+		if (dataObjects) 
+			flags += (1 << FLAGS.OBJECTS.ordinal());
+		if (dataObjectsAll) 
+			flags += (1 << FLAGS.OBJECTSALL.ordinal());
+		if (dataPowered) 
+			flags += (1 << FLAGS.POWERED.ordinal());
+		
+		data.writeShort(flags);
+		
+		if (controllerName != null) 
+			data.writeUTF(controllerName);
 		if (dataState) {
 			circuit.saveStateTo(data);
 		}
-		data.writeBoolean(dataElements);
-		data.writeBoolean(dataElementsAll);
+		
 		if (dataElements) {
 			circuit.saveElementsTo(data, dataElementsAll);
 		}
-		data.writeBoolean(dataObjects);
-		data.writeBoolean(dataObjectsAll);
+	
 		if (dataObjects) {
 			circuit.saveObjectsTo(data, dataObjectsAll);
 		}
-		data.writeBoolean(dataPowered);
+
 		if (dataPowered) {
-			circuit.savePoweredTo(data);
-				
+			circuit.savePoweredTo(data);	
 		}
-		data.writeBoolean(false);
+		
 	}
 
 	public void readData(DataInputStream data) throws IOException {
 		this.x = data.readInt();
 		this.y = data.readInt();
 		this.z = data.readInt();
+		short flags = data.readShort();
 		
-		boolean hasName = data.readBoolean();
+		
+		boolean hasName = ((1 << FLAGS.NAME.ordinal()) & flags) > 0;
+		dataState = ((1 << FLAGS.STATE.ordinal()) & flags) > 0;
+		dataElements = ((1 << FLAGS.ELEMENTS.ordinal()) & flags) > 0;
+		dataElementsAll = ((1 << FLAGS.ELEMENTSALL.ordinal()) & flags) > 0;
+		dataObjects = ((1 << FLAGS.OBJECTS.ordinal()) & flags) > 0;
+		dataObjectsAll = ((1 << FLAGS.OBJECTSALL.ordinal()) & flags) > 0;
+		dataPowered = ((1 << FLAGS.POWERED.ordinal()) & flags) > 0;
+		
+		
 		if (hasName)
 			controllerName = data.readUTF();
 		else controllerName = null;
 		
-		dataState = data.readBoolean();
 		if (dataState) {
 			inState = Circuit.loadStateFrom(data);
 		}
-		dataElements = data.readBoolean();
-		dataElementsAll = data.readBoolean();
 		if (dataElements) {
 			inElements = Circuit.loadElementsFrom(data, dataElementsAll);
 		}
-		dataObjects = data.readBoolean();
-		dataObjectsAll = data.readBoolean();
 		if (dataObjects) {
 			inObjects = Circuit.loadObjectsFrom(data, dataObjectsAll);
 		}
-		dataPowered = data.readBoolean();
 		if (dataPowered) {
 			inPowered = Circuit.loadPoweredFrom(data);
 		}
@@ -163,13 +179,13 @@ public class PacketControllerData extends PLCPacket {
 					tileController.setControllerName(controllerName);
 				
 				Circuit circ = tileController.getCircuit();
-				if (dataState)
+				if (dataState && inState != null)
 					circ.injectState(inState);
-				if (dataElements)
+				if (dataElements && inElements != null)
 					circ.injectElements(inElements, dataElementsAll);
-				if (dataObjects)
+				if (dataObjects && inObjects != null)
 					circ.injectObjects(inObjects, dataElementsAll);
-				if (dataPowered) {
+				if (dataPowered && inPowered != null) {
 					circ.injectPowered(inPowered);
 				}
 				if (side == Side.SERVER) {

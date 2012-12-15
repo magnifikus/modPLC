@@ -4,8 +4,14 @@ import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 
-public class Timer extends CircuitElement {
 
+
+
+public class Timer extends CircuitElement {
+	
+
+	
+	
 	
 	public Timer(Circuit circuit, int mapX, int mapY) {
 		super(circuit, mapX, mapY, ElementFunction.TIMEROUTPUT);
@@ -16,8 +22,9 @@ public class Timer extends CircuitElement {
 		
 		setTexture(LogicTextureTile.LOGIC_TIMER);
 		name = "Timer";
-	
 	}
+	
+	
 	
 	
 	

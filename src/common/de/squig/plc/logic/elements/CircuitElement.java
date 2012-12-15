@@ -23,9 +23,7 @@ import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.logic.objects.CircuitObjectOutputPin;
 
 public class CircuitElement implements Serializable {
-	//public static enum TYPES {
-	//	INPUT, OUTPUT, LINE, NOT, PULSE, HIGH, COUNTER, TIMER, DELETED
-	//}
+
 	
 	public enum SIDES {UNDEF,TOP,BOTTOM,LEFT,RIGHT}
 	
@@ -34,13 +32,17 @@ public class CircuitElement implements Serializable {
 	
 	
 	
+	public static Class[] getElements() {
+		return elements;
+	}
+
 	protected boolean evaluated = false;
 	protected boolean simulated = false;
 
 	protected IoType iotype = null;
 	protected int mapX = -1;
 	protected int mapY = -1;
-	protected String data = "";
+	protected byte[] data = new byte[0];
 
 	protected Circuit circuit = null;
 
@@ -147,7 +149,7 @@ public class CircuitElement implements Serializable {
 		CircuitObject co = null;
 		
 		if (function != null && function.getLinkType() != null) {
-			co = circuit.getByType(function.getLinkType(), linkNumber);
+			co = circuit.getByType(function.getLinkType(), Short.parseShort(linkNumber));
 			if (co != null) {
 				if (co != linkedObject) {
 					linkedObject = co;
@@ -418,7 +420,8 @@ public class CircuitElement implements Serializable {
 			data.writeChar(255);
 		data.writeShort(this.getFlags());
 		data.writeShort(this.getCustomFlags());
-		data.writeUTF(this.getData());
+		//data.writeUTF(this.getData());
+		
 	}
  	
 
@@ -431,7 +434,9 @@ public class CircuitElement implements Serializable {
 		char linkNumber = data.readChar();
 		short flags = data.readShort();
 		short customFlags = data.readShort();
-		String datas = data.readUTF();
+		String datas = null;//data.readUTF();
+		
+		
 		return new CircuitElementNetworkData(mapX,
 				mapY, typeID, functionID, linkNumber, flags, customFlags,datas);
 	}
@@ -534,11 +539,11 @@ public class CircuitElement implements Serializable {
 		}
 	}
 
-	public String getData() {
+	public byte[] getData() {
 		return data;
 	}
 
-	public void setData(String data) {
+	public void setData(byte[] data) {
 		this.data = data;
 	}
 	

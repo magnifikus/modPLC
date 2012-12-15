@@ -49,10 +49,16 @@ public class GuiController extends GuiScreen {
 	private GuiTextField txtName = null;
 	private String loadedName = null;
 	
+	private Class[] elements = CircuitElement.getElements();
+	
+	
 	public GuiController(TileController controller) {
 		super();
 		// super(new ContainerController(player, controller));
 		// this.ySize = 176;
+		
+		
+		
 		this.controller = controller;
 		this.circuit = controller.getCircuit();
 	}
