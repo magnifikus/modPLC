@@ -23,7 +23,12 @@ public class Timer extends CircuitElement {
 		setTexture(LogicTextureTile.LOGIC_TIMER);
 		name = "Timer";
 	}
-	
+	public static String getDisplayName() {
+		return "Timer (Sends Pulses based on Time)";
+	}
+	public static int getDisplayTextureId() {
+		return 229;
+	}
 	
 	
 	

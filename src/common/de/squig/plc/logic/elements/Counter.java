@@ -20,4 +20,11 @@ public class Counter extends CircuitElement {
 		name = "Counter";
 		
 	}
+	
+	public static String getDisplayName() {
+		return "Counter (Counts Signals up and down)";
+	}
+	public static int getDisplayTextureId() {
+		return 230;
+	}
 }

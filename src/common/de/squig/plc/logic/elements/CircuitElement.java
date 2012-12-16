@@ -22,7 +22,7 @@ import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.logic.objects.CircuitObjectOutputPin;
 
-public class CircuitElement implements Serializable {
+public  class CircuitElement implements Serializable {
 
 	
 	public enum SIDES {UNDEF,TOP,BOTTOM,LEFT,RIGHT}
@@ -31,6 +31,9 @@ public class CircuitElement implements Serializable {
 	
 	
 	
+	public  static String getDisplayName() {
+		return "unknown";
+	}
 	
 	public static Class[] getElements() {
 		return elements;

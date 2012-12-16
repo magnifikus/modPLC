@@ -24,6 +24,8 @@ import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 import de.squig.plc.logic.helper.LogHelper;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunctionTime;
 
 public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinListener {
 	public static List<Class> dataTypes = new ArrayList<Class>() {{
@@ -32,6 +34,11 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 		add(Long.class); // pauseTime
 		add(Long.class); // duration
 	}};
+	
+	private static List<GuiFunction> guiFunctions = new ArrayList<GuiFunction>() {{
+		add(new GuiFunctionTime((short)dataMap.TIME_DURATION.ordinal(), 4, -1));
+	}};
+
 	private enum dataMap {TIME_BASE, PAUSE, TIME_PAUSE, TIME_DURATION};
 	
 	private long nextActionCache = -1;
@@ -47,6 +54,7 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 		addOutputPin(out);
 		addInputPin(inStop);
 		addInputPin(inReset);
+		setGuiFunctions(guiFunctions);
 		setLinkNumber(linkNumber);
 		inStop.setListener(this);
 		inReset.setListener(this);

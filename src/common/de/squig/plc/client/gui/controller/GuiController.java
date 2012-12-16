@@ -3,6 +3,7 @@ package de.squig.plc.client.gui.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.src.FontRenderer;
 import net.minecraft.src.GuiButton;
 import net.minecraft.src.GuiScreen;
 import net.minecraft.src.GuiTextField;
@@ -50,7 +51,14 @@ public class GuiController extends GuiScreen {
 	private String loadedName = null;
 	
 	private Class[] elements = CircuitElement.getElements();
+	private CircuitElement lastElement = null;
 	
+	private GuiInfoscreen infoScreen = null;
+	protected int infoX = 0;
+	protected int infoY = 0;
+	protected int infoHeight = 160;
+	protected int infoWidth =  160;
+			
 	
 	public GuiController(TileController controller) {
 		super();
@@ -73,6 +81,9 @@ public class GuiController extends GuiScreen {
 		txtName.setText(loadedName);
 		txtName.setMaxStringLength(14);
 		
+		infoX = screenX+(screenCols+2)*16;
+		infoY = screenY+32;
+		infoScreen = new GuiInfoscreen(this, null);
 	}
 	
 	public boolean doesGuiPauseGame()
@@ -115,6 +126,7 @@ public class GuiController extends GuiScreen {
 		drawLogicTile(LogicTextureTile.CURSOR, cursorX, cursorY-yOffset, false, null,false,false);
 		
 		// paint the rest background
+		infoScreen.drawBackground();
 		
 		drawControls();
 		
@@ -133,7 +145,8 @@ public class GuiController extends GuiScreen {
 			}
 		this.fontRenderer.drawString("R"+(cursorY+1)+" C"+(cursorX+1), screenX+8, screenY + 8, 0x000000);
 		
-		updateInfoPanel();
+		//updateInfoPanel();
+		infoScreen.drawForeground();
 		super.drawScreen(i, j, f);
 	}
 
@@ -257,7 +270,7 @@ public class GuiController extends GuiScreen {
 		}
 		
 		// draw helpdisplay
-		for (int x = screenCols+2; x < screenCols + 12; x++) {
+		/*for (int x = screenCols+2; x < screenCols + 12; x++) {
 			for (int y = 2; y < screenRows + 2; y++) {
 				int tx = 16;
 				int ty = 16;
@@ -281,7 +294,7 @@ public class GuiController extends GuiScreen {
 				this.drawTexturedModalRect(sx, sy,
 						tx, ty, 16, 16);
 			}
-		}
+		}*/
 
 		
 		// draw buttons
@@ -339,6 +352,8 @@ public class GuiController extends GuiScreen {
 		if (x < screenCols && y < screenRows) {
 			cursorX = x;
 			cursorY = y + yOffset;
+			infoScreen.onClose();
+			infoScreen = new GuiInfoscreen(this, getSelectedElement());
 		} else {
 			if (y == 0) {
 				if (x == screenCols) {
@@ -394,28 +409,47 @@ public class GuiController extends GuiScreen {
 				if (cursorY > 0)
 					cursorY--;
 				checkScroll();
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 				break;
 			case 208:
 				if (cursorY < circuit.getMap().getHeight()-1)
 					cursorY++;
 				checkScroll();
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 				break;
 			case 203:
 				if (cursorX > 0)
 					cursorX--;
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 				break;
 			case 205:
 				if (cursorX < circuit.getMap().getWidth()-1)
 					cursorX++;
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
 				break;
 			case 57:
 				keySpaceEvent();
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 				break;
 			case 14:
 				keyBackspaceEvent();
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
 				break;
 			case 42:
 				keyShiftEvent();
+				infoScreen.onClose();
+				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 				break;
 			default:
 				if (!keyEvent(par1))
@@ -459,7 +493,9 @@ public class GuiController extends GuiScreen {
 				return false;
 		}
 		
-		
+		infoScreen.onClose();
+		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 		return true;
 	}
 	
@@ -544,7 +580,13 @@ public class GuiController extends GuiScreen {
 		if (cursorY+1 > yOffset+screenRows-1)
 			yOffset = cursorY-screenRows+1;
 	}
-	
+	protected List<GuiButton> getControllList() {
+		return controlList;
+	}
+	protected FontRenderer getFontRenderer() {
+		return fontRenderer;
+		
+	}
 	/*
 	 * protected void drawGuiContainerForegroundLayer() {
 	 * this.fontRenderer.drawString

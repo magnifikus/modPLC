@@ -192,6 +192,7 @@ public class PacketControllerData extends PLCPacket {
 					PacketControllerData.updateArround(tileController,8);
 				}
 				circ.getMap().removeDeleted();
+				circ.setNeedsSimulation(true);
 			}
 			
 		}

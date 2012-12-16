@@ -22,4 +22,13 @@ public class Input extends CircuitElement {
 		setAllowInvert(true);
 		name = "Logic Input";
 	}
+	
+
+	public static String getDisplayName() {
+		return "Input (Signal from Extenders)";
+	}
+	public static int getDisplayTextureId() {
+		return 224;
+	}
+	
 }

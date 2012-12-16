@@ -39,6 +39,14 @@ public class Line extends CircuitElement  {
 		name = "Connection Line";
 	}
 	
+	public static String getDisplayName() {
+		return "Line (Connects things)";
+	}
+	public static int getDisplayTextureId() {
+		return 231;
+	}
+	
+	
 	public void updateConnections() {
 		tags.clear();
 		if (connLeft)

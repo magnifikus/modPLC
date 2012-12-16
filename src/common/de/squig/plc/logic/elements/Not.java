@@ -14,6 +14,12 @@ public class Not extends CircuitElement {
 		setTexture(LogicTextureTile.LOGIC_NOT);
 		name = "NOT (Inverter)";
 	}
+	public static String getDisplayName() {
+		return "Not Gate (Inverts a Signal)";
+	}
+	public static int getDisplayTextureId() {
+		return 227;
+	}
 	protected Signal manipulateSignal(Signal signal) {
 		return signal.invert();
 	}

@@ -11,5 +11,10 @@ public class Deleted extends CircuitElement {
 		super(circuit, mapX, mapY,  null);
 		name = "I AM DELETED";
 	}
-
+	public static String getDisplayName() {
+		return "Delete this element";
+	}
+	public static int getDisplayTextureId() {
+		return 240;
+	}
 }

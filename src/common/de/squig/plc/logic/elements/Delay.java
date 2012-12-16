@@ -13,4 +13,10 @@ public class Delay extends CircuitElement {
 		name = "Delay";
 		
 	}
+	public static String getDisplayName() {
+		return "Delay (Delays a Signal)";
+	}
+	public static int getDisplayTextureId() {
+		return 232;
+	}
 }

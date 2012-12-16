@@ -14,6 +14,12 @@ public class High extends CircuitElement {
 		name = "Permanent On";
 	}
 	
+	public static String getDisplayName() {
+		return "Permanent On";
+	}
+	public static int getDisplayTextureId() {
+		return 228;
+	}
 	public void evaluate() {
 	}
 	

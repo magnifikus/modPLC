@@ -10,10 +10,13 @@ import buildcraft.core.ByteBuffer;
 
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.functions.ElementFunction;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
 
 public abstract class CircuitObject {
 	private static Class objects[] = new Class[256];
 	private static List<Class> objectsData[] = new List[256];
+	private List<GuiFunction> guiFunctions = null;
+	
 	
 	private List<Class> dataTypes;
 	
@@ -41,9 +44,12 @@ public abstract class CircuitObject {
 			objData = new CircuitObjectData(dataTypes);
 		inputs = new ArrayList<CircuitObjectInputPin>();
 		outputs = new ArrayList<CircuitObjectOutputPin>();
-		
 	}
 	
+	
+	protected void setGuiFunctions(List<GuiFunction> guiFunctions) {
+		this.guiFunctions = guiFunctions;
+	}
 	
 	public Circuit getCircuit() {
 		return circuit;

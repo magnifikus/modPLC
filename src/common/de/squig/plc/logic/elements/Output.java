@@ -18,5 +18,10 @@ public class Output extends CircuitElement {
 		name = "Logic Output";
 		setDisplayLink(true);
 	}
-
+	public static String getDisplayName() {
+		return "Output (Signal to Extenders)";
+	}
+	public static int getDisplayTextureId() {
+		return 225;
+	}
 }

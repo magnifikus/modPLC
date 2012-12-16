@@ -15,6 +15,12 @@ public class Pulse extends CircuitElement {
 		setTexture(LogicTextureTile.LOGIC_PULSE);
 		name = "Pulse Generator";
 	}
+	public static String getDisplayName() {
+		return "Pulse (Sends a single Pulse on Signal)";
+	}
+	public static int getDisplayTextureId() {
+		return 226;
+	}
 
 	@Override
 	public void simulate() {
