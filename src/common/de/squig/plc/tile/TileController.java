@@ -47,7 +47,6 @@ public class TileController extends TilePLC {
 	
 	public TileController() {
 		super(PLCEvent.TARGETTYPE.CONTROLLER);
-		LogHelper.info("Controler Constructor");
 		circuit = new BasicCircuit(this);
 		
 	}
@@ -66,6 +65,10 @@ public class TileController extends TilePLC {
 	}
 
 	public void onEvent(PLCEvent event) {
+		if (isInvalid()) {
+			PLC.instance.getNetworkBroker().removeEventListener(this);
+			return;
+		}
 		if (event instanceof SignalEvent) {
 			SignalEvent events = (SignalEvent) event;
 			CircuitObject obj = circuit.getByType(LogicInput.class, events.getChannel());
@@ -78,6 +81,8 @@ public class TileController extends TilePLC {
 			sendUpdatesToExtenders(true);
 		} else if (event instanceof SearchEvent) {
 			if (event.getSource().getWorldObj() == getWorldObj()) {
+				
+				
 				int dx = xCoord - event.getSource().xCoord;
 				int dy = yCoord - event.getSource().yCoord;
 				int dz = zCoord - event.getSource().zCoord;
@@ -94,7 +99,6 @@ public class TileController extends TilePLC {
 		}
 		
 	}
-	
 	
 	
 	@Override

@@ -39,16 +39,29 @@ public class TextureButton extends GuiButton {
            
             int textureposx = (txtId % 16)*16;
             int textureposy = (txtId /16) *16;
-            LogHelper.info(textureposx+" "+textureposy);
             
-            this.drawTexturedModalRect(this.xPosition, this.yPosition, textureposx,textureposy,16,16);
+            int ycorr = 0;
+            if (txtId >= 176 && txtId < 192) {
+            	ycorr = 3;
+            	if (!active)
+            		this.drawTexturedModalRect(this.xPosition, this.yPosition, 16,240,16,16);
+            	else this.drawTexturedModalRect(this.xPosition, this.yPosition, 32,240,16,16);
+            }
+
+            
+            this.drawTexturedModalRect(this.xPosition, this.yPosition+ycorr, textureposx,textureposy,16,16);
+            
+            
             if (par2 >= this.xPosition && par2 < this.xPosition+this.width)
             	if (par3 >= this.yPosition && par3 < this.yPosition+this.height) {
             		int width = var4.getStringWidth(hovertext);
             		int xx = this.xPosition +3;
             		int yy = this.yPosition -12;
-            		drawGradientRect(xx-2,yy-2, xx+width+2, yy+8+2, 0xc0000000, 0xf0000000);
-            		var4.drawString(hovertext, xx,yy, 0xffffff);
+            		int xcorr = 0;
+            		if (xx+width > 450)
+            			xx = xx+(450-(xx+width));
+            		drawGradientRect(xx-2+xcorr,yy-2, xx+width+2+xcorr, yy+8+2, 0xc0000000, 0xf0000000);
+            		var4.drawString(hovertext, xx+xcorr,yy, 0xffffff);
             	}
             
             

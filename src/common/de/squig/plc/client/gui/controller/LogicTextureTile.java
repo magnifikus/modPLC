@@ -41,29 +41,29 @@ public class LogicTextureTile {
 	
 	
 	public final static LogicTextureTile LOGIC_PULSE = new LogicTextureTile(0,12);
-	public final static LogicTextureTile LOGIC_NOT = new LogicTextureTile(1,12,ONOffset);
+	public final static LogicTextureTile LOGIC_NOT = new LogicTextureTile(1,12,1);
 	public final static LogicTextureTile LOGIC_HIGH = new LogicTextureTile(2,12);
-	public final static LogicTextureTile LOGIC_TIMER = new LogicTextureTile(3,12,ONOffset);
-	public final static LogicTextureTile LOGIC_COUNTER = new LogicTextureTile(4,12,ONOffset);
-	public final static LogicTextureTile LOGIC_DELAY = new LogicTextureTile(8,12,ONOffset);
+	public final static LogicTextureTile LOGIC_TIMER = new LogicTextureTile(3,12,1);
+	public final static LogicTextureTile LOGIC_COUNTER = new LogicTextureTile(4,12,1);
+	public final static LogicTextureTile LOGIC_DELAY = new LogicTextureTile(8,12,1);
 	
 	public final static int MODIFIER_ON = 4;
 
 	
 	
-	public int x;
-	public int y;
-	public int xon;
-	public int yon;
+	public int txtId;
+	public int txtIdOn;
 	public LogicTextureTile(int x, int y) {
-		this.x = x*16;
-		this.y = y*16;
-		this.xon = this.x;
-		this.yon = this.y;
+		this.txtId = y*16 +x;
+		this.txtIdOn = y*16 +x;
 	}
 	public LogicTextureTile(int x, int y, int offset) {
 		this(x,y);
-		this.yon = this.y+offset*16;
+		this.txtIdOn = txtId+(offset*16);
 	}
+	
+	
+	
+	
 
 }

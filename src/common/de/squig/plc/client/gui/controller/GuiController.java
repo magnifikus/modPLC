@@ -13,6 +13,7 @@ import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.CircuitMap;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Counter;
+import de.squig.plc.logic.elements.Delay;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.High;
 import de.squig.plc.logic.elements.Input;
@@ -170,9 +171,9 @@ public class GuiController extends GuiScreen {
 			return;
 		
 		if (!on) {
-			this.drawTexturedModalRect(sx, sy, tile.x, tile.y, 16, 16);
+			this.drawTexturedModalRect(sx, sy, 16*(tile.txtId % 16), 16*(tile.txtId/16), 16, 16);
 		} else {
-			this.drawTexturedModalRect(sx, sy, tile.xon, tile.yon, 16, 16);
+			this.drawTexturedModalRect(sx, sy, 16*(tile.txtIdOn % 16), 16*(tile.txtIdOn/16), 16, 16);
 		}
 		
 		
@@ -343,8 +344,8 @@ public class GuiController extends GuiScreen {
 	}
 
 	public void actionPerformed(GuiButton button) {
-		
-
+		if (infoScreen != null)
+			infoScreen.onActionPerformed(button);
 	}
 	
 	protected void tileClicked (int x, int y, int button) {
@@ -503,7 +504,7 @@ public class GuiController extends GuiScreen {
 		return circuit.getMap().getElementAt(cursorX, cursorY);
 	}
 	 
-	private void tryConvert(Class target, CircuitElement element) {
+	protected void tryConvert(Class target, CircuitElement element) {
 		
 		int x = cursorX;
 		int y = cursorY;
@@ -511,26 +512,36 @@ public class GuiController extends GuiScreen {
 		if (target.equals(Input.class)) {
 			element = new Input(circuit,x,y);	
 		}
-		if (target.equals(Output.class)) {
+		else if (target.equals(Line.class)) {
+			element = new Line(circuit,x,y);	
+		}
+		else if (target.equals(Output.class)) {
 			element = new Output(circuit,x,y);	
 		}
-		if (target.equals(Timer.class)) {
+		else if (target.equals(Timer.class)) {
 			element = new Timer(circuit,x,y);	
 		}
-		if (target.equals(Pulse.class)) {
+		else if (target.equals(Pulse.class)) {
 			element = new Pulse(circuit,x,y);	
 		}
-		if (target.equals(Not.class)) {
+		else if (target.equals(Not.class)) {
 			element = new Not(circuit,x,y);	
 		}
-		if (target.equals(Counter.class)) {
+		else if (target.equals(Counter.class)) {
 			element = new Counter(circuit,x,y);	
 		}
-		if (target.equals(High.class)) {
+		else if (target.equals(High.class)) {
 			element = new High(circuit,x,y);	
 		}
-		
+		else if (target.equals(Delay.class)) {
+			element = new Delay(circuit,x,y);	
+		}
+		else if (target.equals(Deleted.class)) {
+			element = new Deleted(circuit,x,y);	
+		}
 		if (element != null) {
+			if (circuit.getMap().getElementAt(x, y) != null)
+				circuit.getMap().removeElement(circuit.getMap().getElementAt(x, y));
 			circuit.getMap().addElement(element, -1, -1);
 			element.tryIdInput('0');
 			sendUpdate(false);
@@ -547,7 +558,8 @@ public class GuiController extends GuiScreen {
 			element.functionCycle();
 		}
 		sendUpdate(false);
-		
+		infoScreen.onClose();
+		infoScreen = new GuiInfoscreen(this, getSelectedElement());
 	}
 	
 
@@ -557,6 +569,8 @@ public class GuiController extends GuiScreen {
 			element.tryInvert();
 		}
 		sendUpdate(false);
+		infoScreen.onClose();
+		infoScreen = new GuiInfoscreen(this, getSelectedElement());
 	}
 	
 	private void keyBackspaceEvent() {
@@ -568,10 +582,16 @@ public class GuiController extends GuiScreen {
 			sendUpdate(false);
 			circuit.getMap().removeElement(del);
 		}
+		infoScreen.onClose();
+		infoScreen = new GuiInfoscreen(this, getSelectedElement());
 	}
 	
-	private void sendUpdate(boolean all) {
+	protected void sendUpdate(boolean all) {
 		PacketControllerData.sendElements(controller,  FMLClientHandler.instance().getClient().thePlayer, all);
+		
+		infoScreen.onClose();
+		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+
 	}
 	private void checkScroll() {
 		

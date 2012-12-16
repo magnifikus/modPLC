@@ -1,6 +1,5 @@
 package de.squig.plc.client.gui.controller;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +9,8 @@ import net.minecraft.src.GuiButton;
 import de.squig.plc.client.gui.controlls.TextureButton;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Deleted;
+import de.squig.plc.logic.elements.Line;
+import de.squig.plc.logic.elements.functions.ElementFunction;
 
 public class GuiInfoscreen {
 	private CircuitElement element;
@@ -29,35 +30,59 @@ public class GuiInfoscreen {
 		width = guiController.infoWidth;
 		height = guiController.infoHeight;
 		int xx = 0;
-		
-		if (element == null) {
-		for (Class ele : CircuitElement.getElements()) {
-			if (ele != null && ele != Deleted.class) {
-				try {
-					Method method = ele.getMethod("getDisplayName");
-					String name = (String) method.invoke(null);
-					 method = ele.getMethod("getDisplayTextureId");
-					int txtId = (Integer)method.invoke(null);
-					TextureButton btn = new TextureButton(0, x+10+(xx % 8)*16, y+30+(xx/8)*16, txtId, false, name, 0);
+		short id = 0;
+		if (element == null || element instanceof Deleted) {
+			for (Class ele : CircuitElement.getElements()) {
+				if (ele != null && ele != Deleted.class) {
+					try {
+						Method method = ele.getMethod("getDisplayName");
+						String name = (String) method.invoke(null);
+						method = ele.getMethod("getDisplayTextureId");
+						int txtId = (Integer) method.invoke(null);
+						TextureButton btn = new TextureButton(0, x + 10
+								+ (xx % 8) * 16, y + 30 + (xx / 8) * 16, txtId,
+								false, name, id);
+						controlls.add(btn);
+						xx++;
+					} catch (Exception e) {
+					}
+				}
+				id++;
+			}
+		} else {
+			if (element != null && !(element instanceof Deleted)) {
+				TextureButton btn = new TextureButton(0, x + 133, y + 10, 240,
+						false, "Delete this Element",-1);
+				controlls.add(btn);
+				if (element instanceof Line) {
+					btn = new TextureButton(0, x + 116, y + 10, 48,
+							false, "Switch Line connections",-2);
+					controlls.add(btn);
+				}
+				
+				for (ElementFunction fnct : element.getFunctions()) {
+					 btn = new TextureButton(0, x + 10
+							+ (xx % 8) * 16, y + 30 + (xx / 8) * 16, fnct.getTag().txtId,
+							fnct.equals(element.getFunction()), fnct.getDescription(), fnct.getId());
 					controlls.add(btn);
 					xx++;
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
+				
 
 			}
-		}}
+		}
+
 		guiController.getControllList().addAll(controlls);
 	}
 
 	public void drawForeground() {
-		if (element != null)
-			fontRenderer.drawString(element.getName(), x + 10, y + 10, 0x000000);
+		if (element != null && !(element instanceof Deleted))
+			fontRenderer
+					.drawString(element.getName(), x + 10, y + 10, 0x000000);
 		else {
-			fontRenderer.drawString("Insert an Element:", x + 10, y + 10, 0x000000);
+			fontRenderer.drawString("Insert an Element:", x + 10, y + 10,
+					0x000000);
 		}
-
-		
 
 	}
 
@@ -84,6 +109,26 @@ public class GuiInfoscreen {
 					tx = tx + 48;
 
 				guiController.drawTexturedModalRect(ssx, ssy, tx, ty, 16, 16);
+			}
+		}
+	}
+	
+	
+	public void onActionPerformed(GuiButton btn) {
+		if (controlls.contains(btn)) {
+			if (btn instanceof TextureButton) {
+				int id = ((TextureButton) btn).getId();
+				if (id == -1) {
+					guiController.tryConvert(Deleted.class, element);	
+				} else if (id == -2) {
+					element.functionCycle();
+				}
+				else if (element == null || element instanceof Deleted) {
+					guiController.tryConvert(CircuitElement.getElements()[id], element);	
+				} else {
+					element.setFunction(ElementFunction.getById(id));
+					guiController.sendUpdate(false);
+				}
 			}
 		}
 	}

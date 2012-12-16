@@ -152,7 +152,9 @@ public  class CircuitElement implements Serializable {
 		CircuitObject co = null;
 		
 		if (function != null && function.getLinkType() != null) {
+			try {
 			co = circuit.getByType(function.getLinkType(), Short.parseShort(linkNumber));
+			} catch (Exception ex) {}
 			if (co != null) {
 				if (co != linkedObject) {
 					linkedObject = co;
@@ -160,7 +162,7 @@ public  class CircuitElement implements Serializable {
 					return true;
 				}
 			} else 
-				setLinkNumber("X");
+				setLinkNumber("0");
 		} else
 			setLinkNumber("");
 		return false;
@@ -198,7 +200,7 @@ public  class CircuitElement implements Serializable {
 		
 		setFunction(newfunct);
 		
-		validateNumber();
+		
 	}
 	public void setFunction(ElementFunction function) {
 		if (this.function == function)
@@ -209,6 +211,7 @@ public  class CircuitElement implements Serializable {
 			tags.add(function.getTag());
 		this.function = function;
 		onObjectChange();
+		validateNumber();
 		isChanged = true;
 		
 	}
@@ -548,5 +551,11 @@ public  class CircuitElement implements Serializable {
 	public void setData(byte[] data) {
 		this.data = data;
 	}
+
+	public List<ElementFunction> getFunctions() {
+		return functions;
+	}
+	
+	
 	
 }
