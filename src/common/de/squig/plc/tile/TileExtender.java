@@ -23,12 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.src.IInventory;
-import net.minecraft.src.ItemStack;
-import net.minecraft.src.NBTTagCompound;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.PLC;
 import de.squig.plc.event.ControllerDataEvent;
 import de.squig.plc.event.PLCEvent;

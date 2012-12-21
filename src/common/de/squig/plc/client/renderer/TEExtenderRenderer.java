@@ -9,15 +9,11 @@
 
 package de.squig.plc.client.renderer;
 
-import java.nio.FloatBuffer;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.tileentity.TileEntity;
 
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.TileEntitySpecialRenderer;
-
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.tile.TileExtender;
 
 

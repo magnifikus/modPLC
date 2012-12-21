@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.NBTTagCompound;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.PLC;
 import de.squig.plc.event.PLCEvent;
-import de.squig.plc.event.PLCEventSubscriber;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketPLCBasedata;
 

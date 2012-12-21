@@ -5,14 +5,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.minecraft.src.FontRenderer;
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
 import de.squig.plc.client.gui.controlls.TextureButton;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.elements.functions.ElementFunction;
-import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunctionIntDisplay;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunctionIntValue;

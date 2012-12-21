@@ -1,12 +1,9 @@
 package de.squig.plc.client.gui.extender;
 
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.gui.GuiButton;
 import de.squig.plc.client.gui.SubGui;
-import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.event.SearchResponseEvent;
-import de.squig.plc.logic.extender.ExtenderChannel;
-import de.squig.plc.network.PacketExtenderData;
 import de.squig.plc.tile.TileController;
 
 public class SubGuiFront implements SubGui {

@@ -5,19 +5,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
 
 import de.squig.plc.client.gui.controller.LogicTextureTile;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 import de.squig.plc.logic.elements.functions.IoType;
-import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.logic.objects.CircuitObjectOutputPin;

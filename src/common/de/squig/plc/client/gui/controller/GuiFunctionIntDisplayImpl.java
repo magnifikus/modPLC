@@ -1,12 +1,7 @@
 package de.squig.plc.client.gui.controller;
 
-import java.text.DecimalFormat;
-
-import net.minecraft.src.GuiButton;
-import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
-import de.squig.plc.logic.objects.guiFunctions.GuiFunctionIntValue;
 
 public class GuiFunctionIntDisplayImpl extends GuiFunctionImpl {
 	

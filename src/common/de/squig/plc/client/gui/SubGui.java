@@ -1,6 +1,6 @@
 package de.squig.plc.client.gui;
 
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.gui.GuiButton;
 
 public interface SubGui {
 	public void onClose();

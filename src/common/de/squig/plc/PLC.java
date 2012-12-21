@@ -1,6 +1,6 @@
 package de.squig.plc;
 
-import net.minecraft.src.Block;
+import net.minecraft.block.Block;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -8,7 +8,6 @@ import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PostInit;
 import cpw.mods.fml.common.Mod.PreInit;
-import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -18,6 +17,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.blocks.Controller;
 import de.squig.plc.blocks.ExtenderBasic;
 import de.squig.plc.event.NetworkBroker;
@@ -128,9 +128,8 @@ public class PLC {
 	    {
 	      Class plcmod = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.BC3Integration");
 	      plcmod.getMethod("init", new Class[0]).invoke(null, new Object[0]);
-	    } catch (Exception t) {
+	    } catch (Throwable t) {
 	      LogHelper.warn("could not load BC3 Integration! "+t.getMessage());
-	      t.printStackTrace();
 	    }
 
 	}

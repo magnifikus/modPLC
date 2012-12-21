@@ -2,8 +2,6 @@ package de.squig.plc.event;
 
 import java.util.UUID;
 
-import net.minecraft.src.World;
-import de.squig.plc.event.PLCEvent.TARGETTYPE;
 import de.squig.plc.tile.TilePLC;
 
 public class PLCEventSubscriber {

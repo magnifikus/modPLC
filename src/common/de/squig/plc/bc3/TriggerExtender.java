@@ -1,12 +1,13 @@
 package de.squig.plc.bc3;
 
+import net.minecraft.tileentity.TileEntity;
 import de.squig.plc.CommonProxy;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.tile.TileExtender;
 import buildcraft.api.gates.ITriggerParameter;
 import buildcraft.api.gates.Trigger;
-import net.minecraft.src.TileEntity;
+
 
 public class TriggerExtender extends Trigger
 {

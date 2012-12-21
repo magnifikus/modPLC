@@ -3,7 +3,7 @@ package de.squig.plc.client.gui.controller;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.gui.GuiButton;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
 

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.logic.helper.DistanceHelper;
 import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.tile.TilePLC;

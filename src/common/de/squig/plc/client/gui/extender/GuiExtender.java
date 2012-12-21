@@ -1,26 +1,20 @@
 package de.squig.plc.client.gui.extender;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiContainer;
-import net.minecraft.src.InventoryPlayer;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.entity.player.InventoryPlayer;
 
 import org.lwjgl.opengl.GL11;
 
 import de.squig.plc.client.gui.SubGui;
-import de.squig.plc.client.gui.controller.DisplayTile;
 import de.squig.plc.client.gui.controlls.ChannelButton;
 import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.container.ContainerExtender;
-import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
-import de.squig.plc.logic.extender.function.ExtenderFunction;
-import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.network.PacketExtenderData;
 import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;

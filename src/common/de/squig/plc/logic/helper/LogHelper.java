@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 
 public class LogHelper {
 

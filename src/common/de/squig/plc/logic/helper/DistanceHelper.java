@@ -1,7 +1,6 @@
 package de.squig.plc.logic.helper;
 
 import de.squig.plc.tile.TilePLC;
-import net.minecraft.src.TileEntity;
 
 public class DistanceHelper {
 	public static double getDistance(TilePLC t1, TilePLC t2) {

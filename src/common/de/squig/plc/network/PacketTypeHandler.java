@@ -15,10 +15,8 @@ package de.squig.plc.network;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 
-import de.squig.plc.logic.helper.LogHelper;
-
-import net.minecraft.src.Packet;
-import net.minecraft.src.Packet250CustomPayload;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.Packet250CustomPayload;
 
 public enum PacketTypeHandler {
 	BASEDATA(PacketPLCBasedata.class),

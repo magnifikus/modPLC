@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.TileEntity;
+import net.minecraft.block.Block;
+import net.minecraft.tileentity.TileEntity;
+
+
 import buildcraft.api.gates.ActionManager;
 import buildcraft.api.gates.IAction;
 import buildcraft.api.gates.IActionProvider;

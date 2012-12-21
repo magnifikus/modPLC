@@ -3,7 +3,7 @@ package de.squig.plc.bc3;
 import de.squig.plc.CommonProxy;
 import de.squig.plc.tile.TileExtender;
 import buildcraft.api.gates.Action;
-import net.minecraft.src.TileEntity;
+
 
 public class ActionExtender extends Action
 {

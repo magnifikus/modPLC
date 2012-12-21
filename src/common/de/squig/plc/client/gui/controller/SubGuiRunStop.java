@@ -1,6 +1,6 @@
 package de.squig.plc.client.gui.controller;
 
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.gui.GuiButton;
 import de.squig.plc.client.gui.SubGui;
 
 public class SubGuiRunStop implements SubGui {

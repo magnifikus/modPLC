@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.handlers.ITickNotified;
 import de.squig.plc.handlers.TickHandler;
 import de.squig.plc.logic.elements.CircuitElement;

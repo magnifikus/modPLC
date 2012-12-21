@@ -3,12 +3,11 @@ package de.squig.plc.client.gui.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.src.FontRenderer;
-import net.minecraft.src.GuiButton;
-import net.minecraft.src.GuiScreen;
-import net.minecraft.src.GuiTextField;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.GuiTextField;
 import cpw.mods.fml.client.FMLClientHandler;
-import cpw.mods.fml.common.network.Player;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.CircuitMap;
 import de.squig.plc.logic.elements.CircuitElement;
@@ -22,7 +21,6 @@ import de.squig.plc.logic.elements.Not;
 import de.squig.plc.logic.elements.Output;
 import de.squig.plc.logic.elements.Pulse;
 import de.squig.plc.logic.elements.Timer;
-import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketControllerData;
 import de.squig.plc.tile.TileController;
 

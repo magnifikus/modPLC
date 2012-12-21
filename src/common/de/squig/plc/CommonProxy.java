@@ -1,7 +1,7 @@
 package de.squig.plc;
 
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.World;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import de.squig.plc.client.gui.controller.GuiController;
@@ -31,6 +31,7 @@ public class CommonProxy implements IGuiHandler {
 		// Nothing here as this is the server side proxy
 	}
 
+	
 	 public void initTileEntities() {
 	    	// TODO: Constant
 	    	GameRegistry.registerTileEntity(TileController.class, "tileController");
@@ -38,8 +39,10 @@ public class CommonProxy implements IGuiHandler {
 	    	// Try bc3 first
 	    	try {
 		      Class bc3Extender = PLC.class.getClassLoader().loadClass("de.squig.plc.bc3.compat.TileExtenderBC3");
+		      bc3Extender.newInstance();
 		      GameRegistry.registerTileEntity(bc3Extender, "tileExtender");
-		    } catch (Exception t) {
+		    } catch (Throwable t) {
+		    	LogHelper.info("could not load BC3 Extender falling back to normal one");
 		    	GameRegistry.registerTileEntity(TileExtender.class, "tileExtender");
 		    }
 	    	

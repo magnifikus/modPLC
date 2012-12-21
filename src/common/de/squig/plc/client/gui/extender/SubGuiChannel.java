@@ -3,13 +3,12 @@ package de.squig.plc.client.gui.extender;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.src.GuiButton;
+import net.minecraft.client.gui.GuiButton;
 import de.squig.plc.client.gui.SubGui;
 import de.squig.plc.client.gui.controlls.TextButton;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.function.ExtenderFunction;
 import de.squig.plc.logic.extender.function.RedstoneFunction;
-import de.squig.plc.logic.helper.LogHelper;
 
 public class SubGuiChannel implements SubGui {
 	

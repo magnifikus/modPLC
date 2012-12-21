@@ -1,27 +1,19 @@
 package de.squig.plc.blocks;
 
-import java.util.Map;
-
-import net.minecraft.src.Block;
-import net.minecraft.src.BlockContainer;
-import net.minecraft.src.CreativeTabs;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IBlockAccess;
-import net.minecraft.src.Material;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.event.ForgeSubscribe;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.CommonProxy;
 import de.squig.plc.PLC;
 import de.squig.plc.lib.GuiIds;
-import de.squig.plc.logic.Signal;
-import de.squig.plc.logic.helper.LogHelper;
-import de.squig.plc.network.PacketControllerData;
 import de.squig.plc.network.PacketExtenderData;
-import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
 
 public class ExtenderBasic extends BlockPLC {

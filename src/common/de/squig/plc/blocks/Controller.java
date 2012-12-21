@@ -1,15 +1,14 @@
 package de.squig.plc.blocks;
 
-import net.minecraft.src.Block;
-import net.minecraft.src.CreativeTabs;
-import net.minecraft.src.EntityLiving;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.IBlockAccess;
-import net.minecraft.src.Material;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.CommonProxy;
 import de.squig.plc.PLC;
 import de.squig.plc.lib.GuiIds;

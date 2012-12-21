@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.src.NBTTagCompound;
+import net.minecraft.nbt.NBTTagCompound;
 import de.squig.plc.PLC;
 import de.squig.plc.event.ControllerDataEvent;
 import de.squig.plc.event.PLCEvent;

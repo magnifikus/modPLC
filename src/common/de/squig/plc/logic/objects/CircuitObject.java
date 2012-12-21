@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import buildcraft.core.ByteBuffer;
-
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunction;

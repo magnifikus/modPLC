@@ -7,27 +7,19 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.minecraft.src.EntityClientPlayerMP;
-import net.minecraft.src.EntityPlayer;
-import net.minecraft.src.EntityPlayerMP;
-import net.minecraft.src.INetworkManager;
-import net.minecraft.src.Packet;
-import net.minecraft.src.TileEntity;
-import net.minecraft.src.World;
-import net.minecraftforge.common.ForgeDirection;
+import net.minecraft.client.entity.EntityClientPlayerMP;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.INetworkManager;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
-import de.squig.plc.logic.Circuit;
-import de.squig.plc.logic.CircuitStateNetworkData;
-import de.squig.plc.logic.PoweredMapNetworkData;
+import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.logic.Signal;
-import de.squig.plc.logic.elements.CircuitElementNetworkData;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.function.DisabledFunction;
-import de.squig.plc.logic.helper.LogHelper;
-import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
 
 public class PacketExtenderLiteData extends PLCPacket {
