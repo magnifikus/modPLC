@@ -2,12 +2,12 @@ package de.squig.plc.logic.objects;
 
 public class CircuitObjectNetworkData {
 	private short typeID;
-	private char linkName;
+	private short linkName;
 	private short flags;
 	private CircuitObjectData data;
 	
 	
-	public CircuitObjectNetworkData(short typeID, char linkName, short flags,
+	public CircuitObjectNetworkData(short typeID, short linkName, short flags,
 			CircuitObjectData data) {
 		super();
 		this.typeID = typeID;
@@ -23,10 +23,10 @@ public class CircuitObjectNetworkData {
 	public void setTypeID(short typeID) {
 		this.typeID = typeID;
 	}
-	public char getLinkName() {
+	public short getLinkName() {
 		return linkName;
 	}
-	public void setLinkName(char linkName) {
+	public void setLinkName(short linkName) {
 		this.linkName = linkName;
 	}
 	public short getFlags() {

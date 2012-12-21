@@ -4,8 +4,10 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import de.squig.plc.CommonProxy;
+import de.squig.plc.client.gui.controller.GuiFunctionImpl;
 import de.squig.plc.client.renderer.TEControllerRenderer;
 import de.squig.plc.client.renderer.TEExtenderRenderer;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunctionTime;
 import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
 
@@ -23,10 +25,9 @@ public class ClientProxy extends CommonProxy {
 		blockRenderId = RenderingRegistry.getNextAvailableRenderId();
 	    //ClientRegistry.bindTileEntitySpecialRenderer(TileController.class, new TEControllerRenderer());
 	    ClientRegistry.bindTileEntitySpecialRenderer(TileExtender.class, new TEExtenderRenderer());
-		    
-		
-		 
-		
+	    
+	    
+	    
 	}
 	
 }

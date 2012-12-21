@@ -121,7 +121,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		}
 		data.writeShort(tosave.size());
 		for (CircuitObject obj : tosave) {
-			data.writeUTF(obj.getData());
+			obj.saveTo(data);
 		}
 		
 	}
@@ -171,8 +171,12 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	public void injectObjects(List<CircuitObjectNetworkData> objects,
 			boolean all) {
-		
-
+		for (CircuitObjectNetworkData cond : objects) {
+			CircuitObject obj = getByType(cond.getTypeID(), cond.getLinkName());
+			obj.setFlags(cond.getFlags());
+			obj.setObjData(cond.getData());
+			obj.setChanged(true);
+		}
 	}
 
 

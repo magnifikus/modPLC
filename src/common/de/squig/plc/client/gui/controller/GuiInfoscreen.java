@@ -2,6 +2,7 @@ package de.squig.plc.client.gui.controller;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.minecraft.src.FontRenderer;
@@ -11,18 +12,23 @@ import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.elements.functions.ElementFunction;
+import de.squig.plc.logic.helper.LogHelper;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunctionIntDisplay;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunctionIntValue;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunctionTime;
 
 public class GuiInfoscreen {
-	private CircuitElement element;
+
 	private GuiController guiController;
 	private List<GuiButton> controlls;
+	private List<GuiFunctionImpl> guiFunctions = new LinkedList<GuiFunctionImpl>();;
 
 	private FontRenderer fontRenderer;
 	private int x, y, width, height;
 
 	public GuiInfoscreen(GuiController guiController, CircuitElement element) {
 		this.guiController = guiController;
-		this.element = element;
 		controlls = new ArrayList<GuiButton>();
 		fontRenderer = guiController.getFontRenderer();
 		x = guiController.infoX;
@@ -68,14 +74,36 @@ public class GuiInfoscreen {
 					xx++;
 				}
 				
-
+				int yy = y+60;
+				if (element.getLinkedObject() != null && element.getLinkedObject().getGuiFunctions() != null) {
+				
+					for (GuiFunction fnct :  element.getLinkedObject().getGuiFunctions()) {
+						if (fnct instanceof GuiFunctionTime) {
+							GuiFunctionImpl fncti = new GuiFunctionTimeImpl(guiController,this,fnct,element.getLinkedObject(),yy);
+							guiFunctions.add(fncti);
+							yy += fncti.getHeight();
+						} else if (fnct instanceof GuiFunctionIntValue) {
+							GuiFunctionImpl fncti = new GuiFunctionIntValueImpl(guiController,this,fnct,element.getLinkedObject(),yy);
+							guiFunctions.add(fncti);
+							yy += fncti.getHeight();
+						} else if (fnct instanceof GuiFunctionIntDisplay) {
+							GuiFunctionImpl fncti = new GuiFunctionIntDisplayImpl(guiController,this,fnct,element.getLinkedObject(),yy);
+							guiFunctions.add(fncti);
+							yy += fncti.getHeight();
+						}
+					}
+				}
+			
+				
+				
+				
 			}
 		}
-
 		guiController.getControllList().addAll(controlls);
 	}
 
-	public void drawForeground() {
+	public void drawForeground(int i, int j) {
+		CircuitElement element = guiController.getSelectedElement();
 		if (element != null && !(element instanceof Deleted))
 			fontRenderer
 					.drawString(element.getName(), x + 10, y + 10, 0x000000);
@@ -83,6 +111,9 @@ public class GuiInfoscreen {
 			fontRenderer.drawString("Insert an Element:", x + 10, y + 10,
 					0x000000);
 		}
+		
+		for (GuiFunctionImpl fnct : guiFunctions)
+			fnct.drawForeground(i,j);
 
 	}
 
@@ -111,11 +142,17 @@ public class GuiInfoscreen {
 				guiController.drawTexturedModalRect(ssx, ssy, tx, ty, 16, 16);
 			}
 		}
+		
+		for (GuiFunctionImpl fnct : guiFunctions)
+			fnct.drawBackground();
+
 	}
 	
 	
 	public void onActionPerformed(GuiButton btn) {
+		
 		if (controlls.contains(btn)) {
+			CircuitElement element = guiController.getSelectedElement();
 			if (btn instanceof TextureButton) {
 				int id = ((TextureButton) btn).getId();
 				if (id == -1) {
@@ -128,13 +165,20 @@ public class GuiInfoscreen {
 				} else {
 					element.setFunction(ElementFunction.getById(id));
 					guiController.sendUpdate(false);
+					guiController.refreshInfoScreen();
 				}
 			}
+		} else {
+			for (GuiFunctionImpl fnct : guiFunctions)
+				fnct.actionPerformed(btn);
+
 		}
 	}
 
 	public void onClose() {
 		guiController.getControllList().removeAll(controlls);
+		for (GuiFunctionImpl fnct : guiFunctions)
+			fnct.onClose();
 	}
 
 	public void drawCenteredString(FontRenderer par1FontRenderer,

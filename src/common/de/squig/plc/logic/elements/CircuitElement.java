@@ -145,12 +145,10 @@ public  class CircuitElement implements Serializable {
 	}
 
 	public boolean validateNumber() {
-		
 		if (linkNumber == null || linkNumber.equals("X"))
 			return false;
-		
 		CircuitObject co = null;
-		
+	
 		if (function != null && function.getLinkType() != null) {
 			try {
 			co = circuit.getByType(function.getLinkType(), Short.parseShort(linkNumber));

@@ -262,6 +262,7 @@ public class PacketControllerData extends PLCPacket {
 		pkg.setDataElements(true);
 		if (purge)
 			pkg.setDataElementsAll(true);
+		pkg.setDataObjects(true);
 		pkg.setCoords(tile.xCoord, tile.yCoord, tile.zCoord);
 		pkg.setControllerName(tile.getControllerName());
 		Packet packet = PacketTypeHandler.populatePacket(pkg);
@@ -296,6 +297,7 @@ public class PacketControllerData extends PLCPacket {
 		PacketControllerData pkg = new PacketControllerData();
 		pkg.setCircuit(tile.getCircuit());
 		pkg.setDataPowered(true);
+		pkg.setDataObjects(true);
 		pkg.setCoords(tile.xCoord, tile.yCoord, tile.zCoord);
 		Packet packet = PacketTypeHandler.populatePacket(pkg);
 		

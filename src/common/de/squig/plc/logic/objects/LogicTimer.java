@@ -36,7 +36,7 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 	}};
 	
 	private static List<GuiFunction> guiFunctions = new ArrayList<GuiFunction>() {{
-		add(new GuiFunctionTime((short)dataMap.TIME_DURATION.ordinal(), 4, -1));
+		add(new GuiFunctionTime((short)dataMap.TIME_DURATION.ordinal(), "Interval",4, -1));
 	}};
 
 	private enum dataMap {TIME_BASE, PAUSE, TIME_PAUSE, TIME_DURATION};
@@ -62,7 +62,6 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 		setPause(false);
 		setTimeBase(circuit.getSimulationTime());
 		setTimeDuration(200);
-		
 	}
 	
 
@@ -85,7 +84,7 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 	public long getNextActivation() {
 		if (isPause())
 			return -1;
-		if (nextActionCache > circuit.getSimulationTime())
+		if (nextActionCache > circuit.getSimulationTime() &&  !this.isChanged())
 			return nextActionCache;
 		
 		long now = circuit.getSimulationTime();

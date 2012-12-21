@@ -8,6 +8,7 @@ public class CircuitObjectInputPin {
 	protected String name;
 	protected ICircuitObjectInputPinListener listener = null;
 	protected Signal signal = Signal.OFF;
+	protected Signal lastSignal = Signal.OFF;
 	
 	public CircuitObjectInputPin (CircuitObject circuitObject, String name) {
 		this.circuitObject = circuitObject;
@@ -22,13 +23,19 @@ public class CircuitObjectInputPin {
 	}
 	
 	public void commit() {
-		if (listener != null) {
+		if (listener != null && !lastSignal.equals(this.signal) ) {
 			listener.onSignal(this, this.signal);
+			if (signal.equals(Signal.PULSE))
+					lastSignal = Signal.OFF;
+			else if (signal.equals(Signal.NEGATIVEPULSE))
+				lastSignal = Signal.ON;
+			else lastSignal = this.signal;
 		}
 	}
 	
 	
 	public void onSignal(Signal signal) {
+		
 		this.signal = signal;
 	}
 	

@@ -117,7 +117,7 @@ public abstract class CircuitObject {
 	
 	public static CircuitObjectNetworkData readFrom(DataInputStream data) throws IOException {
 		short type = data.readShort();
-		char linkNumberc = data.readChar();
+		short linkNumberc = data.readShort();
 		short flags = data.readShort();
 		CircuitObjectData dt = null;
 		if (objectsData[type] != null)
@@ -178,6 +178,21 @@ public abstract class CircuitObject {
 	}
 	public static Class getClassForType(short type) {
 		return objects[type];
+	}
+
+
+	public List<GuiFunction> getGuiFunctions() {
+		return guiFunctions;
+	}
+
+
+	public CircuitObjectData getObjData() {
+		return objData;
+	}
+
+
+	public void setObjData(CircuitObjectData objData) {
+		this.objData = objData;
 	}
 	
 	

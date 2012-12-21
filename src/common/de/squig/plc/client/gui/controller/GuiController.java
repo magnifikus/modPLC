@@ -28,7 +28,7 @@ import de.squig.plc.tile.TileController;
 
 public class GuiController extends GuiScreen {
 
-	private TileController controller;
+	protected TileController controller;
 
 	public static String tutorialString = "Hello World";
 
@@ -84,7 +84,7 @@ public class GuiController extends GuiScreen {
 		
 		infoX = screenX+(screenCols+2)*16;
 		infoY = screenY+32;
-		infoScreen = new GuiInfoscreen(this, null);
+		infoScreen = new GuiInfoscreen(this,getSelectedElement());
 	}
 	
 	public boolean doesGuiPauseGame()
@@ -147,7 +147,7 @@ public class GuiController extends GuiScreen {
 		this.fontRenderer.drawString("R"+(cursorY+1)+" C"+(cursorX+1), screenX+8, screenY + 8, 0x000000);
 		
 		//updateInfoPanel();
-		infoScreen.drawForeground();
+		infoScreen.drawForeground(i,j);
 		super.drawScreen(i, j, f);
 	}
 
@@ -200,14 +200,12 @@ public class GuiController extends GuiScreen {
 		this.fontRenderer.drawString("EDIT", xStart+6, screenY + 5, colorEdit);
 		this.fontRenderer.drawString("RUN", xStart+6+32 + 2, screenY + 5, colorRun);
 		this.fontRenderer.drawString("STOP", xStart+4+64 + 2, screenY + 5, colorStop);
-		//this.fontRenderer.drawString("Name", xStart+2+112 + 2, screenY + 9 + 16, 0xdddddd);
 		
 		// state buttons
 		displayTiles.add(new DisplayTile(screenCols, 0, xStart, screenY, 32, 16));
 		displayTiles.add(new DisplayTile(screenCols+1, 0, xStart+32, screenY, 32, 16));
 		displayTiles.add(new DisplayTile(screenCols+2, 0, xStart+64, screenY, 32, 16));
 		// rename button
-		//displayTiles.add(new DisplayTile(screenCols+1, 1, xStart+112, screenY+16+4, 32, 16));
 		
 		
 		if (controller.getState().equals(TileController.STATES.ERROR))
@@ -270,33 +268,6 @@ public class GuiController extends GuiScreen {
 			}
 		}
 		
-		// draw helpdisplay
-		/*for (int x = screenCols+2; x < screenCols + 12; x++) {
-			for (int y = 2; y < screenRows + 2; y++) {
-				int tx = 16;
-				int ty = 16;
-				if (x == screenCols+2)
-					tx = 0;
-				if (y == 2)
-					ty = 0;
-				if (x == screenCols + 11)
-					tx = 32;
-				if (y == screenRows + 1)
-					ty = 32;
-				int sx = screenX + 16 * x;
-				int sy = screenY + 16 * y;
-				
-				if (tx == 16 && ty >= 16)
-					tx = tx+48;
-				if (tx == 32 && ty >= 16)
-					tx = tx+48;
-					
-				
-				this.drawTexturedModalRect(sx, sy,
-						tx, ty, 16, 16);
-			}
-		}*/
-
 		
 		// draw buttons
 		this.drawTexturedModalRect(xStart, screenY, 64, 0, 32, 16);
@@ -500,7 +471,7 @@ public class GuiController extends GuiScreen {
 		return true;
 	}
 	
-	private CircuitElement getSelectedElement() {
+	protected CircuitElement getSelectedElement() {
 		return circuit.getMap().getElementAt(cursorX, cursorY);
 	}
 	 
@@ -587,11 +558,12 @@ public class GuiController extends GuiScreen {
 	}
 	
 	protected void sendUpdate(boolean all) {
-		PacketControllerData.sendElements(controller,  FMLClientHandler.instance().getClient().thePlayer, all);
-		
+		PacketControllerData.sendElements(controller,FMLClientHandler.instance().getClient().thePlayer, all);
+	}
+	
+	protected void refreshInfoScreen() {
 		infoScreen.onClose();
 		infoScreen = new GuiInfoscreen(this, getSelectedElement());
-
 	}
 	private void checkScroll() {
 		
@@ -605,8 +577,11 @@ public class GuiController extends GuiScreen {
 	}
 	protected FontRenderer getFontRenderer() {
 		return fontRenderer;
-		
 	}
+	protected void drawGradientRect(int par1,int  par2,int  par3, int par4,int  par5,int  par6) {
+		super.drawGradientRect(par1, par2, par3, par4, par5, par6);
+	}
+	
 	/*
 	 * protected void drawGuiContainerForegroundLayer() {
 	 * this.fontRenderer.drawString

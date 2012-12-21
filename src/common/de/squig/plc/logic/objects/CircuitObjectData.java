@@ -15,8 +15,25 @@ public class CircuitObjectData {
 	public CircuitObjectData(List<Class> types) {
 		data = new ArrayList<Object>();
 		this.types = types;
-		for (Class t : types)
-			data.add(null);
+		for (Class typ : types)
+			if (typ.equals(Short.class))
+				data.add(new Short((short)0));
+			else if (typ.equals(Character.class))
+				data.add(new Character((char)0));
+			else if (typ.equals(Integer.class))
+				data.add(new Integer(0));
+			else if (typ.equals(Long.class))
+				data.add(new Long(0));
+			else if (typ.equals(String.class))
+				data.add(new String(""));
+			else if (typ.equals(Float.class))
+				data.add(new Float(0));
+			else if (typ.equals(Double.class))
+				data.add(new Double(0));
+			else if (typ.equals(Boolean.class))
+				data.add(new Boolean(false));
+			else if (typ.equals(Byte.class))
+				data.add(new Byte((byte)0));
 		
 	}
 	
@@ -50,28 +67,29 @@ public class CircuitObjectData {
 	
 	public static CircuitObjectData readFromStream(List<Class> types, DataInputStream datai) throws IOException {
 		CircuitObjectData data = new CircuitObjectData(types);
+		int i = 0;
 		for (Class typ:types) {
 			if (typ.equals(Short.class))
-				data.data.add(datai.readShort());
+				data.data.set(i++,datai.readShort());
 			else if (typ.equals(Character.class))
-				data.data.add(datai.readChar());
+				data.data.set(i++,datai.readChar());
 			else if (typ.equals(Integer.class))
-				data.data.add(datai.readInt());
+				data.data.set(i++,datai.readInt());
 			else if (typ.equals(Long.class))
-				data.data.add(datai.readLong());
+				data.data.set(i++,datai.readLong());
 			else if (typ.equals(String.class))
-				data.data.add(datai.readUTF());
+				data.data.set(i++,datai.readUTF());
 			else if (typ.equals(Float.class))
-				data.data.add(datai.readFloat());
+				data.data.set(i++,datai.readFloat());
 			else if (typ.equals(Double.class))
-				data.data.add(datai.readDouble());
+				data.data.set(i++,datai.readDouble());
 			else if (typ.equals(Boolean.class))
-				data.data.add(datai.readBoolean());
+				data.data.set(i++,datai.readBoolean());
 			else if (typ.equals(Byte.class))
-				data.data.add(datai.readByte());
+				data.data.set(i++,datai.readByte());
 			else {
 				LogHelper.error("CircuitObjectData.readFromStream: could not read "+typ.getSimpleName());
-				data.data.add(null);
+				data.data.set(i++,null);
 			}
 		}	
 		return data;
