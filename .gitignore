@@ -163,7 +163,9 @@ pip-log.txt
 .DS_Store
 
 
+deobsc
 
+/othermod/*
 /bin/*
 /conf/*
 /docs/*
@@ -172,18 +174,17 @@ pip-log.txt
 /jars/*
 /lib/*
 /logs/*
-/modsrc/*
 /reobf/*
 /runtime/*
 /temp/*
-/othermod/*
+
 
 /src/minecraft/*
-/src/minecraft_server/*
-/src/common/*
 
-!/src/common/de/
-!/src/common/ressources/
+
+!/src/minecraft/de/
+!/src/minecraft/ressources/
+!/src/minecraft/mcmod.info
 
 *.bat
 *.sh
