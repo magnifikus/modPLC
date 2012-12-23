@@ -19,9 +19,8 @@ public class CommonProxy implements IGuiHandler {
 	public static String CONTROLLER_PNG = "/ressources/art/gui/controller.png";
 	public static String EXTENDER_PNG = "/ressources/art/gui/extender.png";
 	public static String TOUCH_PNG = "/ressources/art/gui/touch.png";
-	
 	public static String BC3_PNG = "/ressources/art/gui/bc3.png";
-	
+	public static String ITEMS_PNG = "/ressources/art/items.png";
 	
 	protected static int blockRenderId = -1;
 	

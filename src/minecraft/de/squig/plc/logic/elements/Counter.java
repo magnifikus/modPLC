@@ -22,7 +22,7 @@ public class Counter extends CircuitElement {
 	}
 	
 	public static String getDisplayName() {
-		return "Counter (Counts Signals up and down)";
+		return "Counter (Counts Signals up and down) [C]";
 	}
 	public static int getDisplayTextureId() {
 		return 230;

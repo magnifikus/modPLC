@@ -16,6 +16,7 @@ public class ClientProxy extends CommonProxy {
 		MinecraftForgeClient.preloadTexture(CONTROLLER_PNG);
 		MinecraftForgeClient.preloadTexture(EXTENDER_PNG);
 		MinecraftForgeClient.preloadTexture(TOUCH_PNG);
+		MinecraftForgeClient.preloadTexture(ITEMS_PNG);
 		
 		//MinecraftForgeClient.registerItemRenderer(501, blockRenderer);
 		blockRenderId = RenderingRegistry.getNextAvailableRenderId();

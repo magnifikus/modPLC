@@ -22,6 +22,9 @@ public class ElementFunction {
 	public final static ElementFunction PULSE = new ElementFunction((short) 4,null, null, IoType.INTERN,"Pulse forming");
 	public final static ElementFunction LINE = new ElementFunction((short) 5,null, null, IoType.INTERN,"Connecting");
 	
+	
+	
+	
 	public final static ElementFunction OUTPUTREAD = new ElementFunction((short) 6,LogicTextureTile.TAG_OUTPUTREAD, LogicOutput.class,IoType.INPUT,"Input from Output");
 	public final static ElementFunction OUTPUT = new ElementFunction((short) 7,LogicTextureTile.TAG_OUTPUT, LogicOutput.class, IoType.OUTPUT,"Output to Channel");
 	public final static ElementFunction OUTPUTSET = new ElementFunction((short) 8,LogicTextureTile.TAG_OUTSET, LogicOutput.class, IoType.OUTPUT,"Set a Channel to High");
@@ -43,6 +46,7 @@ public class ElementFunction {
 	public final static ElementFunction COUNTERBOTTOM = new ElementFunction((short) 21,LogicTextureTile.TAG_BOTTOM,  LogicCounter.class,IoType.INPUT,"Emitting on Minvalue");
 	
 	public final static ElementFunction DELAY = new ElementFunction((short) 22,null, LogicDelay.class, IoType.DUAL,"Delays a Signal");
+	
 	
 	private LogicTextureTile tag;
 	private Class linkType;

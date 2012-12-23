@@ -6,13 +6,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.relauncher.Side;
+
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.functions.ElementFunction;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
 
 public abstract class CircuitObject {
-	private static Class objects[] = new Class[256];
-	private static List<Class> objectsData[] = new List[256];
+	private static Class objects[] = new Class[32];
+	private static List<Class> objectsData[] = new List[32];
+	private static List<Boolean> objectsStatics[] = new List[32];
+	
 	private List<GuiFunction> guiFunctions = null;
 	
 	
@@ -35,11 +41,11 @@ public abstract class CircuitObject {
 	
 	
 	
-	public CircuitObject(Circuit circuit, List<Class> dataTypes) {
+	public CircuitObject(Circuit circuit, List<Class> dataTypes, List<Boolean> statics) {
 		this.circuit = circuit;
 		this.dataTypes = dataTypes;
 		if (dataTypes != null)
-			objData = new CircuitObjectData(dataTypes);
+			objData = new CircuitObjectData(dataTypes, statics);
 		inputs = new ArrayList<CircuitObjectInputPin>();
 		outputs = new ArrayList<CircuitObjectOutputPin>();
 	}
@@ -118,18 +124,23 @@ public abstract class CircuitObject {
 		short linkNumberc = data.readShort();
 		short flags = data.readShort();
 		CircuitObjectData dt = null;
+		
 		if (objectsData[type] != null)
-			dt = CircuitObjectData.readFromStream(objectsData[type], data);
+			dt = CircuitObjectData.readFromStream(objectsData[type],objectsStatics[type], data);
 		CircuitObjectNetworkData obj = new CircuitObjectNetworkData(type,linkNumberc, flags, dt);
 		return obj;
 	}
 	
-	public void saveTo(DataOutputStream data) throws IOException {
+	public void saveTo(DataOutputStream data, boolean all) throws IOException {
 		data.writeShort(getCircuitObjectId(this.getClass()));
 		data.writeShort(getLinkNumber());
 		data.writeShort(flags);
-		if (objData != null)
+		if (objData != null) {
+			Side side = FMLCommonHandler.instance().getEffectiveSide();
+			if (side.equals(Side.CLIENT))
+				objData.setTransmitNonStatic(all);
 			objData.saveToStream(data);
+		}
 	}
 
 
@@ -164,9 +175,10 @@ public abstract class CircuitObject {
 	}
 	
 	
-	public static void addCircuitObjectType(int id, Class type, List<Class> dataTypes) {
+	public static void addCircuitObjectType(int id, Class type, List<Class> dataTypes, List<Boolean> dataStatics) {
 		objects[id] = type;
 		objectsData[id] = dataTypes;
+		objectsStatics[id] = dataStatics;
 	}
 	public static short getCircuitObjectId(Class type) {
 		for (short i = 0; i < objects.length; i++)

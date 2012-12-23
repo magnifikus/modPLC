@@ -24,6 +24,7 @@ public class CircuitObjectInputPin {
 	
 	public void commit() {
 		if (listener != null ) { // && !lastSignal.equals(this.signal) ) {
+			//LogHelper.info("pin "+circuitObject+" "+signal);
 			listener.onSignal(this, this.signal);
 			if (signal.equals(Signal.PULSE))
 					lastSignal = Signal.OFF;

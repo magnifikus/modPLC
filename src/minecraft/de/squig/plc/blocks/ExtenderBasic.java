@@ -7,23 +7,24 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.ForgeDirection;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import de.squig.plc.CommonProxy;
 import de.squig.plc.PLC;
 import de.squig.plc.lib.GuiIds;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketExtenderData;
 import de.squig.plc.tile.TileExtender;
 
 public class ExtenderBasic extends BlockPLC {
 	public ExtenderBasic(int id) {
 		super(id, Material.rock, 0);
-		setHardness(4.0F); // 33% harder than diamond
+		setHardness(4.0F); 
 		setStepSound(Block.soundStoneFootstep);
 		setBlockName("Basic Extender");
 		setCreativeTab(CreativeTabs.tabRedstone);
-
 	}
 
 	@Override
@@ -41,7 +42,9 @@ public class ExtenderBasic extends BlockPLC {
 
 	@Override
 	public TileEntity createNewTileEntity(World var1) {
-		return TileExtender.createInstance();
+		if (!var1.isRemote || (var1.isRemote && !(var1 instanceof WorldServer)))
+			return TileExtender.createInstance();
+		else  return null;
 	}
 
 	public boolean onBlockActivated(World world, int x, int y, int z,

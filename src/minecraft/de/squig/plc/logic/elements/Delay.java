@@ -11,12 +11,15 @@ public class Delay extends CircuitElement {
 		super(circuit, mapX, mapY,ElementFunction.DELAY);
 		setTexture(LogicTextureTile.LOGIC_DELAY);
 		name = "Delay";
-		
 	}
 	public static String getDisplayName() {
-		return "Delay (Delays a Signal)";
+		return "Delay (Delays a Signal) [D]";
 	}
 	public static int getDisplayTextureId() {
 		return 232;
 	}
+	
+	
+	
+	
 }

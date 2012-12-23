@@ -25,7 +25,7 @@ public class Input extends CircuitElement {
 	
 
 	public static String getDisplayName() {
-		return "Input (Signal from Extenders)";
+		return "Input (Signal from Extenders) [I]";
 	}
 	public static int getDisplayTextureId() {
 		return 224;

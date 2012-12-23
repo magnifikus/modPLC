@@ -24,7 +24,7 @@ public class LogicOutput extends CircuitObject implements ICircuitObjectInputPin
 	protected Signal lastSignal = Signal.OFF;
 	
 	public LogicOutput(Circuit circuit, short linkNumber) {
-		super(circuit,null);
+		super(circuit,null,null);
 		setLinkNumber(linkNumber);
 		addInputPin(in);
 		

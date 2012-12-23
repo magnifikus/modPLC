@@ -75,7 +75,7 @@ public class GuiController extends GuiScreen {
 		screenX = (this.width - xSize) / 2;
 		screenY = (this.height - ySize) / 2;
 		
-		txtName = new GuiTextField(fontRenderer, screenX+163, screenY+20, 100, 16);
+		txtName = new GuiTextField(fontRenderer, screenX+169, screenY+20, 100, 16);
 		loadedName = controller.getControllerName();
 		txtName.setText(loadedName);
 		txtName.setMaxStringLength(14);
@@ -182,7 +182,7 @@ public class GuiController extends GuiScreen {
 		int screenwidth = (screenCols + 2) * 16;
 		int xStart = screenX + screenwidth;
 		int xEnd = screenX + xSize;
-		
+		/*
 		int colorRun = 0xdddddd;
 		int colorEdit = 0xdddddd;
 		int colorStop = 0xdddddd;
@@ -195,7 +195,9 @@ public class GuiController extends GuiScreen {
 		if (controller.getState().equals(TileController.STATES.STOP) || controller.getState().equals(TileController.STATES.ERROR))
 			colorStop = 0x777777;
 		
-		this.fontRenderer.drawString("EDIT", xStart+6, screenY + 5, colorEdit);
+		
+		  this.fontRenderer.drawString("EDIT", xStart+6, screenY + 5, colorEdit);
+		 
 		this.fontRenderer.drawString("RUN", xStart+6+32 + 2, screenY + 5, colorRun);
 		this.fontRenderer.drawString("STOP", xStart+4+64 + 2, screenY + 5, colorStop);
 		
@@ -203,7 +205,8 @@ public class GuiController extends GuiScreen {
 		displayTiles.add(new DisplayTile(screenCols, 0, xStart, screenY, 32, 16));
 		displayTiles.add(new DisplayTile(screenCols+1, 0, xStart+32, screenY, 32, 16));
 		displayTiles.add(new DisplayTile(screenCols+2, 0, xStart+64, screenY, 32, 16));
-		// rename button
+		
+		
 		
 		
 		if (controller.getState().equals(TileController.STATES.ERROR))
@@ -214,7 +217,8 @@ public class GuiController extends GuiScreen {
 			this.fontRenderer.drawString("EDIT", xStart+110, screenY + 4, 0x000000);
 		else if (controller.getState().equals(TileController.STATES.STOP))
 			this.fontRenderer.drawString("STOP", xStart+110, screenY + 4, 0xFF4500);
-		
+		*/
+		this.fontRenderer.drawString("PLC Controller Basic", xStart+40, screenY + 4, 0x000000);
 	}
 
 	private void drawControllerScreen() {
@@ -266,7 +270,7 @@ public class GuiController extends GuiScreen {
 			}
 		}
 		
-		
+		/*
 		// draw buttons
 		this.drawTexturedModalRect(xStart, screenY, 64, 0, 32, 16);
 		this.drawTexturedModalRect(xStart+32, screenY, 64, 0, 32, 16);
@@ -275,6 +279,7 @@ public class GuiController extends GuiScreen {
 		//this.drawTexturedModalRect(xStart+112, screenY+16+4, 64, 0, 32, 16);
 		
 		// draw lamp
+		
 		if (controller.getState().equals(TileController.STATES.ERROR))
 			this.drawTexturedModalRect(xStart+102, screenY+6, 128, 0, 5, 5);	
 		else if (controller.getState().equals(TileController.STATES.RUN))
@@ -283,7 +288,7 @@ public class GuiController extends GuiScreen {
 			this.drawTexturedModalRect(xStart+102, screenY+6, 133, 0, 5, 5);
 		else if (controller.getState().equals(TileController.STATES.STOP))
 			this.drawTexturedModalRect(xStart+102, screenY+6, 133, 0, 5, 5);
-		
+		*/
 	}
 	
 	
@@ -305,9 +310,6 @@ public class GuiController extends GuiScreen {
 				this.fontRenderer.drawString("Input is: "+element.getInputPin().getName(), startX+8, y += 10 , 0x000000);
 			if (element.getOutputPin() != null)
 				this.fontRenderer.drawString("Output is: "+element.getOutputPin().getName(), startX+8, y += 10 , 0x000000);
-			
-			
-			
 		}
 		
 	}
@@ -434,6 +436,7 @@ public class GuiController extends GuiScreen {
 		if (c >= '0' &&  c <= '9' && element != null) {
 			element.tryIdInput(cin);
 			sendUpdate(false);
+			refreshInfoScreen();
 			return true;
 		}
 		
@@ -455,6 +458,9 @@ public class GuiController extends GuiScreen {
 				break;
 			case 'P':
 				tryConvert(Pulse.class, element);
+				break;
+			case 'D':
+				tryConvert(Delay.class, element);
 				break;
 			case 'O':
 				tryConvert(Output.class, element);
@@ -498,6 +504,8 @@ public class GuiController extends GuiScreen {
 		}
 		else if (target.equals(Counter.class)) {
 			element = new Counter(circuit,x,y);	
+		} else if (target.equals(Delay.class)) {
+			element = new Delay(circuit,x,y);	
 		}
 		else if (target.equals(High.class)) {
 			element = new High(circuit,x,y);	

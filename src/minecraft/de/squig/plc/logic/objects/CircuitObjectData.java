@@ -11,10 +11,15 @@ import de.squig.plc.logic.helper.LogHelper;
 public class CircuitObjectData {
 	private List<Object> data;
 	private List<Class> types;
+	private List<Boolean> statics;
 	
-	public CircuitObjectData(List<Class> types) {
+	private boolean transmitStatic = true;
+	private boolean transmitNonStatic = true;
+	
+	public CircuitObjectData(List<Class> types, List<Boolean> statics) {
 		data = new ArrayList<Object>();
 		this.types = types;
+		this.statics = statics;
 		for (Class typ : types)
 			if (typ.equals(Short.class))
 				data.add(new Short((short)0));
@@ -39,7 +44,14 @@ public class CircuitObjectData {
 	
 	public void saveToStream(DataOutputStream datas) throws IOException {
 		int i = 0;
+		datas.writeBoolean(transmitNonStatic);
+		datas.writeBoolean(transmitStatic);
 		for (Class typ:types) {
+			boolean isStatic = statics.get(i);
+			if ((isStatic && !transmitStatic) || (!isStatic && !transmitNonStatic)) {
+				i++;
+				continue;
+			}
 			if (typ.equals(Short.class))
 				datas.writeShort((Short) data.get(i));
 			else if (typ.equals(Character.class))
@@ -65,10 +77,17 @@ public class CircuitObjectData {
 		}	
 	}
 	
-	public static CircuitObjectData readFromStream(List<Class> types, DataInputStream datai) throws IOException {
-		CircuitObjectData data = new CircuitObjectData(types);
+	public static CircuitObjectData readFromStream(List<Class> types, List<Boolean> statics, DataInputStream datai) throws IOException {
+		CircuitObjectData data = new CircuitObjectData(types,statics);
+		data.transmitNonStatic = datai.readBoolean();
+		data.transmitStatic = datai.readBoolean();
 		int i = 0;
 		for (Class typ:types) {
+			boolean isStatic = data.statics.get(i);
+			if ((isStatic && !data.transmitStatic) || (!isStatic && !data.transmitNonStatic)) {
+				i++;
+				continue;
+			}
 			if (typ.equals(Short.class))
 				data.data.set(i++,datai.readShort());
 			else if (typ.equals(Character.class))
@@ -95,11 +114,34 @@ public class CircuitObjectData {
 		return data;
 	}
 	
+	public List<Object> getData() {
+		return data;
+	}
+
 	public Object get(int i) {
 		return data.get(i);
 	}
 	public void set(int i, Object datai) {
 		data.set(i, datai);
+	}
+	public List<Boolean> getStatics() {
+		return statics;
+	}
+
+	public boolean isTransmitStatic() {
+		return transmitStatic;
+	}
+
+	public void setTransmitStatic(boolean transmitStatic) {
+		this.transmitStatic = transmitStatic;
+	}
+
+	public boolean isTransmitNonStatic() {
+		return transmitNonStatic;
+	}
+
+	public void setTransmitNonStatic(boolean transmitNonStatic) {
+		this.transmitNonStatic = transmitNonStatic;
 	}
 	
 }

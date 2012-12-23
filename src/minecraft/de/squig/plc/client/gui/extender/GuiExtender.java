@@ -15,6 +15,7 @@ import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.container.ContainerExtender;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.network.PacketExtenderData;
 import de.squig.plc.tile.TileController;
 import de.squig.plc.tile.TileExtender;
@@ -27,17 +28,16 @@ public class GuiExtender extends GuiContainer {
 	public int screenX = 28;
 	public int screenY = 7;
 
-	//private static int selectedChannel = -1;
-	
+	// private static int selectedChannel = -1;
+
+	private int invCheck = 0;
 
 	private SubGui subGui = null;
 	private SubGui nextSubGui = null;
 
 	private ExtenderChannel.TYPES myChannelType;
-	
+
 	private ExtenderChannel edit = null;
-	
-	
 
 	ArrayList<GuiButton> btnsChannelsIn = new ArrayList<GuiButton>();
 	ArrayList<GuiButton> btnsChannelsOut = new ArrayList<GuiButton>();
@@ -48,25 +48,25 @@ public class GuiExtender extends GuiContainer {
 		super(new ContainerExtender(inventoryPlayer, extender));
 		this.extender = extender;
 		this.iplayer = inventoryPlayer;
+		invCheck = extender.getInvCheckSum();
 	}
 
-	
-	
 	public void initGui() {
 		super.initGui();
-		//selectedChannel = 0;
-		
+		// selectedChannel = 0;
+
 		extender.sendBroadcastSearch();
-		
+
 		controlList.clear();
 		refreshChannelButtons();
 		setSubGui(new SubGuiFront(this));
-		
+
 	}
-	
+
 	public void guiBack() {
 		setSubGui(new SubGuiFront(this));
 	}
+
 	protected void refreshChannelButtons() {
 		controlList.removeAll(btnsChannelsIn);
 		controlList.removeAll(btnsChannelsOut);
@@ -74,7 +74,7 @@ public class GuiExtender extends GuiContainer {
 		btnsChannelsOut.clear();
 
 		int in = 0, out = 0;
-		
+
 		for (ExtenderChannel chn : extender.getChannelsIn()) {
 			GuiButton btn = null;
 			ChannelButton.TYPES typ = ChannelButton.TYPES.INACTIVE;
@@ -84,8 +84,8 @@ public class GuiExtender extends GuiContainer {
 				typ = ChannelButton.TYPES.ON;
 			if (chn == edit)
 				typ = ChannelButton.TYPES.EDIT;
-			btn = new ChannelButton(1, guiLeft + screenX, guiTop + screenY
-					+ 10 + in * 3, typ, chn.getNumber() , false);
+			btn = new ChannelButton(1, guiLeft + screenX, guiTop + screenY + 10
+					+ in * 3, typ, chn.getNumber(), false);
 			btnsChannelsIn.add(btn);
 			controlList.add(btn);
 			in++;
@@ -99,15 +99,14 @@ public class GuiExtender extends GuiContainer {
 				typ = ChannelButton.TYPES.ON;
 			if (chn == edit)
 				typ = ChannelButton.TYPES.EDIT;
-			btn = new ChannelButton(1, guiLeft + screenX + 136, guiTop + screenY
-						+ 10 + out * 3, typ, chn.getNumber(), true);
-			
+			btn = new ChannelButton(1, guiLeft + screenX + 136, guiTop
+					+ screenY + 10 + out * 3, typ, chn.getNumber(), true);
+
 			btnsChannelsOut.add(btn);
 			controlList.add(btn);
 			out++;
 		}
 	}
-
 
 	protected void subDrawText(String text, int x, int y, int color) {
 		fontRenderer.drawString(text, screenX + x, screenY + y, color);
@@ -115,24 +114,32 @@ public class GuiExtender extends GuiContainer {
 
 	protected TextButton subTextButton(int p1, int x, int y, String text,
 			boolean active) {
-		return new TextButton(p1, guiLeft + screenX + x, guiTop+ screenY + y, text, active);
+		return new TextButton(p1, guiLeft + screenX + x, guiTop + screenY + y,
+				text, active);
 	}
+
 	protected TextButton subTextButton(int p1, int x, int y, String text,
 			int data, boolean active) {
-		return new TextButton(p1, guiLeft + screenX + x, guiTop+ screenY + y, text, data, active);
+		return new TextButton(p1, guiLeft + screenX + x, guiTop + screenY + y,
+				text, data, active);
 	}
+
 	protected TouchButton subTouchButton(int p1, int x, int y,
 			TouchButton.TYPES type) {
-		return new TouchButton(p1, guiLeft + screenX +x, guiTop+ screenY +y, type);
+		return new TouchButton(p1, guiLeft + screenX + x, guiTop + screenY + y,
+				type);
 	}
+
 	protected TouchButton subTouchButton(int p1, int x, int y,
 			TouchButton.TYPES type, int triggerId) {
-		return new TouchButton(p1, guiLeft + screenX +x, guiTop+ screenY +y, type, triggerId);
+		return new TouchButton(p1, guiLeft + screenX + x, guiTop + screenY + y,
+				type, triggerId);
 	}
-	
+
 	public void addControl(GuiButton button) {
 		controlList.add(button);
 	}
+
 	public void removeControl(GuiButton button) {
 		controlList.remove(button);
 	}
@@ -140,15 +147,26 @@ public class GuiExtender extends GuiContainer {
 	@Override
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2,
 			int par3) {
+		if (extender.isChannelsConfigChangedForGui()
+				|| invCheck != extender.getInvCheckSum()) {
+			refreshChannelButtons();
+			invCheck = extender.getInvCheckSum();
+			if (subGui instanceof SubGuiChannel) {
+				if (subGui != null)
+					subGui.onClose();
+				if (edit != null)
+					nextSubGui = new SubGuiChannel(edit, this);
+			}
+			PacketExtenderData.sendElements(extender, iplayer.player);
+		}
+
 		if (nextSubGui != null) {
 			subGui = nextSubGui;
 			if (subGui != null)
 				subGui.onOpen();
 			nextSubGui = null;
-			
 		}
-		
-		
+
 		// draw your Gui here, only thing you need to change is the path
 		int texture = mc.renderEngine
 				.getTexture("/ressources/art/gui/extender.png");
@@ -176,7 +194,6 @@ public class GuiExtender extends GuiContainer {
 		} else {
 			subGui.renderForeground();
 		}
-		
 
 	}
 
@@ -188,24 +205,21 @@ public class GuiExtender extends GuiContainer {
 		if (button instanceof ChannelButton) {
 			ChannelButton cbutton = (ChannelButton) button;
 			int idx = cbutton.getIdx();
-			
+
 			if (btnsChannelsIn.contains(button)) {
-				edit = extender.getChannelsIn().get(idx);	
+				edit = extender.getChannelsIn().get(idx);
 			} else {
 				edit = extender.getChannelsOut().get(idx);
 			}
 			setSubGui(new SubGuiChannel(edit, this));
 			refreshChannelButtons();
-			
+
 		} else {
-			
-			
-			
+
 			if (subGui != null)
 				subGui.actionPerformed(button);
 		}
-		
-		
+
 	}
 
 	public SubGui getSubGui() {
@@ -216,28 +230,18 @@ public class GuiExtender extends GuiContainer {
 		if (subGui != this.subGui) {
 			if (this.subGui != null)
 				this.subGui.onClose();
-			
 		}
 		this.nextSubGui = subGui;
 	}
-	
-	
+
 	@Override
 	public void onGuiClosed() {
 		super.onGuiClosed();
 	}
-	
-	
-	
-
-
 
 	private void updateContent() {
-	
-		
+
 	}
-
-
 
 	public void invokeServerUpdate() {
 		PacketExtenderData.sendElements(extender, iplayer.player);

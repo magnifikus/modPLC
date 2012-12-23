@@ -16,7 +16,7 @@ public class Pulse extends CircuitElement {
 		name = "Pulse Generator";
 	}
 	public static String getDisplayName() {
-		return "Pulse (Sends a single Pulse on Signal)";
+		return "Pulse (Sends a single Pulse on Signal) [P]";
 	}
 	public static int getDisplayTextureId() {
 		return 226;

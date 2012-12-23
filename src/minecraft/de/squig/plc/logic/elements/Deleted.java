@@ -12,7 +12,7 @@ public class Deleted extends CircuitElement {
 		name = "I AM DELETED";
 	}
 	public static String getDisplayName() {
-		return "Delete this element";
+		return "Delete this element [BACKSPACE]";
 	}
 	public static int getDisplayTextureId() {
 		return 240;

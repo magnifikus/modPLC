@@ -19,7 +19,7 @@ public class Output extends CircuitElement {
 		setDisplayLink(true);
 	}
 	public static String getDisplayName() {
-		return "Output (Signal to Extenders)";
+		return "Output (Signal to Extenders) [O]";
 	}
 	public static int getDisplayTextureId() {
 		return 225;

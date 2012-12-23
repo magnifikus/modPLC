@@ -40,7 +40,7 @@ public class Line extends CircuitElement  {
 	}
 	
 	public static String getDisplayName() {
-		return "Line (Connects things)";
+		return "Line (Connects things) [SPACE]";
 	}
 	public static int getDisplayTextureId() {
 		return 231;

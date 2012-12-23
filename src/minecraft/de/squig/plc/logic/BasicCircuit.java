@@ -17,13 +17,13 @@ public class BasicCircuit extends Circuit {
 		for (short i=0; i < 16; i++) {
 			addCircuitObject(new LogicInput(this, i));
 		}
-		for (short i=0; i < 8; i++) {
+		for (short i=0; i < 12; i++) {
 			addCircuitObject(new LogicOutput(this, i));
 		}
 		for (short i=0; i < 16; i++) {
 			addCircuitObject(new LogicMemory(this, i));
 		}
-		for (short i=0; i < 8; i++) {
+		for (short i=0; i < 4; i++) {
 			addCircuitObject(new LogicTimer(this, i));
 		}
 		for (short i=0; i < 8; i++) {
@@ -33,16 +33,6 @@ public class BasicCircuit extends Circuit {
 			addCircuitObject(new LogicDelay(this, i));
 		}
 		
-		//Input input1 = new Input(this, 0, 0);
-		//map.addElement(input1, -1, -1);
-		
-		
-		
-		
 	}
-
-	
-	
-	
 	
 }

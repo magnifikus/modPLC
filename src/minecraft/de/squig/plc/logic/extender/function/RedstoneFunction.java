@@ -52,6 +52,9 @@ public class RedstoneFunction extends ExtenderFunction {
 		channel.setFunctionLocalData(Signal.OFF);
 		if (channel.getType().equals(ExtenderChannel.TYPES.OUTPUT))
 			channel.getExtender().requestUpdateFromController();
+		else {
+			channel.getExtender().checkRedstonePower();
+		}
 		
 	}
 

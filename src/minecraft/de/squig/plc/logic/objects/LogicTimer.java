@@ -34,9 +34,16 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 		add(Long.class); // pauseTime
 		add(Long.class); // duration
 	}};
+	public static List<Boolean> dataStatics = new ArrayList<Boolean>() {{
+		add(false);
+		add(false);
+		add(false);
+		add(true);
+	}};
+	
 	
 	private static List<GuiFunction> guiFunctions = new ArrayList<GuiFunction>() {{
-		add(new GuiFunctionTime((short)dataMap.TIME_DURATION.ordinal(), "Interval",4, -1));
+		add(new GuiFunctionTime((short)dataMap.TIME_DURATION.ordinal(), "Interval",2, 32767));
 	}};
 
 	private enum dataMap {TIME_BASE, PAUSE, TIME_PAUSE, TIME_DURATION};
@@ -50,7 +57,7 @@ public class LogicTimer extends CircuitObject implements ICircuitObjectInputPinL
 	
 
 	public LogicTimer(Circuit circuit, short linkNumber) {
-		super(circuit,dataTypes);
+		super(circuit,dataTypes,dataStatics);
 		addOutputPin(out);
 		addInputPin(inStop);
 		addInputPin(inReset);

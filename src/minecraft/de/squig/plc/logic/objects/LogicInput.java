@@ -14,7 +14,7 @@ public class LogicInput extends CircuitObject {
 	protected CircuitObjectOutputPin out;
 	
 	public LogicInput(Circuit circuit, short linkNumber) {
-		super(circuit,null);
+		super(circuit,null,null);
 		out = new CircuitObjectOutputPin(this,"Input");
 		addOutputPin(out);
 		setLinkNumber(linkNumber);

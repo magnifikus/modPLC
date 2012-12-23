@@ -25,6 +25,7 @@ public class GuiInfoscreen {
 
 	private FontRenderer fontRenderer;
 	private int x, y, width, height;
+	private boolean LinkNmbr = false;
 
 	public GuiInfoscreen(GuiController guiController, CircuitElement element) {
 		this.guiController = guiController;
@@ -37,6 +38,7 @@ public class GuiInfoscreen {
 		int xx = 0;
 		short id = 0;
 		if (element == null || element instanceof Deleted) {
+			
 			for (Class ele : CircuitElement.getElements()) {
 				if (ele != null && ele != Deleted.class) {
 					try {
@@ -56,6 +58,7 @@ public class GuiInfoscreen {
 			}
 		} else {
 			if (element != null && !(element instanceof Deleted)) {
+				LinkNmbr = element.getLinkNumber() != null && !element.getLinkNumber().equals("");
 				TextureButton btn = new TextureButton(0, x + 133, y + 10, 240,
 						false, "Delete this Element",-1);
 				controlls.add(btn);
@@ -103,9 +106,23 @@ public class GuiInfoscreen {
 
 	public void drawForeground(int i, int j) {
 		CircuitElement element = guiController.getSelectedElement();
-		if (element != null && !(element instanceof Deleted))
-			fontRenderer
-					.drawString(element.getName(), x + 10, y + 10, 0x000000);
+		if (element != null && !(element instanceof Deleted)) {
+			fontRenderer.drawString(element.getName(), x + 10, y + 10, 0x000000);
+			if (LinkNmbr) {
+				fontRenderer.drawString("Link: "+element.getLinkNumber(), x + 80, y + 10, 0x000000);
+			 if (i >= x+80 && i < x+115)
+		        	if (j >= y+10&& j < y+20) {
+		        		int width = guiController.getFontRenderer().getStringWidth("Press 0-9 to change a Linked Logic");
+		        		int xx = this.guiController.infoX+55 +3;
+		        		int yy = this.y -12;
+		        		int xcorr = 0;
+		        		if (xx+width > 450)
+		        			xx = xx+(450-(xx+width));
+		        		guiController.drawGradientRect(xx-2+xcorr,yy-2, xx+width+2+xcorr, yy+8+2, 0xc0000000, 0xf0000000);
+		        		guiController.getFontRenderer().drawString("Press 0-9 to change a Linked Logic", xx+xcorr,yy, 0xffffff);
+		        	}
+			}
+		}
 		else {
 			fontRenderer.drawString("Insert an Element:", x + 10, y + 10,
 					0x000000);
@@ -156,11 +173,13 @@ public class GuiInfoscreen {
 				int id = ((TextureButton) btn).getId();
 				if (id == -1) {
 					guiController.tryConvert(Deleted.class, element);	
+					guiController.refreshInfoScreen();
 				} else if (id == -2) {
 					element.functionCycle();
 				}
 				else if (element == null || element instanceof Deleted) {
 					guiController.tryConvert(CircuitElement.getElements()[id], element);	
+					guiController.refreshInfoScreen();
 				} else {
 					element.setFunction(ElementFunction.getById(id));
 					guiController.sendUpdate(false);

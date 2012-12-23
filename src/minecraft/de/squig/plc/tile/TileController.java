@@ -42,7 +42,6 @@ public class TileController extends TilePLC {
 	public TileController() {
 		super(PLCEvent.TARGETTYPE.CONTROLLER);
 		circuit = new BasicCircuit(this);
-
 	}
 
 	@Override
@@ -107,7 +106,6 @@ public class TileController extends TilePLC {
 
 	public void readFromNBT(NBTTagCompound nbtTagCompound) {
 		super.readFromNBT(nbtTagCompound);
-		LogHelper.info("readFromNBT called");
 
 		if (nbtTagCompound.hasKey("name"))
 			controllerName = nbtTagCompound.getString("name");
@@ -138,7 +136,7 @@ public class TileController extends TilePLC {
 
 	public void writeToNBT(NBTTagCompound nbtTagCompound) {
 		super.writeToNBT(nbtTagCompound);
-		LogHelper.info("writeToNBT called");
+		
 
 		nbtTagCompound.setString("name", controllerName);
 		try {

@@ -17,6 +17,7 @@ import de.squig.plc.logic.elements.CircuitElementNetworkData;
 import de.squig.plc.logic.elements.Deleted;
 import de.squig.plc.logic.elements.Line;
 import de.squig.plc.logic.objects.CircuitObject;
+import de.squig.plc.logic.objects.CircuitObjectData;
 import de.squig.plc.logic.objects.CircuitObjectNetworkData;
 import de.squig.plc.logic.simulator.CircuitSimulator;
 import de.squig.plc.tile.TileController;
@@ -28,31 +29,26 @@ public abstract class Circuit implements Serializable, ITickNotified {
 
 	protected TileController controller;
 	protected CircuitSimulator simulator;
-	
-	
-	
+
 	protected List<CircuitElement> simulationList = null;
 	protected List<Object> commitList = null;
 	protected List<CircuitObject> watchList = null;
-	
-	
 
 	protected boolean evaluated = false;
-	
+
 	protected boolean gotUpdatedForSimulator = true;
 	protected boolean needsSimulation = true;
 	protected long needsSimInTick = -1;
 	protected long simulationTime = -1;
-	
 
 	public Circuit(TileController controller, int width, int height) {
 		map = new CircuitMap(width, height);
 		objects = new ArrayList<CircuitObject>();
 		this.controller = controller;
-		
+
 		Side side = FMLCommonHandler.instance().getEffectiveSide();
 		if (side == Side.SERVER) {
-			//TickHandler.getInstance().addListener(this);
+			// TickHandler.getInstance().addListener(this);
 			simulator = new CircuitSimulator(this);
 		}
 	}
@@ -97,7 +93,6 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		return objects;
 	}
 
-
 	public void saveElementsTo(DataOutputStream data, boolean all)
 			throws IOException {
 		List<CircuitElement> elements;
@@ -121,14 +116,15 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		}
 		data.writeShort(tosave.size());
 		for (CircuitObject obj : tosave) {
-			obj.saveTo(data);
+			obj.saveTo(data, all);
 		}
-		
+
 	}
 
 	public void saveStateTo(DataOutputStream data) throws IOException {
 
 	}
+
 	public void injectState(CircuitStateNetworkData netState) {
 
 	}
@@ -150,14 +146,14 @@ public abstract class Circuit implements Serializable, ITickNotified {
 			getMap().addElement(element, -1, -1, false);
 			toFire.add(element);
 		}
-		
+
 		for (CircuitElement ele : toFire) {
 			ele.afterLoad();
 			if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
 				ele.setChanged(true);
 			}
 		}
-		
+
 		if (FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
 			for (CircuitElement element : getMap().getAllElement()) {
 				if (element instanceof Line) {
@@ -174,28 +170,43 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		for (CircuitObjectNetworkData cond : objects) {
 			CircuitObject obj = getByType(cond.getTypeID(), cond.getLinkName());
 			obj.setFlags(cond.getFlags());
-			obj.setObjData(cond.getData());
+			if (cond.getData() != null) {
+				if (!cond.getData().isTransmitNonStatic()
+						|| cond.getData().isTransmitStatic()) {
+					CircuitObjectData dd = cond.getData();
+					CircuitObjectData ds = obj.getObjData();
+					int i = 0;
+					for (Object ob : ds.getData()) {
+						boolean isStatic = ds.getStatics().get(i);
+						if ((isStatic && !dd.isTransmitStatic())
+								|| (!isStatic && !dd.isTransmitNonStatic())) {
+						} else {
+							ds.set(i, dd.get(i));
+						}
+						i++;
+					}
+				} else
+					obj.setObjData(cond.getData());
+			} else obj.setObjData(null);
 			obj.setChanged(true);
 		}
 	}
 
-
 	public void savePoweredTo(DataOutputStream data) throws IOException {
 		String injmap = "";
-		data.writeInt(map.width*map.height);
+		data.writeInt(map.width * map.height);
 		for (int y = 0; y < map.height; y++) {
 			for (int x = 0; x < map.width; x++) {
-				CircuitElement ele = map.getElementAt(x, y); 
+				CircuitElement ele = map.getElementAt(x, y);
 				if (ele != null && !(ele instanceof Deleted)) {
 					data.writeBoolean(ele.isPowered());
-					injmap += ""+ele.isPowered();
-				}
-				else {
+					injmap += "" + ele.isPowered();
+				} else {
 					data.writeBoolean(false);
 				}
 			}
 		}
-		//LogHelper.info(injmap);
+		// LogHelper.info(injmap);
 	}
 
 	public void injectPowered(PoweredMapNetworkData netPowered) {
@@ -203,16 +214,15 @@ public abstract class Circuit implements Serializable, ITickNotified {
 		String injmap = "";
 		for (int y = 0; y < map.height; y++)
 			for (int x = 0; x < map.width; x++) {
-				CircuitElement ele = map.getElementAt(x, y); 
+				CircuitElement ele = map.getElementAt(x, y);
 				if (ele != null && !(ele instanceof Deleted)) {
 					ele.setPowered(netPowered.getMap().get(i));
 
-					injmap += ""+ele.isPowered();
+					injmap += "" + ele.isPowered();
 				}
 				i += 1;
 			}
-	
-		
+
 	}
 
 	public static List<CircuitElementNetworkData> loadElementsFrom(
@@ -248,7 +258,7 @@ public abstract class Circuit implements Serializable, ITickNotified {
 			map.add(data.readBoolean());
 		}
 		return new PoweredMapNetworkData(size, map);
-		
+
 	}
 
 	public TileController getController() {

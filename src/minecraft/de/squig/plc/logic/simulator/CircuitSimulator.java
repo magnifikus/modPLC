@@ -46,7 +46,8 @@ public class CircuitSimulator {
 		calcNextSimulationTick();
 
 		long took = System.nanoTime() - start;
-		LogHelper.info("CircuitSimulator "+circuit.getController().getControllerName()+" tick=" + tick + " took " + took
+		if (took > 1000000)
+			LogHelper.info("CircuitSimulator "+circuit.getController().getControllerName()+" tick=" + tick + " took " + took
 				+ " nanos");
 	}
 

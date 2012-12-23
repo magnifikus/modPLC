@@ -24,6 +24,15 @@ public class LogicCounter extends CircuitObject implements
 		}
 	};
 
+	public static List<Boolean> dataStatics = new ArrayList<Boolean>() {{
+		add(false);
+		add(true);
+		add(true);
+		add(true);
+		add(true);
+		add(true);
+	}};
+	
 	private static List<GuiFunction> guiFunctions = new ArrayList<GuiFunction>() {
 		{
 			add(new GuiFunctionIntDisplay((short) dataMap.VALUE.ordinal(), "Counter Value"));
@@ -60,7 +69,7 @@ public class LogicCounter extends CircuitObject implements
 			"Stop Counting");
 
 	public LogicCounter(Circuit circuit, short linkNumber) {
-		super(circuit, dataTypes);
+		super(circuit, dataTypes, dataStatics);
 		addOutputPin(outTop);
 		addOutputPin(outMid);
 		addOutputPin(outBottom);
@@ -176,6 +185,7 @@ public class LogicCounter extends CircuitObject implements
 				outTop.onSignal(Signal.ON);
 			else outTop.onSignal(Signal.OFF);
 			setChanged(true);
+			//LogHelper.info("new counter value: "+getValue());
 		}
 	}
 

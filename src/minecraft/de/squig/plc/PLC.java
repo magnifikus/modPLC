@@ -1,6 +1,8 @@
 package de.squig.plc;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Mod;
@@ -23,6 +25,11 @@ import de.squig.plc.blocks.ExtenderBasic;
 import de.squig.plc.event.NetworkBroker;
 import de.squig.plc.handlers.PacketHandler;
 import de.squig.plc.handlers.TickHandler;
+import de.squig.plc.item.ItemDopedGold;
+import de.squig.plc.item.ItemDopedIron;
+import de.squig.plc.item.ItemInterface;
+import de.squig.plc.item.ItemInterfaceBuildcraft;
+import de.squig.plc.item.ItemInterfaceRedstone;
 import de.squig.plc.lib.StaticData;
 import de.squig.plc.logic.elements.CircuitElement;
 import de.squig.plc.logic.elements.Counter;
@@ -53,6 +60,12 @@ public class PLC {
 	public static Block controller = null;
 	public static Block extenderBasic = null;
 	
+	public static Item dopedIron = null;
+	public static Item dopedGold = null;
+	public static Item interfaceCard = null;
+	public static Item interfaceRedstone = null;
+	public static Item interfaceBuildcraft = null;
+	
 	private NetworkBroker networkBroker = new NetworkBroker();
 	
 	
@@ -73,12 +86,23 @@ public class PLC {
 		StaticData.BlockController = config.getBlock("controller", 500).getInt();
 		StaticData.BlockExtender = config.getBlock("extender", 501).getInt();
 		StaticData.SimulatorDelay = config.get("simulator", "delay",5, "how often the simulator will run (5 means ever 5 ticks)").getInt();
+		StaticData.ItemDopedIron = config.getItem("dopedIron", 1900).getInt();
+		StaticData.ItemDopedGold = config.getItem("dopedGold", 1901).getInt();
+		StaticData.ItemInterface = config.getItem("interface", 1902).getInt();
+		StaticData.ItemInterfaceRedstone = config.getItem("interfaceRedstone", 1903).getInt();
+		StaticData.ItemInterfaceBuildcraft = config.getItem("interfaceBuildcraft", 1904).getInt();
+		
 		config.save();
 		
 		
 		controller = new Controller(StaticData.BlockController);
 		extenderBasic = new ExtenderBasic(StaticData.BlockExtender);
 		
+		dopedIron = new ItemDopedIron(StaticData.ItemDopedIron).setItemName("DopedIronIngot").setIconIndex(0);
+		dopedGold = new ItemDopedGold(StaticData.ItemDopedGold).setItemName("DopedGoldIngot").setIconIndex(1);
+		interfaceCard = new ItemInterface(StaticData.ItemInterface).setItemName("Interface").setIconIndex(2);
+		interfaceRedstone = new ItemInterfaceRedstone(StaticData.ItemInterfaceRedstone).setItemName("RedstoneInterface").setIconIndex(3);
+		interfaceBuildcraft = new ItemInterfaceBuildcraft(StaticData.ItemInterfaceBuildcraft).setItemName("BuildcraftInterface").setIconIndex(6);
 		
 		CircuitElement.addCircuitElementType(0, Deleted.class);
 		CircuitElement.addCircuitElementType(1, Line.class);
@@ -91,12 +115,12 @@ public class PLC {
 		CircuitElement.addCircuitElementType(102, Timer.class);
 		CircuitElement.addCircuitElementType(103, Delay.class);
 		
-		CircuitObject.addCircuitObjectType(1, LogicInput.class, null);
-		CircuitObject.addCircuitObjectType(2, LogicOutput.class, null);
-		CircuitObject.addCircuitObjectType(3, LogicMemory.class, null);
-		CircuitObject.addCircuitObjectType(10, LogicDelay.class, LogicDelay.dataTypes);
-		CircuitObject.addCircuitObjectType(11, LogicTimer.class, LogicTimer.dataTypes);
-		CircuitObject.addCircuitObjectType(12, LogicCounter.class, LogicCounter.dataTypes);
+		CircuitObject.addCircuitObjectType(1, LogicInput.class, null,null);
+		CircuitObject.addCircuitObjectType(2, LogicOutput.class, null,null);
+		CircuitObject.addCircuitObjectType(3, LogicMemory.class, null,null);
+		CircuitObject.addCircuitObjectType(10, LogicDelay.class, LogicDelay.dataTypes, LogicDelay.dataStatics);
+		CircuitObject.addCircuitObjectType(11, LogicTimer.class, LogicTimer.dataTypes, LogicTimer.dataStatics);
+		CircuitObject.addCircuitObjectType(12, LogicCounter.class, LogicCounter.dataTypes, LogicCounter.dataStatics);
 		
 		
 		
@@ -119,6 +143,36 @@ public class PLC {
 		MinecraftForge.setBlockHarvestLevel(extenderBasic, "pickaxe", 3);
 		GameRegistry.registerBlock(extenderBasic);
 			
+		
+		LanguageRegistry.addName(dopedIron,"Doped Iron Ingot");
+		LanguageRegistry.addName(dopedGold,"Doped Gold Ingot");
+		LanguageRegistry.addName(interfaceCard,"Blank Interface Card");
+		LanguageRegistry.addName(interfaceRedstone,"Redstone Interface");
+		LanguageRegistry.addName(interfaceBuildcraft,"Buildcraft Interface");
+		
+		GameRegistry.addRecipe(new ItemStack(dopedIron,1), new Object[] {
+			" R ","RIR"," R ",'R', Item.redstone,'I',Item.ingotIron
+		});
+		GameRegistry.addRecipe(new ItemStack(dopedGold,1), new Object[] {
+			" D ","DGD"," D ",'D', Item.lightStoneDust,'G',Item.ingotGold
+		});
+		
+		GameRegistry.addRecipe(new ItemStack(controller,1), new Object[] {
+			"IGW","IGL","IGW",'G', dopedGold,'I',dopedIron,'W', Block.planks,'L', Block.glass
+		});
+		GameRegistry.addRecipe(new ItemStack(extenderBasic,1), new Object[] {
+			"WWF","IIF","WWF",'I',dopedIron,'W',Block.planks,'F', interfaceCard
+		});
+		
+		GameRegistry.addRecipe(new ItemStack(interfaceCard,3), new Object[] {
+			"   ","WWW","P  ",'W', Block.planks,  'P', Item.paper
+		});
+		
+		GameRegistry.addRecipe(new ItemStack(interfaceRedstone,1), new Object[] {
+			" R "," I "," C ",'R',Item.redstone,'I',dopedIron,'C', interfaceCard
+		});
+		
+		
 		// trying to load bc3 int
 		
 		try

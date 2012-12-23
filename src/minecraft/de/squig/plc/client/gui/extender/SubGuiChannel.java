@@ -39,7 +39,6 @@ public class SubGuiChannel implements SubGui {
 	public void onClose() {
 		if (subGui != null)
 			subGui.onClose();
-		
 		for (TextButton btn : btnsFunct)
 			guiExtender.removeControl(btn);
 		btnsFunct.clear();
@@ -52,11 +51,12 @@ public class SubGuiChannel implements SubGui {
 		int x = 15;
 		int inc = 23;
 		
-		
 		for (ExtenderFunction fnct : ExtenderFunction.getAviavableFunction(channel)) {
-			TextButton btn = guiExtender.subTextButton(1,x,15,fnct.getDisplayName(),false); x += inc;
-			btnsFunct.add(btn);
-			guiExtender.addControl(btn);
+			if (channel.getExtender().hasInterfaceFor(fnct.getClass()) || channel.getFunction() == fnct) {
+				TextButton btn = guiExtender.subTextButton(1,x,15,fnct.getDisplayName(),false); x += inc;
+				btnsFunct.add(btn);
+				guiExtender.addControl(btn);
+			}
 			
 		}
 		
@@ -112,6 +112,10 @@ public class SubGuiChannel implements SubGui {
 		
 		if (subGui != null)
 			subGui.renderForeground();
+		else {
+			guiExtender.subDrawText("add Interfacecards", 15, 40, 0x000000);
+			guiExtender.subDrawText("if you miss functions",15, 52, 0x000000);
+		}
 	}
 
 

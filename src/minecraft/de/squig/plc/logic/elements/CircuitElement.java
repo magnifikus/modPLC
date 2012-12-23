@@ -13,6 +13,7 @@ import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.elements.functions.ElementFunction;
 import de.squig.plc.logic.elements.functions.IoType;
+import de.squig.plc.logic.helper.LogHelper;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.CircuitObjectInputPin;
 import de.squig.plc.logic.objects.CircuitObjectOutputPin;
@@ -88,6 +89,8 @@ public  class CircuitElement implements Serializable {
 		this(circuit, mapX, mapY);
 		this.defaultFunction = defaultFunction;
 		this.function = defaultFunction;
+		if (function != null)
+			this.iotype = defaultFunction.getIotype();
 		if (function != null && function.getTag() != null)
 			this.tags.add(function.getTag());
 	}
@@ -170,8 +173,11 @@ public  class CircuitElement implements Serializable {
 			} else if (function.getIotype() == IoType.OUTPUT) {
 				outputPin = null;
 				inputPin = linkedObject.getInputPin(function);
+			} else if (function.getIotype().equals(IoType.DUAL)) {
+				outputPin = linkedObject.getOutputPin(function);
+				inputPin = linkedObject.getInputPin(function);
 			}
-		} else {
+		}  else {
 			inputPin = null;
 			outputPin = null;
 		}
@@ -203,6 +209,9 @@ public  class CircuitElement implements Serializable {
 		if (function != null && function.getTag() != null)
 			tags.add(function.getTag());
 		this.function = function;
+		if (function != null)
+			this.iotype = function.getIotype();
+		else this.iotype = null;
 		onObjectChange();
 		validateNumber();
 		isChanged = true;
@@ -525,18 +534,22 @@ public  class CircuitElement implements Serializable {
 	}
 
 	public void simulate() {
-		
+		if (getInputPin() != null) {
+			getInputPin().onSignal(inSignal);
+		}
 		if (getOutputPin() != null) {
 			if (inverted) {
-				setSignal(inSignal.getLowerSignal(getOutputPin().getSignal().invert()));
+				if (IoType.DUAL.equals(getIotype())) 
+					setSignal(getOutputPin().getSignal().invert());
+				else setSignal(inSignal.getLowerSignal(getOutputPin().getSignal().invert()));
 			}
 			else {
-				setSignal(inSignal.getLowerSignal(getOutputPin().getSignal()));
+				if (IoType.DUAL.equals(getIotype())) 
+					setSignal(getOutputPin().getSignal());
+				else setSignal(inSignal.getLowerSignal(getOutputPin().getSignal()));
 			}
 		} else setSignal(inSignal);
-		if (getInputPin() != null) {
-			getInputPin().onSignal(getSignal());
-		}
+		
 	}
 
 	public byte[] getData() {

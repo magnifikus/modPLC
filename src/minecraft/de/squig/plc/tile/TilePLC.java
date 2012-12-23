@@ -33,38 +33,15 @@ public class TilePLC extends TileEntity {
 
 	public TilePLC( PLCEvent.TARGETTYPE targettype) {
 		this.targettype = targettype;
+		LogHelper.info("TilePLC");
 		
 	}
 	
-	public void onDestroy() {
-		PLC.instance.getNetworkBroker().removeEventListener(this);
-	}
 	
 	
 	@Override
 	public void updateEntity() {
-		if (!init && !isInvalid()) {
-			Side side = FMLCommonHandler.instance().getEffectiveSide();
-			
-			if (side.equals(Side.SERVER)) {
-				if (uuid == null)
-					uuid = UUID.randomUUID();
-
-				PLC.instance.getNetworkBroker().addEventListener(this);
-				initialize();
-			}
-		
-			if (side.equals(Side.CLIENT)) {
-				PacketPLCBasedata.requestDataFromServer(this);
-			}
-			
-			init = true;
-		}
-		
-		for (PacketPLCBasedata pkg : delayedBaseData) {
-			pkg.sendResponse(this);
-		}
-		delayedBaseData.clear();
+	
 		
 	}
 	
@@ -74,6 +51,7 @@ public class TilePLC extends TileEntity {
 		side = basedata.getSide();
 		PLC.instance.getNetworkBroker().addEventListener(this);
 		initialize();
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	
 	public PLCEvent.TARGETTYPE getTargettype() {
@@ -84,13 +62,53 @@ public class TilePLC extends TileEntity {
 	}
 	
 	@Override
+	public void validate() {
+		
+		super.validate();
+		LogHelper.info("validate "+worldObj.isRemote+" "+worldObj);
+		if (!init) {
+			LogHelper.info("validate : init");
+			Side side = FMLCommonHandler.instance().getEffectiveSide();
+			
+			if (side.equals(Side.SERVER)) {
+				if (uuid == null)
+					uuid = UUID.randomUUID();
+
+				PLC.instance.getNetworkBroker().addEventListener(this);
+				initialize();
+				
+				for (PacketPLCBasedata pkg : delayedBaseData) {
+					pkg.sendResponse(this);
+					}
+				delayedBaseData.clear();
+			}
+		
+			if (side.equals(Side.CLIENT)) {
+				PacketPLCBasedata.requestDataFromServer(this);
+			}
+			init = true;
+		}
+	}
+	
+	@Override
 	public void invalidate()
 	{
-		PLC.instance.getNetworkBroker().removeEventListener(this);
-		init = false;
+		
 		super.invalidate();
 	}
+	
+	@Override
+	public void onChunkUnload() {
+		PLC.instance.getNetworkBroker().removeEventListener(this);
+		init = false;	
+	}
 
+	public void onDestroy() {
+		PLC.instance.getNetworkBroker().removeEventListener(this);
+		init = false;
+	}
+	
+	
 
 
 	public byte getDirection() {
@@ -122,10 +140,7 @@ public class TilePLC extends TileEntity {
         	uuid = UUID.fromString(nbtTagCompound.getString("uuid"));
         if (nbtTagCompound.hasKey("side"))
         	side = nbtTagCompound.getShort("side");
-        
-        //direction = nbtTagCompound.getByte(Reference.TE_GEN_DIRECTION_NBT_TAG_LABEL);
-       // state = nbtTagCompound.getShort(Reference.TE_GEN_STATE_NBT_TAG_LABEL);
-        //owner = nbtTagCompound.getString(Reference.TE_GEN_OWNER_NBT_TAG_LABEL);
+ 
     }
 
     public void writeToNBT(NBTTagCompound nbtTagCompound) {
@@ -133,17 +148,12 @@ public class TilePLC extends TileEntity {
         if (uuid != null)
         	nbtTagCompound.setString("uuid", uuid.toString());
     	nbtTagCompound.setShort("side", side);
-        
-       // nbtTagCompound.setByte(Reference.TE_GEN_DIRECTION_NBT_TAG_LABEL, direction);
-      //  nbtTagCompound.setShort(Reference.TE_GEN_STATE_NBT_TAG_LABEL, state);
-      //  if(owner != null && owner != "") {
-      //  	nbtTagCompound.setString(Reference.TE_GEN_OWNER_NBT_TAG_LABEL, owner);
-     //   }
+
     }
 
 
 	public void onEvent(PLCEvent event) {
-		// TODO Auto-generated method stub
+	
 		
 	}
 

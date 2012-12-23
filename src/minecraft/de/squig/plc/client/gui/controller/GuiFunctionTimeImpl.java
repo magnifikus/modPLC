@@ -7,6 +7,7 @@ import de.squig.plc.client.gui.controlls.TouchButton;
 import de.squig.plc.logic.objects.CircuitObject;
 import de.squig.plc.logic.objects.LogicTimer;
 import de.squig.plc.logic.objects.guiFunctions.GuiFunction;
+import de.squig.plc.logic.objects.guiFunctions.GuiFunctionTime;
 
 public class GuiFunctionTimeImpl extends GuiFunctionImpl {
 	TouchButton btnDown1;
@@ -106,11 +107,12 @@ public class GuiFunctionTimeImpl extends GuiFunctionImpl {
 			} else if (btn.equals(btnDown4)) {
 				value -= 2000;
 			}
-			if (value < 10) {
-				value = 10;
+			GuiFunctionTime fnct = (GuiFunctionTime) guiFunction;
+			if (value < fnct.getMin()) {
+				value = fnct.getMin();
 			}
-			if (value > 2000000)
-				value = 1999999;
+			if (value > fnct.getMax())
+				value = fnct.getMax();
 			
 			circuitObject.getObjData().set(guiFunction.getIdx(),(Long)value);
 			if (circuitObject instanceof LogicTimer) {

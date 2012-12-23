@@ -32,7 +32,7 @@ public abstract class ExtenderFunction {
 			 functions = new ArrayList<ExtenderFunction>();
 			 functions.add (disabledFunction);
 			 functions.add (new RedstoneFunction());
-			 functions.add (new InventoryFunction());
+			 //functions.add (new InventoryFunction());
 			 functions.add (new BC3Function());
 			 
 		 }

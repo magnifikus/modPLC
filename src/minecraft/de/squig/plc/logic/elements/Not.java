@@ -15,7 +15,7 @@ public class Not extends CircuitElement {
 		name = "NOT (Inverter)";
 	}
 	public static String getDisplayName() {
-		return "Not Gate (Inverts a Signal)";
+		return "Not Gate (Inverts a Signal) [N]";
 	}
 	public static int getDisplayTextureId() {
 		return 227;

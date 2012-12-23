@@ -57,7 +57,7 @@ public class SubGuiFront implements SubGui {
 			onState(nextState);
 			nextState = null;
 		}
-		if (state.equals(State.connected)) {
+		if (State.connected.equals(state)) {
 		
 			guiExtender.subDrawText("Link: "+guiExtender.extender.getConnectedControllerName(), 15, 0, 0x000000);
 		
