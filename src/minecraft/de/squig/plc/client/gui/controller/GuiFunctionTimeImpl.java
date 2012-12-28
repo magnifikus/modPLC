@@ -87,7 +87,7 @@ public class GuiFunctionTimeImpl extends GuiFunctionImpl {
 		
 	}
 	@Override
-	public void actionPerformed (GuiButton btn) {
+	public boolean actionPerformed (GuiButton btn) {
 		if (controlls.contains(btn)) {
 			long value = (Long)circuitObject.getObjData().get(guiFunction.getIdx());
 			if (btn.equals(btnUp1)) {
@@ -120,7 +120,8 @@ public class GuiFunctionTimeImpl extends GuiFunctionImpl {
 			}
 			circuitObject.setChanged(true);
 			guiController.sendUpdate(false);
-			
+			return true;
 		}
+		return false;
 	}
 }

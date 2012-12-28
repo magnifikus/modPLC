@@ -57,6 +57,8 @@ public class GuiController extends GuiScreen {
 	protected int infoY = 0;
 	protected int infoHeight = 160;
 	protected int infoWidth =  160;
+	
+	private boolean redoInfo = true;
 			
 	
 	public GuiController(TileController controller) {
@@ -99,6 +101,13 @@ public class GuiController extends GuiScreen {
 			loadedName = controller.getControllerName();
 			txtName.setText(loadedName);
 		}
+		
+		if (redoInfo) {
+			redoInfo = false;
+			infoScreen.onClose();
+			infoScreen = new GuiInfoscreen(this, getSelectedElement());
+		}
+		
 			
 		displayTiles.clear();
 		
@@ -270,49 +279,10 @@ public class GuiController extends GuiScreen {
 			}
 		}
 		
-		/*
-		// draw buttons
-		this.drawTexturedModalRect(xStart, screenY, 64, 0, 32, 16);
-		this.drawTexturedModalRect(xStart+32, screenY, 64, 0, 32, 16);
-		this.drawTexturedModalRect(xStart+64, screenY, 64, 0, 32, 16);
 		
-		//this.drawTexturedModalRect(xStart+112, screenY+16+4, 64, 0, 32, 16);
-		
-		// draw lamp
-		
-		if (controller.getState().equals(TileController.STATES.ERROR))
-			this.drawTexturedModalRect(xStart+102, screenY+6, 128, 0, 5, 5);	
-		else if (controller.getState().equals(TileController.STATES.RUN))
-			this.drawTexturedModalRect(xStart+102, screenY+6, 128, 6, 5, 5);
-		else if (controller.getState().equals(TileController.STATES.EDIT))
-			this.drawTexturedModalRect(xStart+102, screenY+6, 133, 0, 5, 5);
-		else if (controller.getState().equals(TileController.STATES.STOP))
-			this.drawTexturedModalRect(xStart+102, screenY+6, 133, 0, 5, 5);
-		*/
 	}
 	
 	
-	public void updateInfoPanel() {
-		int startX = screenX + (screenCols+2)*16+4;
-		int startY = screenY + 34;
-		CircuitElement element = getSelectedElement();
-		
-		String name = "";
-		int y = startY+4;
-		if (element != null) {
-			this.fontRenderer.drawString("Type: "+element.getName(), startX+8, y += 10 , 0x000000);
-			if (element.getLinkedObject() != null) {
-				this.fontRenderer.drawString("Link to: "+element.getLinkedObject().getName(), startX+8, y += 10 , 0x000000);
-				this.fontRenderer.drawString("Link to Nr: "+element.getLinkedObject().getLinkNumber(), startX+8, y += 10 , 0x000000);
-			}
-			
-			if (element.getInputPin() != null)
-				this.fontRenderer.drawString("Input is: "+element.getInputPin().getName(), startX+8, y += 10 , 0x000000);
-			if (element.getOutputPin() != null)
-				this.fontRenderer.drawString("Output is: "+element.getOutputPin().getName(), startX+8, y += 10 , 0x000000);
-		}
-		
-	}
 
 	public void actionPerformed(GuiButton button) {
 		if (infoScreen != null)
@@ -381,46 +351,38 @@ public class GuiController extends GuiScreen {
 				if (cursorY > 0)
 					cursorY--;
 				checkScroll();
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
-
+				refreshInfoScreen();
 				break;
 			case 208:
 				if (cursorY < circuit.getMap().getHeight()-1)
 					cursorY++;
 				checkScroll();
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+				refreshInfoScreen();
 
 				break;
 			case 203:
 				if (cursorX > 0)
 					cursorX--;
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+				refreshInfoScreen();
 
 				break;
 			case 205:
 				if (cursorX < circuit.getMap().getWidth()-1)
 					cursorX++;
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+				refreshInfoScreen();
 				break;
 			case 57:
 				keySpaceEvent();
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+				refreshInfoScreen();
 
 				break;
 			case 14:
 				keyBackspaceEvent();
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+				refreshInfoScreen();
 				break;
 			case 42:
 				keyShiftEvent();
-				infoScreen.onClose();
-				infoScreen = new GuiInfoscreen(this, getSelectedElement());
+				refreshInfoScreen();
 
 				break;
 			default:
@@ -469,8 +431,7 @@ public class GuiController extends GuiScreen {
 				return false;
 		}
 		
-		infoScreen.onClose();
-		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+		refreshInfoScreen();
 
 		return true;
 	}
@@ -535,8 +496,7 @@ public class GuiController extends GuiScreen {
 			element.functionCycle();
 		}
 		sendUpdate(false);
-		infoScreen.onClose();
-		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+		refreshInfoScreen();
 	}
 	
 
@@ -546,8 +506,7 @@ public class GuiController extends GuiScreen {
 			element.tryInvert();
 		}
 		sendUpdate(false);
-		infoScreen.onClose();
-		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+		refreshInfoScreen();
 	}
 	
 	private void keyBackspaceEvent() {
@@ -559,8 +518,7 @@ public class GuiController extends GuiScreen {
 			sendUpdate(false);
 			circuit.getMap().removeElement(del);
 		}
-		infoScreen.onClose();
-		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+		refreshInfoScreen();
 	}
 	
 	protected void sendUpdate(boolean all) {
@@ -568,8 +526,7 @@ public class GuiController extends GuiScreen {
 	}
 	
 	protected void refreshInfoScreen() {
-		infoScreen.onClose();
-		infoScreen = new GuiInfoscreen(this, getSelectedElement());
+		redoInfo = true;
 	}
 	private void checkScroll() {
 		
@@ -588,35 +545,5 @@ public class GuiController extends GuiScreen {
 		super.drawGradientRect(par1, par2, par3, par4, par5, par6);
 	}
 	
-	/*
-	 * protected void drawGuiContainerForegroundLayer() {
-	 * this.fontRenderer.drawString
-	 * (LanguageRegistry.instance().getStringLocalization("Controller"), 60, 6,
-	 * 4210752); this.fontRenderer.drawString(StatCollector.translateToLocal(
-	 * "container.inventory"), 8, this.height - 96 + 2, 4210752); }
-	 * 
-	 * protected void drawGuiContainerBackgroundLayer(float par1, int par2, int
-	 * par3) {
-	 * 
-	 * 
-	 * int var4 =
-	 * this.mc.renderEngine.getTexture("/ressources/art/gui/controller.png");
-	 * GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-	 * this.mc.renderEngine.bindTexture(var4); int var5 = (this.width -
-	 * this.width) / 2; int var6 = (this.height - this.height) / 2;
-	 * this.drawTexturedModalRect(var5, var6, 0, 0, this.width, this.height);
-	 * int var7;
-	 * 
-	 * /* This bit shows the "fire" effect in the GUI if
-	 * (this.furnaceInventory.isBurning()) { var7 =
-	 * this.furnaceInventory.getBurnTimeRemainingScaled(12);
-	 * this.drawTexturedModalRect(var5 + 56, var6 + 36 + 12 - var7, 176, 12 -
-	 * var7, 14, var7 + 2); }
-	 * 
-	 * This bit shows the progress bar in the GUI var7 =
-	 * this.furnaceInventory.getCookProgressScaled(24);
-	 * this.drawTexturedModalRect(var5 + 79, var6 + 34, 176, 14, var7 + 1, 16);
-	 */
-	// }
 
 }

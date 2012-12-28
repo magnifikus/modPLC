@@ -41,8 +41,8 @@ public class GuiFunctionImpl {
 	public void drawBackground() {
 		
 	}
-	public void actionPerformed (GuiButton btn) {
-		
+	public boolean actionPerformed (GuiButton btn) {
+		return false;
 	}
 	
 }

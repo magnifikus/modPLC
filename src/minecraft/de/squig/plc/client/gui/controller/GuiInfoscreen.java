@@ -165,7 +165,7 @@ public class GuiInfoscreen {
 	}
 	
 	
-	public void onActionPerformed(GuiButton btn) {
+	public boolean onActionPerformed(GuiButton btn) {
 		
 		if (controlls.contains(btn)) {
 			CircuitElement element = guiController.getSelectedElement();
@@ -174,23 +174,30 @@ public class GuiInfoscreen {
 				if (id == -1) {
 					guiController.tryConvert(Deleted.class, element);	
 					guiController.refreshInfoScreen();
+					return true;
 				} else if (id == -2) {
 					element.functionCycle();
+					return true;
 				}
 				else if (element == null || element instanceof Deleted) {
 					guiController.tryConvert(CircuitElement.getElements()[id], element);	
 					guiController.refreshInfoScreen();
+					return true;
 				} else {
 					element.setFunction(ElementFunction.getById(id));
 					guiController.sendUpdate(false);
 					guiController.refreshInfoScreen();
+					return true;
 				}
 			}
 		} else {
-			for (GuiFunctionImpl fnct : guiFunctions)
-				fnct.actionPerformed(btn);
+			for (GuiFunctionImpl fnct : guiFunctions) {
+				if (fnct.actionPerformed(btn))
+					return true;
+			}
 
 		}
+		return false;
 	}
 
 	public void onClose() {

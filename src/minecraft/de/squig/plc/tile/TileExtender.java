@@ -36,16 +36,13 @@ import de.squig.plc.event.SearchEvent;
 import de.squig.plc.event.SearchResponseEvent;
 import de.squig.plc.event.SignalEvent;
 import de.squig.plc.event.payloads.ControllerDataPayload;
-import de.squig.plc.item.ItemInterfaceRedstone;
 import de.squig.plc.lib.StaticData;
 import de.squig.plc.logic.Signal;
 import de.squig.plc.logic.extender.ExtenderChannel;
 import de.squig.plc.logic.extender.ExtenderChannel.TYPES;
 import de.squig.plc.logic.extender.ExtenderChannelNetworkData;
-import de.squig.plc.logic.extender.function.ExtenderFunction;
 import de.squig.plc.logic.extender.function.RedstoneFunction;
 import de.squig.plc.logic.helper.LogHelper;
-import de.squig.plc.network.PacketExtenderData;
 import de.squig.plc.network.PacketExtenderLiteData;
 
 public class TileExtender extends TilePLC implements IInventory {

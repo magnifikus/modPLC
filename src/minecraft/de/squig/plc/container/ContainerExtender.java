@@ -5,10 +5,7 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.tileentity.TileEntityFurnace;
-import de.squig.plc.item.ItemInterfaceRedstone;
-import de.squig.plc.logic.helper.LogHelper;
+import de.squig.plc.item.ItemMulti;
 import de.squig.plc.tile.TileExtender;
 
 public class ContainerExtender extends Container {
@@ -44,7 +41,9 @@ public class ContainerExtender extends Container {
              if (slotObject != null && slotObject.getHasStack()) {
                      ItemStack stackInSlot = slotObject.getStack();
                      stack = stackInSlot.copy();
-                     if (stack != null && !(stack.getItem() instanceof ItemInterfaceRedstone))
+                     if (stack != null && !(stack.getItem() instanceof ItemMulti)) 
+                    	 return null;
+                     if ((stack.getItemName() != null || stack.getItemName().startsWith("item.plcItem.Interface")))
                     	 return null;
                      //merges the item into player inventory since its in the tileEntity
                      //this assumes only 1 slot, for inventories with > 1 slots, check out the Chest Container.

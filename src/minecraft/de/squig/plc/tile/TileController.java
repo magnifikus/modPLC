@@ -17,6 +17,7 @@ import de.squig.plc.event.SearchEvent;
 import de.squig.plc.event.SearchResponseEvent;
 import de.squig.plc.event.SignalEvent;
 import de.squig.plc.event.payloads.ControllerDataPayload;
+import de.squig.plc.lib.StaticData;
 import de.squig.plc.logic.BasicCircuit;
 import de.squig.plc.logic.Circuit;
 import de.squig.plc.logic.elements.CircuitElementNetworkData;
@@ -80,7 +81,7 @@ public class TileController extends TilePLC {
 				int dz = zCoord - event.getSource().zCoord;
 				int dist = (int) Math.floor(Math.sqrt(dx * dx + dy * dy + dz
 						* dz));
-				if (range >= dist) {
+				if (StaticData.range < 0 || StaticData.range >= dist) {
 					SearchResponseEvent resp = new SearchResponseEvent(this,
 							event.getSource().getUuid(), dist, uuid,
 							controllerName, circuit.getByType(LogicInput.class)

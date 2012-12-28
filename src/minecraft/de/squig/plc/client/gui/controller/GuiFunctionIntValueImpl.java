@@ -67,7 +67,7 @@ public class GuiFunctionIntValueImpl extends GuiFunctionImpl {
 		
 	}
 	@Override
-	public void actionPerformed (GuiButton btn) {
+	public boolean actionPerformed (GuiButton btn) {
 		if (controlls.contains(btn)) {
 			short value = (Short)circuitObject.getObjData().get(guiFunction.getIdx());
 			if (btn.equals(btnUp1)) {
@@ -96,7 +96,9 @@ public class GuiFunctionIntValueImpl extends GuiFunctionImpl {
 			circuitObject.getObjData().set(guiFunction.getIdx(),(Short)value);
 			circuitObject.setChanged(true);
 			guiController.sendUpdate(false);
-			
+			return true;
 		}
+		return false;
 	}
+	
 }
